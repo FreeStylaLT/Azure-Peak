@@ -249,6 +249,10 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell)) //needed for th
 		to_chat(user, span_warning("I can't cast spells!"))
 		return FALSE
 
+	if(!get_location_accessible(src, BODY_ZONE_PRECISE_MOUTH, grabs="other"))
+		to_chat(src, span_warning("My mouth is blocked."))
+		return FALSE
+		
 	if(!antimagic_allowed)
 		var/antimagic = user.anti_magic_check(TRUE, FALSE, FALSE, 0, TRUE)
 		if(antimagic)

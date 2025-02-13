@@ -922,8 +922,10 @@
 
 /obj/item/clothing/head/roguetown/helmet/heavy/bucket/gold
 	name = "golden helmet"
-	icon_state = "topfhelm_gold"
-	item_state = "topfhelm_gold"
+	icon = 'icons/roguetown/clothing/special/crusader.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/crusader.dmi'
+	icon_state = "crusader_helm"
+	item_state = "crusader_helm"
 	desc = "A full-head covering helm with the engravings of Ravox. Bravery. Justice. Ever Unyielding."
 
 /obj/item/clothing/head/roguetown/helmet/heavy/bucket/ravox/attackby(obj/item/W, mob/living/user, params)

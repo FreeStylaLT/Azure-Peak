@@ -177,6 +177,8 @@
 	bleed_rate = get_bleed_rate() // expensive proc, but we zero it on bled-out mobs
 	if(HAS_TRAIT(src, TRAIT_ADRENALINE_RUSH))
 		bleed_rate = FALSE
+	if(has_status_effect(/datum/status_effect/debuff/surrender))
+		bleed_rate *= 0.5
 	if(bleed_rate)
 		bleed(bleed_rate) // bandage handling moved to bodypart.get_bleed_rate()
 

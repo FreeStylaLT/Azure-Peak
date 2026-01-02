@@ -102,7 +102,8 @@
 		if(ishuman(owner))
 			human_owner = owner
 		if(new_owner.has_status_effect(/datum/status_effect/debuff/surrender))
-			new_owner.remove_status_effect(/datum/status_effect/debuff/surrender)
+			if(new_owner.buckled?.sleepy)	//We're on a valid sleeping object
+				new_owner.remove_status_effect(/datum/status_effect/debuff/surrender)
 
 /datum/status_effect/incapacitating/sleeping/on_remove()
 	if(ishuman(owner))

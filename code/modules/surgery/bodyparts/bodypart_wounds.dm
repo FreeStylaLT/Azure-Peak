@@ -201,6 +201,8 @@
 /obj/item/bodypart/proc/try_crit(bclass = BCLASS_BLUNT, dam, mob/living/user, zone_precise = src.body_zone, silent = FALSE, crit_message = FALSE)
 	if(!bclass || !dam || (owner.status_flags & GODMODE))
 		return FALSE
+	if(owner.has_status_effect(/datum/status_effect/debuff/surrender) || user.has_status_effect(/datum/status_effect/debuff/surrender))
+		return FALSE
 	var/list/attempted_wounds = list()
 	var/used
 	var/total_dam = get_damage()

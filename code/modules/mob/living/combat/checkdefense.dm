@@ -10,6 +10,9 @@
 		return FALSE
 	if(!(mobility_flags & MOBILITY_MOVE))
 		return FALSE
+	if(has_status_effect(/datum/status_effect/debuff/surrender))
+		Knockdown(30)
+		return FALSE
 
 	if(client && used_intent)
 		if(client.charging && used_intent.tranged && !used_intent.tshield)

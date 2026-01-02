@@ -276,6 +276,8 @@
 	id = "surrender"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/surrender
 	duration = 8 MINUTES
+	mob_effect_icon_state = "eff_surrender"
+	mob_effect_layer = MOB_EFFECT_LAYER_SURRENDER
 	effectedstats = list(STATKEY_WIL = -5, STATKEY_STR = -5)
 
 /datum/status_effect/debuff/surrender/on_creation(mob/living/new_owner, ...)

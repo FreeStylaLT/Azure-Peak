@@ -1165,13 +1165,7 @@
 	Knockdown(300)
 	apply_status_effect(/datum/status_effect/debuff/breedable)
 	apply_status_effect(/datum/status_effect/debuff/submissive)
-	var/antag_found = FALSE
-	var/is_antag = (mind?.has_antag_datum(/datum/antagonist/lich) || mind?.has_antag_datum(/datum/antagonist/bandit) || mind?.has_antag_datum(/datum/antagonist/vampire) ||mind?.has_antag_datum(/datum/antagonist/wretch))
-	for(var/mob/living/carbon/human/H in get_hearers_in_view(2, src, RECURSIVE_CONTENTS_CLIENT_MOBS))
-		if(H.mind?.has_antag_datum(/datum/antagonist/lich) || H.mind?.has_antag_datum(/datum/antagonist/bandit) || H.mind?.has_antag_datum(/datum/antagonist/vampire) || H.mind?.has_antag_datum(/datum/antagonist/wretch))
-			antag_found = TRUE
-	if(antag_found || is_antag)
-		apply_status_effect(/datum/status_effect/debuff/surrender)
+	apply_status_effect(/datum/status_effect/debuff/surrender)
 	src.visible_message(span_notice("[src] yields!"))
 	playsound(src, 'sound/misc/surrender.ogg', 100, FALSE, -1, ignore_walls=TRUE)
 	update_vision_cone()

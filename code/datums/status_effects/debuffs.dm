@@ -101,6 +101,8 @@
 			carbon_owner = owner
 		if(ishuman(owner))
 			human_owner = owner
+		if(new_owner.has_status_effect(/datum/status_effect/debuff/surrender))
+			new_owner.remove_status_effect(/datum/status_effect/debuff/surrender)
 
 /datum/status_effect/incapacitating/sleeping/on_remove()
 	if(ishuman(owner))

@@ -243,6 +243,10 @@
 	else
 		send_item_attack_message(I, user, affecting.name, affecting)
 
+	if(has_status_effect(/datum/status_effect/debuff/surrender) || user.has_status_effect(/datum/status_effect/debuff/surrender))
+		if(statforce)
+			return TRUE //We return if either one of us has the surrender effect and do not go through the dismember check
+
 	if(statforce)
 		I.remove_bintegrity(1)
 		var/probability = I.get_dismemberment_chance(affecting, user, useder)

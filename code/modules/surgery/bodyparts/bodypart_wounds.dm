@@ -149,6 +149,8 @@
 			do_crit = FALSE
 		if(owner.mind && (get_damage() <= (max_damage * CRIT_DISMEMBER_DAMAGE_THRESHOLD))) //No crits unless the damage is maxed out.
 			do_crit = FALSE // We used to check if they are buckled or lying down but being grounded is a big enough advantage.
+		if(human_owner.has_status_effect(/datum/status_effect/debuff/surrender) || user.has_status_effect(/datum/status_effect/debuff/surrender))
+			do_crit = FALSE
 	if(user)
 		if(user.goodluck(2))
 			dam += 10
@@ -200,8 +202,6 @@
 /// Behemoth of a proc used to apply a wound after a bodypart is damaged in an attack
 /obj/item/bodypart/proc/try_crit(bclass = BCLASS_BLUNT, dam, mob/living/user, zone_precise = src.body_zone, silent = FALSE, crit_message = FALSE)
 	if(!bclass || !dam || (owner.status_flags & GODMODE))
-		return FALSE
-	if(owner.has_status_effect(/datum/status_effect/debuff/surrender) || user.has_status_effect(/datum/status_effect/debuff/surrender))
 		return FALSE
 	var/list/attempted_wounds = list()
 	var/used

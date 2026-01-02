@@ -267,6 +267,25 @@
 	name = "Conformable"
 	desc = "Falling in line is my only choice."
 
+/atom/movable/screen/alert/status_effect/debuff/surrender
+	name = "Surrendered"
+	desc = "I hold no more danger to anyone around me."
+	icon_state = "surrender"
+
+/datum/status_effect/debuff/surrender
+	id = "surrender"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/surrender
+	duration = 8 MINUTES
+	effectedstats = list(STATKEY_WIL = -5, STATKEY_STR = -5)
+
+/datum/status_effect/debuff/surrender/on_creation(mob/living/new_owner, ...)
+	if(new_owner.STASTR > 10)
+		effectedstats[STATKEY_STR] = -(new_owner.STASTR - 5)
+	if(new_owner.STAWIL > 10)
+		effectedstats[STATKEY_WIL] = -(new_owner.STAWIL - 5)
+	. = ..()
+	
+
 /datum/status_effect/debuff/chilled
 	id = "chilled"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/chilled

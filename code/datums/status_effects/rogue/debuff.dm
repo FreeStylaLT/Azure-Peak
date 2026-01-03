@@ -269,7 +269,7 @@
 
 /atom/movable/screen/alert/status_effect/debuff/surrender
 	name = "Surrendered"
-	desc = "I hold no more danger to anyone around me."
+	desc = "I hold no more danger to anyone around me. Getting a proper rest on a bed will make me regain my confidence."
 	icon_state = "surrender"
 
 /datum/status_effect/debuff/surrender

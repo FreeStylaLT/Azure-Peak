@@ -281,8 +281,8 @@
 	effectedstats = list(STATKEY_WIL = -5, STATKEY_STR = -5)
 
 /datum/status_effect/debuff/surrender/on_creation(mob/living/new_owner, ...)
-	var/truestr = get_true_stat(STAT_STRENGTH)
-	var/truewil = get_true_stat(STAT_WILLPOWER)
+	var/truestr = new_owner.get_true_stat(STAT_STRENGTH)
+	var/truewil = new_owner.get_true_stat(STAT_WILLPOWER)
 	if(truestr > 10)
 		effectedstats[STATKEY_STR] = -(truestr - 5)
 	if(truewil > 10)

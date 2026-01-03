@@ -3070,6 +3070,10 @@
 	pixel_x = -6;
 	pixel_y = 6
 	},
+/obj/item/rogueweapon/huntingknife/stoneknife{
+	pixel_y = 12;
+	pixel_x = -16
+	},
 /turf/open/floor/rogue/twig,
 /area/rogue/druidsgrove)
 "aMv" = (
@@ -10062,7 +10066,7 @@
 /area/rogue/indoors/cave/underhamlet)
 "cAu" = (
 /obj/structure/flora/ausbushes/ppflowers,
-/obj/item/alch/mentha,
+/obj/structure/flora/roguegrass/herb/mentha,
 /turf/open/water/cleanshallow,
 /area/rogue/druidsgrove)
 "cAG" = (
@@ -28551,14 +28555,14 @@
 /turf/open/floor/rogue/cobble/mossy,
 /area/rogue/under/cave/his_vault)
 "hdm" = (
-/obj/structure/flora/roguegrass/bush/wall/tall{
-	pixel_y = 16
-	},
 /obj/effect/wisp/prestidigitation{
 	desc = "A small, fiery ball of light made up of mystical energy.";
 	name = "Will-o'-the-wisp";
 	pixel_x = 1;
 	pixel_y = -4
+	},
+/obj/structure/roguemachine/mail{
+	mailtag = "Druids grove"
 	},
 /turf/open/floor/rogue/grassyel,
 /area/rogue/druidsgrove)
@@ -29108,7 +29112,9 @@
 /turf/open/floor/rogue/ruinedwood/turned,
 /area/rogue/indoors/town)
 "hkD" = (
-/obj/structure/chair/bench/church/smallbench,
+/obj/structure/chair/bench/church/smallbench{
+	dir = 1
+	},
 /turf/open/floor/rogue/dirt,
 /area/rogue/druidsgrove)
 "hkF" = (
@@ -40536,6 +40542,7 @@
 "kbw" = (
 /obj/structure/closet/crate/chest/wicker,
 /obj/item/reagent_containers/glass/bucket,
+/obj/item/rogueweapon/shovel/small/crafted,
 /turf/open/floor/rogue/grassred,
 /area/rogue/druidsgrove)
 "kby" = (
@@ -40985,8 +40992,9 @@
 /obj/item/rogueweapon/huntingknife/stoneknife{
 	pixel_y = 15
 	},
-/obj/item/rogueweapon/surgery/saw/improv{
-	pixel_x = 5
+/obj/item/rogueweapon/mace/woodclub{
+	pixel_x = 3;
+	pixel_y = 0
 	},
 /turf/open/floor/rogue/cobblerock,
 /area/rogue/druidsgrove)
@@ -44071,7 +44079,7 @@
 /area/rogue/indoors/town)
 "kTI" = (
 /obj/structure/flora/ausbushes/ywflowers,
-/obj/item/alch/mentha,
+/obj/structure/flora/roguegrass/herb/mentha,
 /turf/open/floor/rogue/grass,
 /area/rogue/druidsgrove)
 "kTK" = (
@@ -75438,6 +75446,14 @@
 	},
 /turf/closed/wall/mineral/rogue/stone,
 /area/rogue/indoors/town/garrison)
+"sLC" = (
+/obj/structure/chair/bench/church/smallbench{
+	dir = 8;
+	name = "Steering Base";
+	pixel_x = -13
+	},
+/turf/open/floor/rogue/twig,
+/area/rogue/druidsgrove)
 "sLL" = (
 /obj/structure/fluff/walldeco/church/line{
 	dir = 8
@@ -84116,6 +84132,22 @@
 /obj/item/reagent_containers/food/snacks/rogue/meat/steak,
 /obj/item/reagent_containers/food/snacks/rogue/meat/steak,
 /obj/item/reagent_containers/food/snacks/rogue/meat/steak,
+/obj/item/reagent_containers/food/snacks/egg,
+/obj/item/reagent_containers/food/snacks/egg,
+/obj/item/reagent_containers/food/snacks/egg,
+/obj/item/reagent_containers/food/snacks/butter,
+/obj/item/kitchen/spoon,
+/obj/item/kitchen/spoon,
+/obj/item/kitchen/spoon,
+/obj/item/kitchen/fork,
+/obj/item/kitchen/fork,
+/obj/item/kitchen/fork,
+/obj/item/reagent_containers/glass/bowl,
+/obj/item/reagent_containers/glass/bowl,
+/obj/item/reagent_containers/glass/bowl,
+/obj/item/cooking/platter,
+/obj/item/cooking/platter,
+/obj/item/cooking/platter,
 /turf/open/floor/rogue/grassred,
 /area/rogue/druidsgrove)
 "uSl" = (
@@ -90376,13 +90408,8 @@
 /turf/open/floor/rogue/wood,
 /area/rogue/indoors/shelter)
 "wuw" = (
-/obj/structure/chair/bench/church/smallbench{
-	dir = 8;
-	name = "Steering Base";
-	pixel_x = 3;
-	pixel_y = -2
-	},
-/turf/open/floor/rogue/grass,
+/obj/structure/closet/crate/chest/wicker,
+/turf/open/floor/rogue/dirt,
 /area/rogue/druidsgrove)
 "wux" = (
 /obj/machinery/light/rogue/torchholder/c,
@@ -93241,13 +93268,13 @@
 /turf/open/floor/rogue/woodturned,
 /area/rogue/under/cave/goblinfort)
 "xeH" = (
-/obj/structure/chair/bench/church/smallbench{
-	dir = 8;
-	name = "Steering Base";
-	pixel_x = 1;
-	pixel_y = 1
+/obj/effect/wisp/prestidigitation{
+	desc = "A small, fiery ball of light made up of mystical energy.";
+	name = "Will-o'-the-wisp";
+	pixel_x = -11;
+	pixel_y = 3
 	},
-/turf/open/floor/rogue/grass,
+/turf/open/water/cleanshallow,
 /area/rogue/druidsgrove)
 "xeQ" = (
 /obj/structure/fluff/railing/corner,
@@ -222140,8 +222167,8 @@ mha
 sxW
 sxW
 kiW
-sxW
-hsf
+acH
+sLC
 tOq
 sxW
 sxW
@@ -228016,7 +228043,7 @@ kiW
 hsf
 mha
 eHt
-mha
+amk
 iYS
 kCO
 kCO
@@ -229827,7 +229854,7 @@ tOq
 mha
 sSs
 mha
-gVI
+wuw
 rLF
 gVI
 lnq
@@ -230733,7 +230760,7 @@ kiW
 aDx
 aDx
 aDx
-aDx
+xeH
 aDx
 aDx
 aDx
@@ -231167,9 +231194,9 @@ phl
 moy
 kiW
 iup
-wuw
-xeH
-xiM
+acH
+acH
+acH
 eMW
 sxW
 sxW
@@ -232975,9 +233002,9 @@ lKo
 wIm
 sxW
 sSs
-acH
-acH
-acH
+xiM
+xiM
+xiM
 sxW
 eMW
 nib
@@ -344188,7 +344215,7 @@ cgp
 cgp
 cgp
 cgp
-aBB
+cgp
 aBB
 aBB
 aBB
@@ -344640,7 +344667,7 @@ cgp
 cgp
 cgp
 cgp
-aBB
+cgp
 aBB
 aBB
 aBB
@@ -345091,8 +345118,8 @@ iUm
 cgp
 cgp
 cgp
-aBB
-aBB
+cgp
+cgp
 aBB
 aBB
 aBB
@@ -345541,9 +345568,9 @@ aBB
 aBB
 cgp
 cgp
-aBB
-aBB
-aBB
+cgp
+cgp
+cgp
 aBB
 aBB
 aBB
@@ -459446,7 +459473,7 @@ oGh
 mha
 jkm
 jkm
-amk
+jkm
 pvh
 pvh
 cgp

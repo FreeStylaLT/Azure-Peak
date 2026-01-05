@@ -731,6 +731,11 @@ GLOBAL_LIST_INIT(spells, typesof(/obj/effect/proc_holder/spell)) //needed for th
 	if(HAS_TRAIT(user, TRAIT_PARALYSIS) && !stat_allowed)
 		return FALSE
 
+	if(isliving(user))
+		var/mob/living/L = user
+		if(L.has_status_effect(/datum/status_effect/debuff/surrender))
+			return FALSE
+
 	return TRUE
 
 /obj/effect/proc_holder/spell/self //Targets only the caster. Good for buffs and heals, but probably not wise for fireballs (although they usually fireball themselves anyway, honke)

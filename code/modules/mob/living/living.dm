@@ -1154,6 +1154,10 @@
 	if(!instant)
 		if(alert(src, "Do you yield?", "SURRENDER", "Yes", "No") == "No")
 			return
+	if(mind)
+		if(mind.has_antag_datum(/datum/antagonist/skeleton) || mind.has_antag_datum(/datum/antagonist/werewolf))
+			to_chat(src, span_notice("There is no surrender to a monster like me."))
+			return
 	log_combat(src, null, "surrendered")
 	surrendering = 1
 	record_round_statistic(STATS_YIELDS)

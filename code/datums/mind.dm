@@ -55,11 +55,10 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	var/movemovemovetext = "Move!!"
 	var/takeaimtext = "Take aim!!"
 	var/holdtext = "Hold!!"
-	var/onfeettext = "On your feet!!"
 	var/retreattext = "Fall back!!"
+	var/chargetext = "Charge!!"
 	var/bolstertext = "Hold the line!!"
-	var/brotherhoodtext = "Stand proud, for the Brotherhood!!"
-	var/chargetext = "Chaaaaaarge!!"
+	var/onfeettext = "On your feet!!"
 
 	var/mob/living/carbon/champion = null
 	var/mob/living/carbon/ward = null
@@ -752,6 +751,9 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 /datum/mind/proc/AddSpell(obj/effect/proc_holder/spell/S, mob/living/user)
 	if(!S)
 		return
+	for(var/obj/effect/proc_holder/spell/present_spell in spell_list)
+		if(present_spell.name == S.name && present_spell.type == S.type)
+			return
 	spell_list += S
 	S.action.Grant(current)
 	if(user)

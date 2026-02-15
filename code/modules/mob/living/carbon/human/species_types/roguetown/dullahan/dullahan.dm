@@ -15,6 +15,13 @@
 	skin_tone_wording = "Catalyst"
 	max_age = "???"
 
+	allowed_taur_types = list(
+		/obj/item/bodypart/taur/lamia,
+		/obj/item/bodypart/taur/spider,
+		/obj/item/bodypart/taur/horse,
+		/obj/item/bodypart/taur/goat,
+	)
+
 	species_traits = list(EYECOLOR,HAIR,FACEHAIR,LIPS,STUBBLE,OLDGREY,MUTCOLORS)
 	default_features = MANDATORY_FEATURE_LIST
 	inherent_traits = list(TRAIT_EASYDECAPITATION, TRAIT_NOHUNGER, TRAIT_NOBREATH, TRAIT_ZOMBIE_IMMUNE) //Given the deathless traits inherently as part of their nature as pseudo-undead.
@@ -71,6 +78,7 @@
 		/datum/customizer/bodypart_feature/face_detail,
 		/datum/customizer/bodypart_feature/underwear,
 		/datum/customizer/bodypart_feature/legwear,
+		/datum/customizer/bodypart_feature/piercing,
 		/datum/customizer/organ/snout/anthro/dullahan,
 		/datum/customizer/organ/horns/demihuman,
 		/datum/customizer/organ/wings/anthro,

@@ -591,15 +591,15 @@
 		if(1)
 			day = "Moon's dae."
 		if(2)
-			day = "Tiw's dae."
+			day = "Truce's dae."
 		if(3)
 			day = "Wedding's dae."
 		if(4)
-			day = "Thule's dae."
+			day = "Thunder's dae."
 		if(5)
-			day = "Freyja's dae."
+			day = "Feast's dae."
 		if(6)
-			day = "Saturn's dae."
+			day = "Psydon's dae."
 		if(7)
 			day = "Sun's dae."
 	. += "Oh no, it's [station_time_timestamp("hh:mm")] on a [day]"
@@ -658,15 +658,15 @@
 		if(1)
 			day = "Moon's dae."
 		if(2)
-			day = "Tiw's dae."
+			day = "Truce's dae."
 		if(3)
 			day = "Wedding's dae."
 		if(4)
-			day = "Thule's dae."
+			day = "Thunder's dae."
 		if(5)
-			day = "Freyja's dae."
+			day = "Feast's dae."
 		if(6)
-			day = "Saturn's dae."
+			day = "Psydon's dae."
 		if(7)
 			day = "Sun's dae."
 	. += "Oh no, it's [station_time_timestamp("hh:mm")] on a [day]"
@@ -1097,7 +1097,21 @@
 		/obj/item/clothing/head/roguetown/crown/serpcrown,
 		/obj/item/clothing/head/roguetown/vampire,
 		/obj/item/scomstone,
-		/obj/item/reagent_containers/lux
+		/obj/item/rogueweapon/greatsword/psygsword,
+		/obj/item/clothing/head/roguetown/circlet,
+		/obj/item/carvedgem,  //Some of these aren't particularly worth much, but it'd be REALLY unintuitive for "valuables" to not actually be offerings
+		/obj/item/rogueweapon/huntingknife/stoneknife/kukri,
+		/obj/item/rogueweapon/huntingknife/stoneknife/opalknife,
+		/obj/item/rogueweapon/mace/cudgel/shellrungu,
+		/obj/item/clothing/mask/rogue/facemask/carved,
+		/obj/item/clothing/neck/roguetown/carved,
+		/obj/item/kitchen/fork/carved,
+		/obj/item/kitchen/spoon/carved,
+		/obj/item/clothing/wrists/roguetown/gem,
+		/obj/item/reagent_containers/glass/bowl/carved,
+		/obj/item/reagent_containers/glass/bucket/pot/carved,
+		/obj/item/clothing/mask/rogue/facemask/carved,
+		/obj/item/cooking/platter/carved
 	)
 
 /obj/structure/fluff/statue/evil/attackby(obj/item/W, mob/user, params)
@@ -1119,6 +1133,7 @@
 					break
 			if(proceed_with_offer)
 				playsound(loc,'sound/items/carvty.ogg', 50, TRUE)
+				log_admin("[user] ([user?.ckey]) submitted [W] ([W.type]) to the Idol, worth [W.get_real_price()]")
 				qdel(W)
 				for(var/mob/player in GLOB.player_list)
 					if(player.mind)
@@ -1326,6 +1341,7 @@
 						thebride.adjust_triumphs(1)
 						//Bite the apple first if you want to be the groom.
 						priority_announce("[thegroom.real_name] has married [bridefirst]!", title = "Holy Union!", sound = 'sound/misc/bell.ogg')
+						record_round_statistic(STATS_MARRIAGES_MADE)
 						marriage = TRUE
 						qdel(A)
 
@@ -1365,6 +1381,56 @@
 	if(M.flash_act())
 		var/diff = power - M.confused
 		M.confused += min(power, diff)
+
+/obj/structure/fluff/psycross/proc/summon_martyr_weapon_tgui(mob/user)
+	if(!user.mind)
+		return
+
+	var/list/weapon_choices = list(
+		"Sword" = CALLBACK(src, PROC_REF(summon_and_equip), user, /obj/item/rogueweapon/sword/long/martyr),
+		"Axe" = CALLBACK(src, PROC_REF(summon_and_equip), user, /obj/item/rogueweapon/greataxe/steel/doublehead/martyr),
+		"Mace" = CALLBACK(src, PROC_REF(summon_and_equip), user, /obj/item/rogueweapon/mace/goden/martyr),
+		"Trident" = CALLBACK(src, PROC_REF(summon_and_equip), user, /obj/item/rogueweapon/spear/partizan/martyr)
+	)
+
+	var/result = tgui_input_list(user, "Choose a martyr weapon to summon:", "Martyr Weapon", weapon_choices)
+
+	if(result && weapon_choices[result])
+		var/datum/callback/selected_callback = weapon_choices[result]
+		selected_callback.Invoke()
+	else
+		to_chat(user, span_warning("No weapon was chosen."))
+
+/obj/structure/fluff/psycross/proc/summon_and_equip(mob/user, var/obj/item/rogueweapon/weapontype)
+	var/obj/item/rogueweapon/old_weapon = SSroguemachine.martyrweapon
+	var/integrity
+
+	if(old_weapon)
+		integrity = old_weapon.obj_integrity
+		old_weapon.visible_message(span_danger("[old_weapon] dissolves into mere dust, and flitters away - unbound."))
+		SSroguemachine.martyrweapon = null
+		qdel(old_weapon)
+
+	var/obj/item/rogueweapon/new_weapon = new weapontype(src.loc)
+	new_weapon.obj_integrity = integrity
+	SSroguemachine.martyrweapon = new_weapon
+
+	if(user.put_in_hands(new_weapon))
+		to_chat(user, span_notice("[new_weapon] appears in your hand."))
+	else
+		to_chat(user, span_warning("Your hands are full! [new_weapon] falls to your feet."))
+
+	return new_weapon
+
+/obj/structure/fluff/psycross/attack_hand(mob/user)
+	. = ..()
+	if(.)
+		return
+	if(user.job != "Martyr")
+		return
+	if((HAS_TRAIT(user, TRAIT_NOPAIN) && HAS_TRAIT(user, TRAIT_STRENGTH_UNCAPPED) && HAS_TRAIT(user, TRAIT_BLOODLOSS_IMMUNE))) // So that the martyr could not change weapons during his special ability... I do not know how to make it smarter.
+		return
+	summon_martyr_weapon_tgui(user)
 
 /obj/structure/fluff/beach_umbrella/security
 	icon_state = "hos_brella"

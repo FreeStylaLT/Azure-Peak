@@ -14,6 +14,30 @@
 	l_sleeve_status = SLEEVE_NORMAL
 	experimental_inhand = FALSE
 
+/obj/item/clothing/suit/roguetown/shirt/robe/unholy
+	name = "foreboding robes"
+	desc = "Burlap, silk, cloth; it is none of this. The fabric itself is a paradox - lighter than a cloud, but heavier than blacksteel. Do not ponder the implication, lest you go inzane."
+	max_integrity = ARMOR_INT_CHEST_LIGHT_BASE
+	allowed_race = NON_DWARVEN_RACE_TYPES
+	armor = ARMOR_PADDED
+	color = null
+	boobed = null
+	item_state = "warlock"
+	icon_state = "warlock"
+
+/obj/item/clothing/suit/roguetown/shirt/robe/unholy/lich
+	name = "ominous robes"
+	desc = "An otherworldly veil, whispering a hundred paradoxical answers to the ultimate question. Her hand guides your grandest missive; to bring forth progress, no matter the cost."
+	max_integrity = ARMOR_INT_CHEST_PLATE_ANTAG
+
+/obj/item/clothing/suit/roguetown/shirt/robe/unholy/enchanted
+	name = "ominously enchanted robes"
+	desc = "An otherworldly veil, amythortz-woven and crackling with the constant ponderance of a runic enigma. Her hand guides your grandest missive; to bring forth progress, no matter the cost."
+	armor = ARMOR_SPELLSINGER
+	allowed_race = ALL_RACES_TYPES
+	item_state = "ewarlock"
+	icon_state = "ewarlock"
+
 /obj/item/clothing/suit/roguetown/shirt/robe/astrata
 	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT|ITEM_SLOT_CLOAK
 	name = "sun robe"
@@ -75,7 +99,8 @@
 /obj/item/clothing/suit/roguetown/shirt/robe/dendor
 	slot_flags = ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT|ITEM_SLOT_CLOAK
 	name = "briar robe"
-	desc = ""
+	desc = "A coarse, rough robe worn often by devout worshippers of Dendor, the Mad God, lord of all \
+	the wild places of the world. It's quite terribly itchy."
 	body_parts_covered = CHEST|GROIN|ARMS|LEGS|VITALS
 	icon_state = "dendorrobe"
 	icon = 'icons/roguetown/clothing/armor.dmi'
@@ -330,3 +355,10 @@
 	color = null
 	icon_state = "surgrobe"
 	item_state = "surgrobe"
+
+/obj/item/clothing/suit/roguetown/shirt/robe/tabardwhite
+	name = "robed tabard"
+	desc = "Sleeveless robes, billowing in the breeze."
+	color = null
+	icon_state = "whiterobe"
+	item_state = "whiterobe"

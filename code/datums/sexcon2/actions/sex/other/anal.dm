@@ -3,6 +3,7 @@
 	stamina_cost = 1.0
 	aggro_grab_instead_same_tile = FALSE
 	target_priority = 100
+	intensity = 4
 
 /datum/sex_action/sex/other/anal/shows_on_menu(mob/living/carbon/human/user, mob/living/carbon/human/target)
 	if(user == target)
@@ -37,7 +38,7 @@
 	var/datum/sex_session/sex_session = get_sex_session(user, target)
 	user.visible_message(sex_session.spanify_force("[user] [sex_session.get_generic_force_adjective()] rides [target]."))
 	playsound(target, sex_session.get_force_sound(), 50, TRUE, -2, ignore_walls = FALSE)
-	do_thrust_animate(user, target)
+	do_thrust_animate(user, target, sex_session)
 
 	do_onomatopoeia(user)
 
@@ -51,10 +52,9 @@
 
 
 /datum/sex_action/sex/other/anal/handle_climax_message(mob/living/carbon/human/user, mob/living/carbon/human/target)
-	target.visible_message(span_love("[target] cums into [user]'s butt!"))
+	user.visible_message(span_love("[user] cums into [target]'s butt!"))
 	target.virginity = FALSE
 	return "into"
-
 
 /datum/sex_action/sex/other/anal/get_finish_message(mob/living/carbon/human/user, mob/living/carbon/human/target)
 	return span_warning("[user] gets off [target].")

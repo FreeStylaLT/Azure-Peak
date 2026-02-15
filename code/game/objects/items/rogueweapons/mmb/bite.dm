@@ -118,6 +118,9 @@
 					caused_wound?.werewolf_infect_attempt()
 					if(prob(30))
 						user.werewolf_feed(bite_victim, 10)
+			if(istype(user.dna.species, /datum/species/gnoll))
+				if(prob(30))
+					user.gnoll_feed(bite_victim, 10)
 			/*
 				ZOMBIE INFECTION VIA BITE
 			*/
@@ -132,7 +135,7 @@
 		var/used_limb = src.find_used_grab_limb(user)
 		B.name = "[src]'s [parse_zone(used_limb)]"
 		var/obj/item/bodypart/BP = get_bodypart(check_zone(used_limb))
-		BP.grabbedby += B
+		LAZYADD(BP.grabbedby, B)
 		B.grabbed = src
 		B.grabbee = user
 		B.limb_grabbed = BP
@@ -167,6 +170,9 @@
 
 /obj/item/grabbing/bite/valid_check()
 	// We require adjacency to count the grab as valid
+	if(!grabbee)
+		qdel(src)
+		return FALSE
 
 	if(isdullahan(grabbee) && ishuman(grabbed))
 		var/mob/living/carbon/human/target = grabbed

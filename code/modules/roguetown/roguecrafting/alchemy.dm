@@ -368,3 +368,36 @@
 	verbage_simple = "mix"
 	required_tech_node = "LUX_FILTRATION"
 	tech_unlocked = FALSE
+
+
+/datum/crafting_recipe/roguetown/alchemy/bandage
+	name = "bandages (alchemy)"
+	result = list(/obj/item/natural/cloth/bandage)
+	reqs = list(
+		/obj/item/natural/cloth = 1,
+		/obj/item/alch/bonemeal = 1,
+		)
+	craftdiff = 2
+	subtype_reqs = FALSE //so you dont craft bandages from bandages
+
+/datum/crafting_recipe/roguetown/alchemy/glut
+	name = "glut (from gnoll flesh)"
+	craftdiff = 4
+	result = list(
+		/obj/item/roguegem/blood_diamond
+		)
+	reqs = list(
+		/obj/item/reagent_containers/food/snacks/rogue/meat/steak/gnoll = 2,
+		)
+	subtype_reqs = TRUE
+
+/datum/crafting_recipe/roguetown/alchemy/gnoll_flesh
+	name = "gnoll flesh (from glut)"
+	craftdiff = 4
+	result = list(
+		/obj/item/reagent_containers/food/snacks/rogue/meat/steak/gnoll
+		)
+	reqs = list(
+		/obj/item/roguegem/blood_diamond = 2,
+		)
+	subtype_reqs = TRUE

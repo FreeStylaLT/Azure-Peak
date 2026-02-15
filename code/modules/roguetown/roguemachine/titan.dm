@@ -1,6 +1,7 @@
 GLOBAL_LIST_EMPTY(outlawed_players)
 GLOBAL_LIST_EMPTY(lord_decrees)
 GLOBAL_LIST_EMPTY(court_agents)
+GLOBAL_LIST_EMPTY(court_spymaster)
 GLOBAL_LIST_INIT(laws_of_the_land, initialize_laws_of_the_land())
 GLOBAL_VAR_INIT(last_crown_announcement_time, -1000)
 
@@ -278,8 +279,8 @@ GLOBAL_VAR_INIT(last_crown_announcement_time, -1000)
 					say("You have not the noble blood to be regent.")
 					playsound(src, 'sound/misc/machineno.ogg', 100, FALSE, -1)
 					return
-				if(!(H.job in GLOB.noble_positions))
-					say("You are too estranged from this realm to be regent.")
+				if(!(H.job in GLOB.regency_positions))
+					say("You are not worthy of bearing the Crown.")
 					playsound(src, 'sound/misc/machineno.ogg', 100, FALSE, -1)
 					return
 				if(SSticker.regentday == GLOB.dayspassed)

@@ -8,6 +8,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
 	var/max_save_slots = 60
+	var/loaded_slot = 1
 
 	//non-preference stuff
 	var/muted = 0
@@ -69,6 +70,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/real_name						//our character's name
 	var/gender = MALE					//gender of character (well duh) (LETHALSTONE EDIT: this no longer references anything but whether the masculine or feminine model is used)
 	var/pronouns = HE_HIM				// LETHALSTONE EDIT: character's pronouns (well duh)
+	var/voice_pack = "Default"
 	var/voice_type = VOICE_TYPE_MASC	// LETHALSTONE EDIT: the type of soundpack the mob should use
 	var/datum/statpack/statpack	= new /datum/statpack/wildcard/fated // LETHALSTONE EDIT: the statpack we're giving our char instead of racial bonuses
 	var/datum/virtue/virtue = new /datum/virtue/none // LETHALSTONE EDIT: the virtue we get for not picking a statpack
@@ -200,12 +202,16 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/loadout_3_hex
 
 	var/flavortext
+	var/flavortext_cached
 
 	var/ooc_notes
+	var/ooc_notes_cached
 
 	var/nsfwflavortext
+	var/nsfwflavortext_cached
 
 	var/erpprefs
+	var/erpprefs_cached
 
 	var/list/img_gallery = list()
 
@@ -232,6 +238,14 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	var/rumour
 
 	var/noble_gossip
+
+	var/averse_chosen_faction = "Inquisition"
+
+	var/datum/voicepack/temp_vp
+
+	var/mood_messages_in_chat
+
+	var/attack_blip_frequency = ATTACK_BLIP_PREF_DEFAULT
 
 /datum/preferences/New(client/C)
 	parent = C
@@ -411,6 +425,12 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			// LETHALSTONE EDIT BEGIN: add pronoun prefs
 			dat += "<b>Pronouns:</b> <a href='?_src_=prefs;preference=pronouns;task=input'>[pronouns]</a><BR>"
 			// LETHALSTONE EDIT END
+			if(!voice_pack)
+				voice_pack = "Default"
+			// LETHALSTONE EDIT BEGIN: add voice type prefs
+			dat += "<b>Voice Identity</b>: <a href='?_src_=prefs;preference=voicetype;task=input'>[voice_type]</a><BR>"
+			// LETHALSTONE EDIT END
+			dat += "<b>Voice Pack</b>: <a href='?_src_=prefs;preference=voicepack;task=input'>[voice_pack]</a>[(voice_pack != "Default") ? "|<a href='?_src_=prefs;preference=voicepack_preview;task=input'>(Sample)</a>" : ""]<BR>"
 
 			dat += "<BR>"
 			dat += "<b>Race:</b> <a href='?_src_=prefs;preference=species;task=input'>[pref_species.name]</a>[spec_check(user) ? "" : " (!)"]<BR>"
@@ -449,10 +469,6 @@ GLOBAL_LIST_EMPTY(chosen_names)
 				dat += "<b>Taur Body Type:</b> <a href='?_src_=prefs;preference=taur_type;task=input'>[name]</a><BR>"
 				dat += "<b>Taur Color:</b><span style='border: 1px solid #161616; background-color: #[taur_color];'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=taur_color;task=input'>Change</a><BR>"
 
-			// LETHALSTONE EDIT BEGIN: add voice type prefs
-			dat += "<b>Voice Type</b>: <a href='?_src_=prefs;preference=voicetype;task=input'>[voice_type]</a><BR>"
-			// LETHALSTONE EDIT END
-
 			dat += "<b>Age:</b> <a href='?_src_=prefs;preference=age;task=input'>[age]</a><BR>"
 
 //			dat += "<br><b>Age:</b> <a href='?_src_=prefs;preference=age;task=input'>[age]</a>"
@@ -472,6 +488,10 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			else
 				virtuetwo = GLOB.virtues[/datum/virtue/none]
 			dat += "<b>Vice:</b> <a href='?_src_=prefs;preference=charflaw;task=input'>[charflaw]</a><BR>"
+			if(istype(charflaw, /datum/charflaw/averse))
+				if(!averse_chosen_faction)
+					averse_chosen_faction = "Inquisition"
+				dat += "<b>Loathed Group:</b> <a href='?_src_=prefs;preference=charflaw_averse_choice;task=input'>[averse_chosen_faction]</a><BR>"
 			var/datum/faith/selected_faith = GLOB.faithlist[selected_patron?.associated_faith]
 			dat += "<b>Faith:</b> <a href='?_src_=prefs;preference=faith;task=input'>[selected_faith?.name || "FUCK!"]</a><BR>"
 			dat += "<b>Patron:</b> <a href='?_src_=prefs;preference=patron;task=input'>[selected_patron?.name || "FUCK!"]</a><BR>"
@@ -511,14 +531,6 @@ GLOBAL_LIST_EMPTY(chosen_names)
 			// Middle dummy Column, 20% width
 			dat += "</td>"
 			dat += "<td width=20% valign='top'>"
-			var/datum/job/highest_pref
-			for(var/job in job_preferences)
-				if(job_preferences[job] > highest_pref)
-					highest_pref = SSjob.GetJob(job)
-			if(!isnull(highest_pref) && !istype(highest_pref, /datum/job/roguetown/jester))
-				dat += "<div style='text-align: center'><br>Subclass Preview:<br> <a href='?_src_=prefs;preference=subclassoutfit;task=input'>[preview_subclass ? "[preview_subclass.name]" : "None"]</a></div>"
-			else
-				preview_subclass = null
 			// Rightmost column, 40% width
 			dat += "<td width=40% valign='top'>"
 			dat += "<h2>Body</h2>"
@@ -899,7 +911,7 @@ GLOBAL_LIST_EMPTY(chosen_names)
 	popup.open(FALSE)
 	onclose(user, "capturekeypress", src)
 
-/datum/preferences/proc/SetChoices(mob/user, limit = 14, list/splitJobs = list("Court Magician", "Knight Captain", "Bishop", "Merchant", "Archivist", "Towner", "Grenzelhoft Mercenary", "Beggar", "Prisoner", "Goblin King"), widthPerColumn = 295, height = 620) //295 620
+/datum/preferences/proc/SetChoices(mob/user, limit = 14, list/splitJobs = list("Court Magician", "Bishop", "Merchant", "Archivist", "Towner", "Grenzelhoft Mercenary", "Beggar", "Prisoner", "Goblin King"), widthPerColumn = 295, height = 620) //295 620
 	if(!SSjob)
 		return
 
@@ -1457,7 +1469,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 	else if(href_list["preference"] == "descriptors")
 		show_descriptors_ui(user)
 		return
-	
+
 	else if(href_list["preference"] == "lore_primer")
 		LorePopup(user)
 		return
@@ -1643,28 +1655,6 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						else
 							to_chat(user, "<font color='red'>Invalid name. Your name should be at least 2 and at most [MAX_NAME_LEN] characters long. It may only contain the characters A-Z, a-z, -, ', . and ,.</font>")
 
-				if("subclassoutfit")
-					var/list/choices = list("None")
-					var/datum/job/highest_pref
-					for(var/job in job_preferences)
-						if(job_preferences[job] > highest_pref)
-							highest_pref = SSjob.GetJob(job)
-					if(isnull(highest_pref))
-						to_chat(user, "<b>I don't have a Class set to High!</b>")
-					if(length(highest_pref.job_subclasses))
-						for(var/adv in highest_pref.job_subclasses)
-							var/datum/advclass/advpath = adv
-							var/datum/advclass/advref = SSrole_class_handler.get_advclass_by_name(initial(advpath.name))
-							choices[advref.name] = advref
-					if(length(choices))
-						var/new_choice = input(user, "Choose an outfit preview:", "Outfit Preview")  as anything in choices|null
-						if(new_choice && new_choice != "None")
-							preview_subclass = choices[new_choice]
-							update_preview_icon()
-						else
-							preview_subclass = null
-							update_preview_icon(jobOnly = TRUE)
-
 //				if("age")
 //					var/new_age = input(user, "Choose your character's age:\n([AGE_MIN]-[AGE_MAX])", "Years Dead") as num|null
 //					if(new_age)
@@ -1732,6 +1722,23 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 					if(voicetype_input)
 						voice_type = voicetype_input
 						to_chat(user, "<font color='red'>Your character will now vocalize with a [lowertext(voice_type)] affect.</font>")
+
+				if ("voicepack")
+					var/voicepack_input = tgui_input_list(user, "Choose your character's emote voice pack", "VOICE PACK", GLOB.voice_packs_list)
+					if(voicepack_input)
+						voice_pack = voicepack_input
+						if(voicepack_input != "Default")
+							to_chat(user, span_red("<font color='red'>Your character will now audibly emote with a [lowertext(voicepack_input)] affect.") + span_notice("<br>This will override your Voice Identity and Class-specific voice packs.</font>"))
+						else
+							to_chat(user, "<font color='red'>Your character will now audibly emote in accordance to their Voice Identity and any Racial / Class-specific voice packs.</font>")
+				if("voicepack_preview")
+					if(voice_pack != "Default")
+						var/datum/voicepack/VP = GLOB.voice_packs_list[voice_pack]
+						if(!istype(temp_vp, VP))
+							temp_vp = new VP()
+						var/sound/voiceline = sound(temp_vp.get_sound(pick(temp_vp.preview)))
+						voiceline.frequency = voice_pitch
+						user.playsound_local(user, vol = 100, S = voiceline)
 
 				if("taur_type")
 					var/list/species_taur_list = pref_species.get_taur_list()
@@ -1950,6 +1957,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						ShowChoices(user)
 						return
 					flavortext = new_flavortext
+					flavortext_cached = parsemarkdown_basic(html_encode(flavortext), hyperlink = TRUE)
 					to_chat(user, "<span class='notice'>Successfully updated flavortext</span>")
 					log_game("[user] has set their flavortext'.")
 				if("ooc_notes")
@@ -1962,6 +1970,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						ShowChoices(user)
 						return
 					ooc_notes = new_ooc_notes
+					ooc_notes_cached = parsemarkdown_basic(html_encode(ooc_notes), hyperlink = TRUE)
 					to_chat(user, "<span class='notice'>Successfully updated OOC notes.</span>")
 					log_game("[user] has set their OOC notes'.")
 
@@ -2012,6 +2021,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						ShowChoices(user)
 						return
 					nsfwflavortext = new_nsfwflavortext
+					nsfwflavortext_cached = parsemarkdown_basic(html_encode(nsfwflavortext), hyperlink = TRUE)
 					to_chat(user, "<span class='notice'>Successfully updated NSFW flavortext</span>")
 					log_game("[user] has set their NSFW flavortext'.")
 				if("erpprefs")
@@ -2027,6 +2037,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						ShowChoices(user)
 						return
 					erpprefs = new_erpprefs
+					erpprefs_cached = parsemarkdown_basic(html_encode(erpprefs), hyperlink = TRUE)
 					to_chat(user, "<span class='notice'>Successfully updated ERP Preferences.</span>")
 					log_game("[user] has set their ERP preferences'.")
 
@@ -2085,7 +2096,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						rumour_display = parsemarkdown_basic(rumour_display, hyperlink = TRUE)
 						msg += "<b>You recall what you heard around Town about [real_name]...</b><br>[rumour_display]"
 					if(length(noble_gossip))
-						if(msg) 
+						if(msg)
 							msg += "<br><br>"
 						var/gossip_display = noble_gossip
 						gossip_display = html_encode(gossip_display)
@@ -2159,7 +2170,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 							continue
 						loadouts_available[loadout.name] = loadout
 
-					var/loadout_input = tgui_input_list(user, "Choose your character's loadout item. RMB a tree, statue or clock to collect. I cannot stress this enough. YOU DON'T SPAWN WITH THESE. YOU HAVE TO MANUALLY PICK THEM UP!!", "LOADOUT THAT YOU GET FROM A TREE OR STATUE OR CLOCK", loadouts_available)
+					var/loadout_input = tgui_input_list(user, "Choose an item for your character's stashed loadout. Your character can access their stash by right-clicking a tree, statue, or clock. If you have a stashed item with a listed Triumph cost, it'll automatically be purchased whenever your character joins the round.", "LOADOUT", loadouts_available)
 					if(loadout_input)
 						if(loadout_input == "None")
 							loadout = null
@@ -2180,7 +2191,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 							continue
 						loadouts_available[loadout2.name] = loadout2
 
-					var/loadout_input2 = tgui_input_list(user, "Choose your character's loadout item. RMB a tree, statue or clock to collect. I cannot stress this enough. YOU DON'T SPAWN WITH THESE. YOU HAVE TO MANUALLY PICK THEM UP!!", "LOADOUT THAT YOU GET FROM A TREE OR STATUE OR CLOCK", loadouts_available)
+					var/loadout_input2 = tgui_input_list(user, "Choose an item for your character's stashed loadout. Your character can access their stash by right-clicking a tree, statue, or clock. If you have a stashed item with a listed Triumph cost, it'll automatically be purchased whenever your character joins the round.", "LOADOUT", loadouts_available)
 					if(loadout_input2)
 						if(loadout_input2 == "None")
 							loadout2 = null
@@ -2201,7 +2212,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 							continue
 						loadouts_available[loadout3.name] = loadout3
 
-					var/loadout_input3 = tgui_input_list(user, "Choose your character's loadout item. RMB a tree, statue or clock to collect. I cannot stress this enough. YOU DON'T SPAWN WITH THESE. YOU HAVE TO MANUALLY PICK THEM UP!!", "LOADOUT THAT YOU GET FROM A TREE OR STATUE OR CLOCK", loadouts_available)
+					var/loadout_input3 = tgui_input_list(user, "Choose an item for your character's stashed loadout. Your character can access their stash by right-clicking a tree, statue, or clock. If you have a stashed item with a listed Triumph cost, it'll automatically be purchased whenever your character joins the round.", "LOADOUT", loadouts_available)
 					if(loadout_input3)
 						if(loadout_input3 == "None")
 							loadout3 = null
@@ -2294,7 +2305,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 					if(choice)
 						preset_bounty_severity_key = sev_choices[choice]
 					return
-				
+
 				if("preset_bounty_severity_b_key")
 					var/list/sev_choices = list()
 					for(var/key in GLOB.bandit_severities)
@@ -2307,7 +2318,7 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 				if("preset_bounty_crime")
 					preset_bounty_crime = input(user, "What is your crime?", "Crime") as text|null
 					return
-					
+
 				if("update_mutant_colors")
 					update_mutant_colors = !update_mutant_colors
 
@@ -2370,6 +2381,11 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						if(charflaw.desc)
 							to_chat(user, "<span class='info'>[charflaw.desc]</span>")
 
+				if("charflaw_averse_choice")
+					var/choice = tgui_input_list(user, "Who do you loathe?", "AVERSION", GLOB.averse_factions)
+					if(choice)
+						averse_chosen_faction = choice
+
 				if("race_bonus_select")
 					if(length(pref_species.custom_selection))
 						var/choice = tgui_input_list(user, "What has fate blessed your race with?", "BONUS", pref_species.custom_selection)
@@ -2425,15 +2441,6 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 						skin_tone = listy[new_s_tone]
 						features["mcolor"] = sanitize_hexcolor(skin_tone)
 						try_update_mutant_colors()
-
-				if("charflaw")
-					var/selectedflaw
-					selectedflaw = tgui_input_list(user, "Choose your character's flaw:", "FLAWS", GLOB.character_flaws)
-					if(selectedflaw)
-						charflaw = GLOB.character_flaws[selectedflaw]
-						charflaw = new charflaw()
-						if(charflaw.desc)
-							to_chat(user, span_info("[charflaw.desc]"))
 
 				if("char_accent")
 					var/selectedaccent = tgui_input_list(user, "Choose your character's accent:", "Character Preference", GLOB.character_accents)
@@ -2915,12 +2922,15 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 	character.statpack = statpack
 
 	character.flavortext = flavortext
-
 	character.ooc_notes = ooc_notes
-
 	character.nsfwflavortext = nsfwflavortext
-
 	character.erpprefs = erpprefs
+	
+	// Copy the cached version
+	character.flavortext_cached = flavortext_cached
+	character.ooc_notes_cached = ooc_notes_cached
+	character.nsfwflavortext_cached = nsfwflavortext_cached
+	character.erpprefs_cached = erpprefs_cached
 
 	character.img_gallery = img_gallery
 
@@ -2959,6 +2969,8 @@ Slots: [job.spawn_positions] [job.round_contrib_points ? "RCP: +[job.round_contr
 		character.update_body_parts(redraw = TRUE)
 
 	character.char_accent = char_accent
+
+	apply_customizers_to_character(character)
 
 	if(culinary_preferences)
 		apply_culinary_preferences(character)

@@ -71,7 +71,7 @@
 /obj/structure/roguemachine/vendor/attackby(obj/item/P, mob/user, params)
 	if(istype(P, /obj/item/roguecoin/aalloy))
 		return
-	if(istype(P, /obj/item/roguecoin/inqcoin))	
+	if(istype(P, /obj/item/roguecoin/inqcoin))
 		return
 	if(istype(P, /obj/item/roguecoin))
 		budget += P.get_real_price()
@@ -89,7 +89,7 @@
 		else
 			if(!locked)
 				insert(P, user)
-			else	
+			else
 				to_chat(user, span_warning("Wrong key."))
 				return
 	if(istype(P, /obj/item/storage/keyring))
@@ -387,14 +387,14 @@
 		held_items[P]["PRICE"] = 20
 
 	// Add fancy keys with a price of 100
-	for (var/Y in list(/obj/item/roguekey/fancyroomi, /obj/item/roguekey/fancyroomii, /obj/item/roguekey/fancyroomiii, /obj/item/roguekey/fancyroomiv, /obj/item/roguekey/fancyroomv))
+	for (var/Y in list(/obj/item/storage/keyring/innfancyi, /obj/item/storage/keyring/innfancyii, /obj/item/storage/keyring/innfancyiii, /obj/item/storage/keyring/innfancyiv, /obj/item/storage/keyring/innfancyv))
 		var/obj/Q = new Y(src)
 		held_items[Q] = list()
 		held_items[Q]["NAME"] = Q.name
 		held_items[Q]["PRICE"] = 100
 
 	// Add penthouse suite key
-	for (var/Z in list(/obj/item/roguekey/roomhunt))
+	for (var/Z in list(/obj/item/storage/keyring/innhunt))
 		var/obj/F = new Z(src)
 		held_items[F] = list()
 		held_items[F]["NAME"] = F.name
@@ -423,5 +423,31 @@
 		var/obj/P = new X(src)
 		held_items[P] = list()
 		held_items[P]["NAME"] = P.name
-		held_items[P]["PRICE"] = 30
+		held_items[P]["PRICE"] = 100 // relatively expensive, but cheaper than importing a whole mount
 	update_icon()
+
+/obj/structure/roguemachine/vendor/church_bedroomset_one //contains the keys to the church bedrooms, better visually than having them on a table
+	keycontrol = "priest"
+	will_hawk = FALSE
+
+/obj/structure/roguemachine/vendor/church_bedroomset_one/Initialize()
+	. = ..()
+
+	for (var/X in list(/obj/item/roguekey/church/roomi, /obj/item/roguekey/church/roomii, /obj/item/roguekey/church/roomiii, /obj/item/roguekey/church/roomiv, /obj/item/roguekey/church/roomv))
+		var/obj/P = new X(src)
+		held_items[P] = list()
+		held_items[P]["NAME"] = P.name
+		held_items[P]["PRICE"] = 0
+
+/obj/structure/roguemachine/vendor/church_bedroomset_two //contains the keys to the church bedrooms, better visually than having them on a table
+	keycontrol = "priest"
+	will_hawk = FALSE
+
+/obj/structure/roguemachine/vendor/church_bedroomset_two/Initialize()
+	. = ..()
+
+	for (var/X in list(/obj/item/roguekey/church/roomvi, /obj/item/roguekey/church/roomvii, /obj/item/roguekey/church/roomviii, /obj/item/roguekey/church/roomix, /obj/item/roguekey/church/roomx, /obj/item/roguekey/church/roomxi, /obj/item/roguekey/church/roomxii, /obj/item/roguekey/church/roomxiii, /obj/item/roguekey/church/roomxiv))
+		var/obj/P = new X(src)
+		held_items[P] = list()
+		held_items[P]["NAME"] = P.name
+		held_items[P]["PRICE"] = 0

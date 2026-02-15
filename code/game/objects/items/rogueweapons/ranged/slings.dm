@@ -2,13 +2,13 @@
 
 /datum/intent/swing/sling
 	chargetime = 1 //used for edge cases only, /datum/intent/shoot/sling/get_chargetime handles the actual number
-	chargedrain = 2
+	chargedrain = 1.5
 	charging_slowdown = 3
 
-/datum/intent/swing/sling/can_charge(atom/clicked_object) //checks for arms and spare empty hand removed since it can fire with one hand
-	if(mastermob)
-		if(istype(clicked_object, /obj/item/quiver) && istype(mastermob.get_active_held_item(), /obj/item/gun/ballistic))
-			return FALSE
+/datum/intent/swing/sling/can_charge(atom/clicked_object)
+	if(istype(clicked_object, /obj/item/quiver) && istype(mastermob?.get_active_held_item(), /obj/item/gun/ballistic))
+		return FALSE
+
 	return TRUE
 
 /datum/intent/swing/sling/prewarning()
@@ -32,13 +32,13 @@
 
 /datum/intent/arc/sling
 	chargetime = 1
-	chargedrain = 2
+	chargedrain = 1.5
 	charging_slowdown = 3
 
-/datum/intent/arc/sling/can_charge(atom/clicked_object) //checks for arms and spare empty hand removed since it can fire with one hand
-	if(mastermob)
-		if(istype(clicked_object, /obj/item/quiver) && istype(mastermob.get_active_held_item(), /obj/item/gun/ballistic))
-			return FALSE
+/datum/intent/arc/sling/can_charge(atom/clicked_object)
+	if(istype(clicked_object, /obj/item/quiver) && istype(mastermob?.get_active_held_item(), /obj/item/gun/ballistic))
+		return FALSE
+
 	return TRUE
 
 /datum/intent/arc/sling/prewarning()
@@ -77,7 +77,7 @@
 		)
 	mag_type = /obj/item/ammo_box/magazine/internal/shot/sling
 	fire_sound = 'sound/combat/Ranged/sling-shot-01.ogg'
-	slot_flags = ITEM_SLOT_HIP | ITEM_SLOT_BELT
+	slot_flags = ITEM_SLOT_HIP | ITEM_SLOT_BELT | ITEM_SLOT_WRISTS
 	w_class = WEIGHT_CLASS_SMALL
 	randomspread = 0
 	spread = 0

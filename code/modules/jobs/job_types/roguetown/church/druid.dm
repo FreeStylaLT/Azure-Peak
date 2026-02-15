@@ -43,12 +43,13 @@
 		STATKEY_SPD = 1,
 		STATKEY_PER = -1
 	)
+	age_mod = /datum/class_age_mod/druid
 	subclass_skills = list(
 		/datum/skill/craft/sewing = SKILL_LEVEL_NOVICE,
 		/datum/skill/craft/tanning = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/medicine = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/combat/wrestling = SKILL_LEVEL_EXPERT,
+		/datum/skill/combat/wrestling = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/reading = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/craft/alchemy = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/magic/holy = SKILL_LEVEL_EXPERT,
@@ -85,10 +86,7 @@
 	head = /obj/item/clothing/head/roguetown/dendormask
 	wrists = /obj/item/clothing/neck/roguetown/psicross/dendor
 	shirt = /obj/item/clothing/suit/roguetown/shirt/robe/dendor
-	backpack_contents = list(/obj/item/ritechalk, /obj/item/storage/keyring/churchie)
-	if(H.age == AGE_OLD)
-		H.adjust_skillrank_up_to(/datum/skill/magic/holy, 5, TRUE)
-		H.adjust_skillrank_up_to(/datum/skill/magic/druidic, 5, TRUE)
+	backpack_contents = list(/obj/item/ritechalk, /obj/item/storage/keyring/acolyte)
 	H.ambushable = FALSE
 	H.AddComponent(/datum/component/wise_tree_alert)
 	var/datum/devotion/C = new /datum/devotion(H, H.patron)

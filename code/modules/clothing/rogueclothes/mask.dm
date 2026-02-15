@@ -207,6 +207,30 @@
 	desc = "Runes and wards, meant for daemons; the gold has somehow rusted in unnatural, impossible agony. The gold is now worthless, but that is not why the Naledi wear them."
 	sellprice = 20
 
+////////////////////////
+// Triumph Exclusive! //
+////////////////////////
+
+//Purchasable via Triumphs. Blacklisted from the Stockpile and fitted with a reduced saleprice.
+/obj/item/clothing/mask/rogue/lordmask/triumph
+	name = "ornate golden halfmask"
+	desc = "An ornate halfmask of pure, glistening gold. What lies underneath to cradle the face: a besilked cushion, or cold alloys?"
+	sellprice = 33
+
+/obj/item/clothing/mask/rogue/facemask/goldmask/triumph
+	name = "ornate golden mask"
+	desc = "An ornate mask of pure, glistening gold. If you have no face to call your own, then can you truly call yourself humen at all?"
+	sellprice = 77
+	smeltresult = /obj/item/clothing/mask/rogue/lordmask/triumph
+
+/obj/item/clothing/mask/rogue/facemask/goldmaskc/triumph
+	name = "ornate golden mask"
+	desc = "An ornate mask of pure, glistening gold. If you have no face to call your own, then can you truly call yourself humen at all?"
+	sellprice = 77
+	smeltresult = /obj/item/clothing/mask/rogue/lordmask/triumph
+
+//
+
 /obj/item/clothing/mask/rogue/sack
 	name = "sack mask"
 	desc = "A brown sack with eyeholes cut into it."
@@ -318,6 +342,7 @@
 
 /obj/item/clothing/mask/rogue/facemask
 	name = "iron mask"
+	desc = "A simple, utilitarian mask designed to protect the face from oncoming blows."
 	icon_state = "imask"
 	max_integrity = 100
 	blocksound = PLATEHIT
@@ -341,6 +366,8 @@
 	name = "anthraxi war mask"
 	desc = "A metal mask resembling a spider's face. Such a visage haunts many an older dark elf's nitemares - while the younger generation simply scoffs at such relics."
 	icon_state = "shadowfacemask"
+	smeltresult = /obj/item/ingot/drow
+	smelt_bar_num = 1
 
 /obj/item/clothing/mask/rogue/facemask/aalloy
 	name = "decrepit mask"
@@ -349,6 +376,7 @@
 	max_integrity = 75
 	color = "#bb9696"
 	chunkcolor = "#532e25"
+	material_category = ARMOR_MAT_PLATE
 	smeltresult = /obj/item/ingot/aaslag
 	anvilrepair = null
 	prevent_crits = PREVENT_CRITS_NONE
@@ -366,73 +394,18 @@
 	icon_state = "psydonmask"
 	item_state = "psydonmask"
 
-/obj/item/clothing/mask/rogue/facemask/prisoner
-	name = "cursed mask"
-	desc = "An iron mask that seals around the head, making it impossible to remove. It seems to be enchanted with some kind of vile magic..."
-	body_parts_covered = NONE //So that surgery can be done through the mask.
-	var/active_item
-	var/bounty_amount
-
-/obj/item/clothing/mask/rogue/facemask/prisoner/Initialize()
-	. = ..()
-	ADD_TRAIT(src, TRAIT_NODROP, CURSED_ITEM_TRAIT)
-
-/obj/item/clothing/mask/rogue/facemask/prisoner/dropped(mob/living/carbon/human/user)
-	. = ..()
-	REMOVE_TRAIT(user, TRAIT_PACIFISM, "cursedmask")
-	REMOVE_TRAIT(user, TRAIT_SPELLCOCKBLOCK, "cursedmask")
-	if(QDELETED(src))
-		return
-	qdel(src)
-
-/obj/item/clothing/mask/rogue/facemask/prisoner/proc/timerup(mob/living/carbon/human/user)
-	REMOVE_TRAIT(user, TRAIT_PACIFISM, "cursedmask")
-	REMOVE_TRAIT(user, TRAIT_SPELLCOCKBLOCK, "cursedmask")
-	visible_message(span_warning("The cursed mask opens with a click, falling off of [user]'s face and clambering apart on the ground, their penance complete."))
-	say("YOUR PENANCE IS COMPLETE.")
-	for(var/name in GLOB.outlawed_players)
-		if(user.real_name == name)
-			GLOB.outlawed_players -= user.real_name
-			priority_announce("[user.real_name] has completed their penance. Justice has been served in the eyes of Ravox.", "PENANCE", 'sound/misc/bell.ogg')
-	playsound(src.loc, pick('sound/items/pickgood1.ogg','sound/items/pickgood2.ogg'), 5, TRUE)
-	if(QDELETED(src))
-		return
-	qdel(src)
-	
-
-/obj/item/clothing/mask/rogue/facemask/prisoner/equipped(mob/living/user, slot)
-	. = ..()
-	if(active_item)
-		return
-	else if(slot == SLOT_WEAR_MASK)
-		active_item = TRUE
-		to_chat(user, span_warning("This accursed mask pacifies me!"))
-		ADD_TRAIT(user, TRAIT_PACIFISM, "cursedmask")
-		ADD_TRAIT(user, TRAIT_SPELLCOCKBLOCK, "cursedmask")
-		if(HAS_TRAIT(user, TRAIT_RITUALIST))
-			user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
-		var/timer = 5 MINUTES //Base timer is 5 minutes, additional time added per bounty amount
-
-		if(bounty_amount >= 10)
-			var/additional_time = bounty_amount * 0.1 // 10 mammon = 1 minute
-			additional_time = round(additional_time)
-			timer += additional_time MINUTES
-
-		var/timer_minutes = timer / 600
-
-		addtimer(CALLBACK(src, PROC_REF(timerup), user), timer)
-		say("YOUR PENANCE WILL BE COMPLETE IN [timer_minutes] MINUTES.")
-	return
-
 /obj/item/clothing/mask/rogue/facemask/steel
 	name = "steel mask"
+	desc = "Expressionless steel sits where a face ought to be. It is better to be \
+	safe than to be known."
 	icon_state = "smask"
 	max_integrity = 200
 	smeltresult = /obj/item/ingot/steel
 
 /obj/item/clothing/mask/rogue/facemask/steel/paalloy
 	name = "ancient mask"
-	desc = "Polished gilbranze, molded into an intimidating visage. Touch the cheek; it is warm, like flesh. But it is not flesh. Not yet."
+	desc = "Polished gilbranze, molded into an intimidating visage. Touch the cheek; it is warm, \
+	like flesh. But it is not flesh. Not yet."
 	icon_state = "ancientmask"
 	smeltresult = /obj/item/ingot/aaslag
 
@@ -449,8 +422,15 @@
 	icon_state = "steppemask_snout"
 
 /obj/item/clothing/mask/rogue/facemask/goldmask
-	name = "Gold Mask"
+	name = "gold mask"
 	icon_state = "goldmask"
+	max_integrity = 150
+	sellprice = 100
+	smeltresult = /obj/item/ingot/gold
+
+/obj/item/clothing/mask/rogue/facemask/goldmaskc
+	name = "gold mask"
+	icon_state = "goldmaskc"
 	max_integrity = 150
 	sellprice = 100
 	smeltresult = /obj/item/ingot/gold
@@ -563,22 +543,8 @@
 	flags_inv = HIDEFACE|HIDESNOUT
 	sellprice = 0
 
-/obj/item/clothing/mask/rogue/lordmask/naledi/equipped(mob/user, slot)
-	. = ..()
-	if(ishuman(user))
-		var/mob/living/carbon/human/H = user
-		if(H.merctype == 14)	//Naledi
-			H.remove_status_effect(/datum/status_effect/debuff/lost_naledi_mask)
-			H.remove_stress(/datum/stressevent/naledimasklost)
-
-/obj/item/clothing/mask/rogue/lordmask/naledi/dropped(mob/user)
-	. = ..()
-	if(ishuman(user))
-		var/mob/living/carbon/human/H = user
-		if(H.merctype == 14)	//Naledi
-			if(!istiefling(user)) //Funny exception
-				H.apply_status_effect(/datum/status_effect/debuff/lost_naledi_mask)
-				H.add_stress(/datum/stressevent/naledimasklost)
+/obj/item/clothing/mask/rogue/lordmask/naledi/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_NALEDI, "naledi_mask")
 
 /obj/item/clothing/mask/rogue/lordmask/naledi/sojourner
 	name = "sojourner's mask"
@@ -630,3 +596,88 @@
 	detail_tag = "_detail"
 	detail_color = COLOR_SILVER
 	sewrepair = TRUE
+
+/obj/item/clothing/mask/rogue/courtphysician
+	name = "head physician's mask"
+	desc = "This one is made with actual bone! Don't ask whose."
+	icon = 'icons/roguetown/clothing/special/courtphys.dmi'
+	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/courtphys.dmi'
+	icon_state = "docmask"
+	item_state = "docmask"
+	salvage_result = /obj/item/natural/bone
+
+//gemcarved masks from Vanderlin
+
+/obj/item/clothing/mask/rogue/facemask/carved
+	name = "carved mask"
+	icon_state = "ancientmask"
+	desc = "You shouldn't be seeing this."
+	max_integrity = 50
+	blocksound = PLATEHIT
+	break_sound = 'sound/foley/breaksound.ogg'
+	drop_sound = 'sound/foley/dropsound/armor_drop.ogg'
+	armor = ARMOR_PLATE
+	prevent_crits = list(BCLASS_CUT, BCLASS_STAB, BCLASS_CHOP, BCLASS_BLUNT)
+	flags_inv = HIDEFACE
+	body_parts_covered = FACE
+	block2add = FOV_BEHIND
+	slot_flags = ITEM_SLOT_MASK|ITEM_SLOT_HIP
+	anvilrepair = /datum/skill/craft/armorsmithing //Maybe these shouldn't be repairable, someone else can do that if they want.
+	clothing_flags = CANT_SLEEP_IN
+	sellprice = 70
+	smeltresult = null
+	salvage_result = null
+
+/obj/item/clothing/mask/rogue/facemask/carved/jademask
+	name = "jade mask "
+	icon_state = "mask_jade"
+	desc = "A jade mask that both conceals and protects the face."
+	sellprice = 70
+
+/obj/item/clothing/mask/rogue/facemask/carved/jademask
+	name = "jade mask"
+	icon_state = "mask_jade"
+	desc = "A jade mask that both conceals and protects the face."
+	sellprice = 70
+
+/obj/item/clothing/mask/rogue/facemask/carved/turqmask
+	name = "cerulite mask"
+	icon_state = "mask_turq"
+	desc = "A cerulite mask that both conceals and protects the face."
+	sellprice = 95
+
+/obj/item/clothing/mask/rogue/facemask/carved/rosemask
+	name = "rosestone mask"
+	icon_state = "mask_rose"
+	desc = "A rosestone mask that both conceals and protects the face."
+	sellprice = 35
+
+/obj/item/clothing/mask/rogue/facemask/carved/shellmask
+	name = "shell mask"
+	icon_state = "mask_shell"
+	desc = "A shell mask that both conceals and protects the face."
+	sellprice = 30
+
+/obj/item/clothing/mask/rogue/facemask/carved/coralmask
+	name = "heartstone mask"
+	icon_state = "mask_coral"
+	desc = "An heartstone mask that both conceals and protects the face."
+	sellprice = 80
+
+/obj/item/clothing/mask/rogue/facemask/carved/ambermask
+	name = "amber mask"
+	icon_state = "mask_amber"
+	desc = "A amber mask that both conceals and protects the face."
+	sellprice = 70
+
+/obj/item/clothing/mask/rogue/facemask/carved/onyxamask
+	name = "onyxa mask"
+	icon_state = "mask_onyxa"
+	desc = "An onyxa mask that both conceals and protects the face."
+	sellprice = 50
+
+/obj/item/clothing/mask/rogue/facemask/carved/opalmask
+	name = "opal mask"
+	icon_state = "mask_opal"
+	desc = "An opal mask that both conceals and protects the face."
+	sellprice = 100

@@ -52,7 +52,7 @@
 /obj/structure/roguemachine/steward/attackby(obj/item/P, mob/user, params)
 	if(istype(P, /obj/item/roguekey))
 		var/obj/item/roguekey/K = P
-		if(K.lockid == keycontrol || istype(K, /obj/item/roguekey/lord)) //Master key
+		if(K.lockid == keycontrol || istype(K, /obj/item/roguekey/lord) || istype(K, /obj/item/roguekey/skeleton)) //Master key
 			locked = !locked
 			playsound(loc, 'sound/misc/beep.ogg', 100, FALSE, -1)
 			(locked) ? (icon_state = "steward_machine_off") : (icon_state = "steward_machine")
@@ -215,7 +215,7 @@
 				SStreasury.give_money_account(-newtax, A, "NERVE MASTER")
 				break
 	if(href_list["payroll"])
-		var/list/L = list(GLOB.noble_positions) + list(GLOB.garrison_positions) + list(GLOB.courtier_positions) + list(GLOB.church_positions) + list(GLOB.yeoman_positions) + list(GLOB.peasant_positions) + list(GLOB.youngfolk_positions) + list(GLOB.inquisition_positions)
+		var/list/L = list(GLOB.noble_positions) + list(GLOB.retinue_positions) + list(GLOB.garrison_positions) + list(GLOB.courtier_positions) + list(GLOB.church_positions) + list(GLOB.burgher_positions) + list(GLOB.peasant_positions) + list(GLOB.sidefolk_positions) + list(GLOB.inquisition_positions)
 		var/list/things = list()
 		for(var/list/category in L)
 			for(var/A in category)
@@ -239,7 +239,7 @@
 				record_round_statistic(STATS_WAGES_PAID)
 				SStreasury.give_money_account(amount_to_pay, H, "NERVE MASTER")
 	if(href_list["setdailypay"])
-		var/list/L = list(GLOB.noble_positions) + list(GLOB.garrison_positions) + list(GLOB.courtier_positions) + list(GLOB.church_positions) + list(GLOB.yeoman_positions) + list(GLOB.peasant_positions) + list(GLOB.youngfolk_positions) + list(GLOB.inquisition_positions)
+		var/list/L = list(GLOB.noble_positions) + list(GLOB.retinue_positions) + list(GLOB.garrison_positions) + list(GLOB.courtier_positions) + list(GLOB.church_positions) + list(GLOB.burgher_positions) + list(GLOB.peasant_positions) + list(GLOB.sidefolk_positions) + list(GLOB.inquisition_positions)
 		var/list/things = list()
 		for(var/list/category in L)
 			for(var/A in category)
@@ -298,6 +298,22 @@
 		compact = !compact
 	if(href_list["changecat"])
 		current_category = href_list["changecat"]
+	if(href_list["changeinterest"])
+		if(!usr.canUseTopic(src, BE_CLOSE) || locked)
+			return
+		var/new_interest = input(usr, "Set daily interest rate (0-10%)", src, SStreasury.bank_interest_rate * 100) as null|num
+		if(isnull(new_interest))
+			return
+		if(!usr.canUseTopic(src, BE_CLOSE) || locked)
+			return
+		if(new_interest < 0 || new_interest > 10)
+			say("Interest rate must be between 0% and 10%.")
+			return
+		new_interest = round(new_interest * 10) / 10 // Round to one decimal place
+		SStreasury.bank_interest_rate = new_interest * 0.01
+		say("Daily interest rate set to [new_interest]%.")
+		SStreasury.log_to_steward("Interest rate changed to [new_interest]%")
+		scom_announce("Interest rates have been set to [new_interest]%.", )
 	if(href_list["changeautoexport"])
 		if(!usr.canUseTopic(src, BE_CLOSE) || locked)
 			return
@@ -371,7 +387,8 @@
 			contents += "<center>Bank<BR>"
 			contents += "--------------<BR>"
 			contents += "Treasury: [SStreasury.treasury_value]m<BR>"
-			contents += "Reserve Ratio: [round(SStreasury.treasury_value / total_deposit * 100)]%</center><BR>"
+			contents += "Reserve Ratio: [round(SStreasury.treasury_value / total_deposit * 100)]%<BR>"
+			contents += "Daily Interest: <a href='?src=\ref[src];changeinterest=1'>[SStreasury.bank_interest_rate * 100]%</a> (Cap: [SStreasury.bank_interest_cap]m)</center><BR>"
 			contents += "<a href='?src=\ref[src];payroll=1'>\[Pay by Class\]</a><BR><BR>"
 			if(compact)
 				for(var/mob/living/carbon/human/A in SStreasury.bank_accounts)

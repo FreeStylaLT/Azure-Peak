@@ -106,6 +106,10 @@
 		prob_us = max(prob_us, prob_opp)
 		prob_opp = max(prob_us, prob_opp)
 
+	if(has_vendetta() && HU.has_vendetta())
+		prob_us = max(prob_us, prob_opp)
+		prob_opp = max(prob_us, prob_opp)
+
 	if((!instantloss && !instantwin) || (instantloss && instantwin))	//We are both using normal weapons OR we're both using memes. Either way, proceed as normal.
 		visible_message(span_boldwarning("[src] and [HU] clash!"))
 		flash_fullscreen("whiteflash")
@@ -228,6 +232,11 @@
 			return TRUE
 	return FALSE
 
+/mob/living/carbon/human/proc/has_vendetta()
+	if(HAS_TRAIT(src, TRAIT_VENDETTA))
+		return TRUE
+	return FALSE
+
 /// Returns the highest AC worn, or held in hands.
 /mob/living/carbon/human/proc/highest_ac_worn(check_hands)
 	var/list/slots = list(wear_armor, wear_pants, wear_wrists, wear_shirt, gloves, head, shoes, wear_neck, wear_mask, wear_ring)
@@ -302,10 +311,13 @@
 	manage_tempo()
 
 /mob/living/carbon/human/proc/clear_tempo_all()
-	if(length(tempo_attackers) && HAS_TRAIT(src, TRAIT_TEMPO))
-		LAZYCLEARLIST(tempo_attackers)
-		to_chat(src, span_info("My muscles relax. My tempo is gone."))
-		manage_tempo()
+	if(HAS_TRAIT(src, TRAIT_TEMPO))
+		var/tempo_amt = length(tempo_attackers)
+		if(tempo_amt)
+			LAZYCLEARLIST(tempo_attackers)
+			if(tempo_amt >= TEMPO_ONE)
+				to_chat(src, span_info("My muscles relax. My tempo is gone."))
+			manage_tempo()
 
 /mob/living/proc/get_tempo_bonus(id)
 	switch(id)

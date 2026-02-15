@@ -17,10 +17,11 @@
 	sleeved_detail = FALSE
 	boobed_detail = FALSE
 	chunkcolor = "#7d9097"
+	material_category = ARMOR_MAT_PLATE
 
 /obj/item/clothing/suit/roguetown/armor/brigandine/Initialize()
 	. = ..()
-	AddComponent(/datum/component/item_equipped_movement_rustle, SFX_PLATE_COAT_STEP, 6)
+	AddComponent(/datum/component/item_equipped_movement_rustle, SFX_PLATE_COAT_STEP, 18)
 
 /obj/item/clothing/suit/roguetown/armor/brigandine/attack_right(mob/user)
 	if(detail_tag)
@@ -66,28 +67,10 @@
 	GLOB.lordcolor -= src
 	return ..()
 
-/obj/item/clothing/suit/roguetown/armor/brigandine/coatplates
-	name = "coat of plates"
-	desc = "A leather coat with plates attached to increase protection while retaining mobility. The leather below might stop a dagger."
-	icon_state = "coat_of_plates"
-	blocksound = PLATEHIT
-	smelt_bar_num = 2
-	armor_class = ARMOR_CLASS_HEAVY
-	max_integrity = ARMOR_INT_CHEST_PLATE_BRIGANDINE + 50
-
-/obj/item/clothing/suit/roguetown/armor/brigandine/retinue/coat
-	name = "coat of the commander"
-	desc = "A thick boiled leather surcoat with enough plates concealed within the folds to offer superior protection. It weighs a ton and takes a great man to wear."
-	icon_state = "leathercoat"
-	item_state = "leathercoat"
-	sleeved_detail = TRUE
-	boobed_detail = TRUE
-	color = "#7D6653"
-
 /obj/item/clothing/suit/roguetown/armor/brigandine/light
 	slot_flags = ITEM_SLOT_ARMOR
 	name = "lightweight brigandine"
-	desc = "A light riveted coat with plates concealed inside an exterior fabric. Susceptible to daggers being shoved into your ribs."
+	desc = "A lightweight coat-of-plates, concealed underneath layers of dyeable leather. While more expensive than a traditional steel cuirass, it doesn't require a well-conditioned phyisque to comfortably don."
 	icon_state = "light_brigandine"
 	blocksound = SOFTHIT
 	body_parts_covered = COVERAGE_TORSO
@@ -97,6 +80,9 @@
 	equip_delay_self = 40
 	armor_class = ARMOR_CLASS_LIGHT//steel version of the studded leather armor now
 	w_class = WEIGHT_CLASS_BULKY
+
+/obj/item/clothing/suit/roguetown/armor/brigandine/light/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
 
 /obj/item/clothing/suit/roguetown/armor/brigandine/light/attack_right(mob/user)
 	if(detail_tag)
@@ -141,9 +127,9 @@
 	GLOB.lordcolor -= src
 	return ..()
 
-/obj/item/clothing/suit/roguetown/armor/brigandine/captain
-	name = "captain's brigandine"
-	desc = "A coat with plates specifically tailored and forged for the captain of Azure."
+/obj/item/clothing/suit/roguetown/armor/brigandine/banneret
+	name = "knight banneret's brigandine"
+	desc = "A resplendant coat-of-plates, gilded and veiled in dyeable silk. Only the finest of Azuria's Knights has been entrusted with this beautiful article."
 	icon_state = "capplate"
 	icon = 'icons/roguetown/clothing/special/captain.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/captain.dmi'

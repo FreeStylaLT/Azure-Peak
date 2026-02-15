@@ -39,6 +39,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/wander = 1
 	///When set to 1 this stops the animal from moving when someone is pulling it.
 	var/stop_automated_movement_when_pulled = 1
+	///Next time we can perform a grid update (throttled to avoid excessive updates)
+	var/next_grid_update_time = 0
 
 	var/obj/item/handcuffed = null //Whether or not the mob is handcuffed
 	var/obj/item/legcuffed = null  //Same as handcuffs but for legs. Bear traps use this.
@@ -207,7 +209,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		AddSpell(newspell)
 
 /mob/living/simple_animal/Destroy()
-	our_cells = null
 	GLOB.simple_animals[AIStatus] -= src
 	SSnpcpool.currentrun -= src
 
@@ -227,7 +228,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	if (T && AIStatus == AI_Z_OFF)
 		SSidlenpcpool.idle_mobs_by_zlevel[T.z] -= src
 
-	return ..()
+	. = ..()
+	our_cells = null
 
 /mob/living/simple_animal/examine(mob/user)
 	. = ..()
@@ -290,8 +292,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	. = ..()
 	if(ccaparison && stat == CONSCIOUS && !resting)
 		var/caparison_overlay = ccaparison.female_caparison_state && gender == FEMALE ? ccaparison.female_caparison_state : ccaparison.caparison_state
-		var/mutable_appearance/caparison_above_overlay = mutable_appearance(icon, caparison_overlay + "-above", 4.31)
-		add_overlay(caparison_overlay)
+		var/mutable_appearance/caparison_above_overlay = mutable_appearance(ccaparison.caparison_icon, caparison_overlay + "-above", 4.31)
+		add_overlay(icon(ccaparison.caparison_icon, caparison_overlay))
 		add_overlay(caparison_above_overlay)
 
 ///Extra effects to add when the mob is tamed, such as adding a riding component
@@ -601,9 +603,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	return //RTCHANGE
 
 /mob/living/simple_animal/proc/drop_loot()
-	if(loot.len)
-		for(var/i in loot)
-			new i(loc)
+	for(var/i in loot) // If someone puts a turf in this list I'm going to kill you.
+		new i(loc)
 
 /mob/living/simple_animal/death(gibbed)
 	movement_type &= ~FLYING
@@ -1039,9 +1040,11 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 /mob/living/simple_animal/Moved()
 	. = ..()
-	update_grid()
+	if(world.time >= next_grid_update_time)
+		update_grid()
 
 /mob/living/simple_animal/proc/update_grid()
+	next_grid_update_time = world.time + 5
 	var/turf/our_turf = get_turf(src)
 	if(isnull(our_turf) || isnull(our_cells))
 		return

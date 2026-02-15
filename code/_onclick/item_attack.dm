@@ -20,6 +20,11 @@
 		if(HAS_TRAIT(user, TRAIT_CHUNKYFINGERS))
 			to_chat(user, span_warning("...What?"))
 			return
+		// FAR less aggressive version of chunkyfingers, designed to be used with nudist. Shrimply lets the user still use neat stuff like orison without letting them weaponize.
+		if(HAS_TRAIT(user, TRAIT_GNARLYDIGITS))
+			if(istype(src, /obj/item/rogueweapon) && !istype(src, /obj/item/rogueweapon/werewolf_claw))
+				to_chat(user, span_warning("My fingers are too misshapen to use this puny implement."))
+				return
 	if(tool_behaviour && target.tool_act(user, src, tool_behaviour))
 		return
 	if(pre_attack(target, user, params))
@@ -190,14 +195,24 @@
 	//Niche signal for post-swingdelay attacks when we want to care about those.
 	_attacker_signal = null
 	_attacker_signal = SEND_SIGNAL(user, COMSIG_MOB_ITEM_ATTACK_POST_SWINGDELAY, M, user, src)
-	if(_attacker_signal & COMPONENT_ITEM_NO_ATTACK)
+	var/_defender_signal = SEND_SIGNAL(M, COMSIG_MOB_ITEM_POST_SWINGDELAY_ATTACKED, M, user, src)
+	if(_attacker_signal & COMPONENT_ITEM_NO_ATTACK || _defender_signal & COMPONENT_ITEM_NO_ATTACK)
 		return FALSE
-	else if(_attacker_signal & COMPONENT_ITEM_NO_DEFENSE)
+	else if(_attacker_signal & COMPONENT_ITEM_NO_DEFENSE || _defender_signal & ATTACK_OVERRIDE_NODEFENSE)
 		override_status = ATTACK_OVERRIDE_NODEFENSE
 
 	if(override_status != ATTACK_OVERRIDE_NODEFENSE)
 		if(M.checkdefense(user.used_intent, user))
 			return
+
+	if(user.mind)
+		if(user.client?.prefs?.attack_blip_frequency != ATTACK_BLIP_PREF_NEVER)
+			var/blip_prob = user.client?.prefs?.attack_blip_frequency
+			if(prob(blip_prob))
+				user.emote("attack", forced = TRUE)
+	else
+		if(prob(PROB_ATTACK_EMOTE_NPC))
+			user.emote("attack", forced = TRUE)
 
 	SEND_SIGNAL(src, COMSIG_ITEM_ATTACK_SUCCESS, M, user)
 	SEND_SIGNAL(M, COMSIG_ITEM_ATTACKED_SUCCESS, src, user)
@@ -233,6 +248,16 @@
 			else
 				playsound(M.loc,  "nodmg", 100, FALSE, -1)
 
+		if(M.has_flaw(/datum/charflaw/addiction/thrillseeker))
+			var/datum/component/arousal/CAR = M.GetComponent(/datum/component/arousal)
+			if(CAR)
+				CAR.adjust_arousal_special(src, 2)
+
+		if(user.has_flaw(/datum/charflaw/addiction/thrillseeker))
+			var/datum/component/arousal/CAR = user.GetComponent(/datum/component/arousal)
+			if(CAR)
+				CAR.adjust_arousal_special(src, 2)
+				
 	log_combat(user, M, "attacked", src.name, "(INTENT: [uppertext(user.used_intent.name)]) (DAMTYPE: [uppertext(damtype)])")
 	add_fingerprint(user)
 
@@ -248,6 +273,8 @@
 		return TRUE
 
 /obj/item/proc/attack_turf(turf/T, mob/living/user, multiplier)
+	if(SEND_SIGNAL(src, COMSIG_ITEM_ATTACK_TURF, T, user) & COMPONENT_NO_ATTACK_OBJ)
+		return
 	if(T.max_integrity)
 		if(T.attacked_by(src, user, multiplier))
 			user.do_attack_animation(T, simplified = TRUE)
@@ -275,8 +302,6 @@
 		var/mob/living/carbon/C = user
 		if(C.domhand)
 			used_str = C.get_str_arms(C.used_hand)
-	if(istype(user.rmb_intent, /datum/rmb_intent/weak))
-		used_str--
 	if(ishuman(user))
 		var/mob/living/carbon/human/user_human = user
 		if(user_human.clan) // For each level of potence user gains 0.5 STR, at 5 Potence their STR buff is 2.5
@@ -408,6 +433,11 @@
 
 	if(istype(user.rmb_intent, /datum/rmb_intent/strong))
 		newforce += (I.force_dynamic * STRONG_STANCE_DMG_BONUS)
+
+	if(istype(user.rmb_intent, /datum/rmb_intent/weak))
+		newforce = (newforce * 0.2)
+
+	newforce = CLAMP(newforce, user.used_intent.min_intent_damage, user.used_intent.max_intent_damage)
 
 	return newforce
 

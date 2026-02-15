@@ -68,6 +68,11 @@
 	desc = "A pot made out of copper. It can hold a lot of liquid."
 	icon_state = "pote_copper"
 
+/obj/item/reagent_containers/glass/bucket/pot/bronze
+	name = "bronze pot"
+	desc = "A cauldron of bronze, aching to churn water and chopmealings into a champion's broth. It can hold a lot of liquid."
+	icon_state = "bronzepot"
+
 /obj/item/reagent_containers/glass/bucket/pot/teapot
 	name = "teapot"
 	desc = "A teapot made out of ceramic. Used to serve tea, it can hold a lot of liquid. It can still spill, however."
@@ -75,6 +80,79 @@
 	icon_state = "teapot"
 	volume = 120
 	sellprice = 20
+
+/obj/item/reagent_containers/glass/bucket/pot/carved
+	name = "carved teapot"
+	desc = "You shouldn't be seeing this."
+	icon_state = "teapot"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	volume = 99
+	sellprice = 0
+
+/obj/item/reagent_containers/glass/bucket/pot/carved/teapotjade
+	name = "jade teapot"
+	desc = "A dainty teapot carved out of jade."
+	icon_state = "teapot_jade"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	sellprice = 60
+
+/obj/item/reagent_containers/glass/bucket/pot/carved/teapotamber
+	name = "amber teapot"
+	desc = "A dainty teapot carved out of amber."
+	icon_state = "teapot_amber"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	sellprice = 60
+
+/obj/item/reagent_containers/glass/bucket/pot/carved/teapotshell
+	name = "shell teapot"
+	desc = "A dainty teapot carved out of shell."
+	icon_state = "teapot_shell"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	sellprice = 20
+
+/obj/item/reagent_containers/glass/bucket/pot/carved/teapotrose
+	name = "rosestone teapot"
+	desc = "A dainty teapot carved out of rosestone."
+	icon_state = "teapot_rose"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	sellprice = 25
+
+/obj/item/reagent_containers/glass/bucket/pot/carved/teapotopal
+	name = "opal teapot"
+	desc = "A dainty teapot carved out of opal."
+	icon_state = "teapot_opal"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	sellprice = 90
+
+/obj/item/reagent_containers/glass/bucket/pot/carved/teapotonyxa
+	name = "onyxa teapot"
+	desc = "A dainty teapot carved out of onyxa."
+	icon_state = "teapot_onyxa"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	sellprice = 40
+
+/obj/item/reagent_containers/glass/bucket/pot/carved/teapotcoral
+	name = "heartstone teapot"
+	desc = "A dainty teapot carved out of heartstone."
+	icon_state = "teapot_coral"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	sellprice = 70
+
+/obj/item/reagent_containers/glass/bucket/pot/carved/teapotturq
+	name = "cerulite teapot"
+	desc = "A dainty teapot carved out of cerulite."
+	icon_state = "teapot_turq"
+	fill_icon_thresholds = null
+	dropshrink = 1.0
+	sellprice = 85
 
 /obj/item/reagent_containers/glass/bucket/pot/teapot/examine()
 	. = ..()

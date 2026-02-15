@@ -56,6 +56,19 @@
 					legwear_socks.forceMove(get_turf(src))
 					src.put_in_hands(legwear_socks)
 					legwear_socks = null
+		if(user.zone_selected == BODY_ZONE_CHEST)
+			if(!piercings_item)
+				return
+			var/under_clothes = get_location_accessible(src, BODY_ZONE_CHEST, skipundies = TRUE)
+			src.visible_message(span_notice("[src] begins to take off [piercings_item][under_clothes ? " from under their clothes" : ""]..."))
+			var/delay = under_clothes ? 25 : 40
+			if(do_after(user, delay, target = src))
+				var/obj/item/bodypart/chest = get_bodypart(BODY_ZONE_CHEST)
+				chest.remove_bodypart_feature(piercings_item.piercings_feature)
+				piercings_item.forceMove(get_turf(src))
+				src.put_in_hands(piercings_item)
+				piercings_item = null
+				regenerate_icons()
 #endif
 
 /mob/living/carbon/human/Initialize()
@@ -557,24 +570,44 @@
 				. = 1
 				if(stamina >= max_stamina)
 					hud_used.stamina.icon_state = "stam0"
+				else if(stamina > max_stamina*0.95)
+					hud_used.stamina.icon_state = "stam5"
 				else if(stamina > max_stamina*0.90)
 					hud_used.stamina.icon_state = "stam10"
+				else if(stamina > max_stamina*0.85)
+					hud_used.stamina.icon_state = "stam15"
 				else if(stamina > max_stamina*0.80)
 					hud_used.stamina.icon_state = "stam20"
+				else if(stamina > max_stamina*0.75)
+					hud_used.stamina.icon_state = "stam25"
 				else if(stamina > max_stamina*0.70)
 					hud_used.stamina.icon_state = "stam30"
+				else if(stamina > max_stamina*0.65)
+					hud_used.stamina.icon_state = "stam35"
 				else if(stamina > max_stamina*0.60)
 					hud_used.stamina.icon_state = "stam40"
+				else if(stamina > max_stamina*0.55)
+					hud_used.stamina.icon_state = "stam45"
 				else if(stamina > max_stamina*0.50)
 					hud_used.stamina.icon_state = "stam50"
+				else if(stamina > max_stamina*0.45)
+					hud_used.stamina.icon_state = "stam55"
 				else if(stamina > max_stamina*0.40)
 					hud_used.stamina.icon_state = "stam60"
+				else if(stamina > max_stamina*0.35)
+					hud_used.stamina.icon_state = "stam65"
 				else if(stamina > max_stamina*0.30)
 					hud_used.stamina.icon_state = "stam70"
+				else if(stamina > max_stamina*0.25)
+					hud_used.stamina.icon_state = "stam75"
 				else if(stamina > max_stamina*0.20)
 					hud_used.stamina.icon_state = "stam80"
+				else if(stamina > max_stamina*0.15)
+					hud_used.stamina.icon_state = "stam85"
 				else if(stamina > max_stamina*0.10)
 					hud_used.stamina.icon_state = "stam90"
+				else if(stamina > max_stamina*0.05)
+					hud_used.stamina.icon_state = "stam95"
 				else if(stamina >= 0)
 					hud_used.stamina.icon_state = "stam100"
 		if(hud_used.energy)
@@ -582,26 +615,46 @@
 				. = 1
 				if(energy <= 0)
 					hud_used.energy.icon_state = "energy0"
-				else if(energy > max_energy*0.90)
+				else if(energy > max_energy*0.95)
 					hud_used.energy.icon_state = "energy100"
-				else if(energy > max_energy*0.80)
+				else if(energy > max_energy*0.90)
+					hud_used.energy.icon_state = "energy95"
+				else if(energy > max_energy*0.85)
 					hud_used.energy.icon_state = "energy90"
-				else if(energy > max_energy*0.70)
+				else if(energy > max_energy*0.80)
+					hud_used.energy.icon_state = "energy85"
+				else if(energy > max_energy*0.75)
 					hud_used.energy.icon_state = "energy80"
-				else if(energy > max_energy*0.60)
+				else if(energy > max_energy*0.70)
+					hud_used.energy.icon_state = "energy75"
+				else if(energy > max_energy*0.65)
 					hud_used.energy.icon_state = "energy70"
-				else if(energy > max_energy*0.50)
+				else if(energy > max_energy*0.60)
+					hud_used.energy.icon_state = "energy65"
+				else if(energy > max_energy*0.55)
 					hud_used.energy.icon_state = "energy60"
-				else if(energy > max_energy*0.40)
+				else if(energy > max_energy*0.50)
+					hud_used.energy.icon_state = "energy55"
+				else if(energy > max_energy*0.45)
 					hud_used.energy.icon_state = "energy50"
-				else if(energy > max_energy*0.30)
+				else if(energy > max_energy*0.40)
+					hud_used.energy.icon_state = "energy45"
+				else if(energy > max_energy*0.35)
 					hud_used.energy.icon_state = "energy40"
-				else if(energy > max_energy*0.20)
+				else if(energy > max_energy*0.30)
+					hud_used.energy.icon_state = "energy35"
+				else if(energy > max_energy*0.25)
 					hud_used.energy.icon_state = "energy30"
-				else if(energy > max_energy*0.10)
+				else if(energy > max_energy*0.20)
+					hud_used.energy.icon_state = "energy25"
+				else if(energy > max_energy*0.15)
 					hud_used.energy.icon_state = "energy20"
-				else if(energy > 0)
+				else if(energy > max_energy*0.10)
+					hud_used.energy.icon_state = "energy15"
+				else if(energy > max_energy*0.05)
 					hud_used.energy.icon_state = "energy10"
+				else if(energy > 0)
+					hud_used.energy.icon_state = "energy5"
 
 		if(hud_used.zone_select)
 			hud_used.zone_select.update_icon()
@@ -889,6 +942,9 @@
 
 /mob/living/carbon/human/adjust_nutrition(change) //Honestly FUCK the oldcoders for putting nutrition on /mob someone else can move it up because holy hell I'd have to fix SO many typechecks
 	if(HAS_TRAIT(src, TRAIT_NOHUNGER))
+		remove_status_effect(/datum/status_effect/debuff/hungryt1)
+		remove_status_effect(/datum/status_effect/debuff/hungryt2)
+		remove_status_effect(/datum/status_effect/debuff/hungryt3)
 		return FALSE
 	return ..()
 
@@ -899,6 +955,9 @@
 
 /mob/living/carbon/human/adjust_hydration(change)
 	if(HAS_TRAIT(src, TRAIT_NOHUNGER))
+		remove_status_effect(/datum/status_effect/debuff/thirstyt1)
+		remove_status_effect(/datum/status_effect/debuff/thirstyt2)
+		remove_status_effect(/datum/status_effect/debuff/thirstyt3)
 		return FALSE
 	return ..()
 

@@ -19,6 +19,7 @@
 
 /obj/item/clothing/under/roguetown/heavy_leather_pants/ComponentInitialize()
 	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FENCERDEXTERITY)
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_HONORBOUND)
 
 /obj/item/clothing/under/roguetown/heavy_leather_pants/shorts
 	name = "hardened leather shorts"
@@ -34,6 +35,12 @@
 	name = "otavan leather trousers"
 	desc = "padded leather armor made by Otavan tailors, its quality is remarkable."
 	icon_state = "fencerpants"
+
+/obj/item/clothing/under/roguetown/heavy_leather_pants/otavan/shepherd
+	name = "shepherd's pants"
+	desc = "A pair of white pants decorated with red stripes and traditional patterning."
+	icon_state = "shepherdpants"
+	color = "#FFFFFF"
 
 /obj/item/clothing/under/roguetown/heavy_leather_pants/otavan/generic
 	name = "fencing breeches"
@@ -98,18 +105,21 @@
 	desc = "Foreign pants, with leather insewns."
 	icon_state = "eastpants1"
 	allowed_race = NON_DWARVEN_RACE_TYPES
+	max_integrity = ARMOR_INT_LEG_HARDLEATHER - 50
 
 /obj/item/clothing/under/roguetown/heavy_leather_pants/eastpants2
 	name = "strange ripped pants"
 	desc = "Weird pants typically worn by the destitute in Kazengun. Or, those looking to make a fashion statement."
 	icon_state = "eastpants2"
 	allowed_race = NON_DWARVEN_RACE_TYPES
+	max_integrity = ARMOR_INT_LEG_HARDLEATHER - 50
 
 /obj/item/clothing/under/roguetown/heavy_leather_pants/kazengun //no, not 'eastpants3', silly!
 	name = "gambeson trousers"
 	desc = "A form of Kazengunite peasant's trousers. The fabric used in their manufacture is strong, and could probably turn away a few blows."
 	icon_state = "baggypants"
 	item_state = "baggypants"
+	max_integrity = ARMOR_INT_LEG_HARDLEATHER - 50
 
 /obj/item/clothing/under/roguetown/heavy_leather_pants/shadowpants
 	name = "silk tights"

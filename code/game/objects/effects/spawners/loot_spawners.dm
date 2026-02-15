@@ -67,7 +67,8 @@
 		/obj/item/mundane/puzzlebox/easy = 1,
 		//medical
 		/obj/item/needle/thorn = 4,
-		/obj/item/natural/cloth = 5,
+		/obj/item/natural/cloth/bandage = 5,
+		/obj/item/natural/bundle/cloth/bandage/full = 3,
 		//weapons
 		/obj/item/gun/ballistic/revolver/grenadelauncher/bow = 2,
 		/obj/item/quiver/arrows = 2,
@@ -210,8 +211,8 @@
 		/obj/item/mundane/puzzlebox/easy = 1,
 		//medical
 		/obj/item/needle = 4,
-		/obj/item/natural/cloth = 5,
-		/obj/item/natural/bundle/cloth = 3,
+		/obj/item/natural/cloth/bandage = 5,
+		/obj/item/natural/bundle/cloth/bandage/full = 3,
 		//weapons
 		/obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve = 4,
 		/obj/item/gun/ballistic/revolver/grenadelauncher/crossbow = 3,
@@ -336,7 +337,8 @@
 		/obj/item/mundane/puzzlebox/impossible = 1,
 		//medical
 		/obj/item/needle = 4,
-		/obj/item/natural/bundle/cloth = 3,
+		/obj/item/natural/cloth/bandage = 5,
+		/obj/item/natural/bundle/cloth/bandage/full = 3,
 		//weapons
 		/obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve = 4,
 		/obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow  = 4,
@@ -368,7 +370,6 @@
 		/obj/item/rogueweapon/katar = 1,
 		/obj/item/rogueweapon/spear/billhook = 2,
 		/obj/item/rogueweapon/halberd = 2,
-		/obj/item/rogueweapon/halberd/glaive = 2,
 		/obj/item/rogueweapon/eaglebeak = 1,
 		/obj/item/rogueweapon/greatsword = 1,
 		/obj/item/rogueweapon/estoc = 1,

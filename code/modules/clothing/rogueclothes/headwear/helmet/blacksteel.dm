@@ -1,7 +1,7 @@
 
 /obj/item/clothing/head/roguetown/helmet/blacksteel/modern/armet
 	name = "blacksteel armet"
-	desc = "An armet forged of durable blacksteel, utilizing a modern design."
+	desc = "A magnificent greathelm of blacksteel, bearing the handiwork of Psydonia's finest blacksmiths. Beneath the visor most-assuredly lays a legendary guise; be it a commander's glare, a conquerer's sneer, or a champion's observance."
 	body_parts_covered = FULL_HEAD
 	icon = 'icons/roguetown/clothing/special/blkknight.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/blkknight.dmi'
@@ -17,6 +17,7 @@
 	smeltresult = /obj/item/ingot/blacksteel
 	smelt_bar_num = 2
 	chunkcolor = "#303036"
+	material_category = ARMOR_MAT_PLATE
 
 /obj/item/clothing/head/roguetown/helmet/blacksteel/modern/armet/ComponentInitialize()
 	AddComponent(/datum/component/adjustable_clothing, (HEAD|EARS|HAIR), (HIDEEARS|HIDEHAIR), null, 'sound/items/visor.ogg', null, UPD_HEAD)	//Standard helmet
@@ -63,7 +64,7 @@
 
 /obj/item/clothing/head/roguetown/helmet/blacksteel/bucket
 	name = "blacksteel bucket helm"
-	desc = "A bucket helmet forged of durable blacksteel. None shall pass.."
+	desc = "An antiquated greathelm of blacksteel, crested with a thick and luscious plume. How much will it take for your faith to sway - and how little will it be? Will you clasp to the atrocities of the past and believe yourself unredeemable, or will you mantle the burden of doing what is right? </br>‎  </br>It is never too late to change; for the better, and for the worse."
 	body_parts_covered = FULL_HEAD
 	icon = 'icons/roguetown/clothing/special/blkknight.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/blkknight.dmi'
@@ -78,6 +79,7 @@
 	smeltresult = /obj/item/ingot/blacksteel
 	smelt_bar_num = 2
 	chunkcolor = "#303036"
+	material_category = ARMOR_MAT_PLATE
 
 /obj/item/clothing/head/roguetown/helmet/blacksteel/psythorns
 	name = "crown of psydonian thorns"

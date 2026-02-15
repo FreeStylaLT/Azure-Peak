@@ -14,6 +14,7 @@
 		STATKEY_WIL = 1,
 		STATKEY_SPD = 1
 	)
+	age_mod = /datum/class_age_mod/wretch/rogue_mage
 	subclass_spellpoints = 12
 	subclass_skills = list(
 		/datum/skill/combat/polearms = SKILL_LEVEL_JOURNEYMAN,
@@ -28,6 +29,9 @@
 		/datum/skill/magic/arcane = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN, //For lux extractions.
 	)
+	subclass_stashed_items = list(
+        "Sewing Kit" =  /obj/item/repair_kit,
+    )
 
 /datum/outfit/job/roguetown/wretch/necromancer/pre_equip(mob/living/carbon/human/H)
 	head = /obj/item/clothing/head/roguetown/roguehood/black
@@ -52,9 +56,6 @@
 		/obj/item/reagent_containers/glass/bottle/alchemical/healthpot = 1,	//Small health vial
 		)
 	H.dna.species.soundpack_m = new /datum/voicepack/male/wizard()
-	if(H.age == AGE_OLD)
-		H.adjust_skillrank_up_to(/datum/skill/magic/arcane, SKILL_LEVEL_MASTER, TRUE)
-		H.mind?.adjust_spellpoints(6)
 	if(H.mind)
 		H.mind?.current.faction += "[H.name]_faction"
 		H.set_patron(/datum/patron/inhumen/zizo)

@@ -10,6 +10,7 @@
 	blade_dulling = DULLING_CUT
 	max_integrity = 200
 	integrity_failure = 0.1
+	throw_speed = 0.5
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
 	var/gendered
 	var/race
@@ -72,11 +73,23 @@
 	icon_state = "braies"
 	sprite_acc = /datum/sprite_accessory/underwear/braies
 
+/obj/item/undies/briefs_eoran
+	name = "eoran briefs"
+	icon_state = "eoran_reg"
+	sprite_acc = /datum/sprite_accessory/underwear/briefs/eoran
+
 // Craft
 
 /datum/crafting_recipe/roguetown/sewing/undies
 	name = "briefs"
 	result = list(/obj/item/undies)
+	reqs = list(/obj/item/natural/cloth = 1,
+				/obj/item/natural/fibers = 1)
+	craftdiff = 2
+
+/datum/crafting_recipe/roguetown/sewing/undies_eoran
+	name = "briefs - eoran"
+	result = list(/obj/item/undies/briefs_eoran)
 	reqs = list(/obj/item/natural/cloth = 1,
 				/obj/item/natural/fibers = 1)
 	craftdiff = 2

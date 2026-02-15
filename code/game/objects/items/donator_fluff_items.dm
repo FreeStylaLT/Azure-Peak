@@ -98,16 +98,38 @@
 	icon_state = "orin"
 	icon = 'icons/obj/items/donor_weapons_64.dmi'
 
-//Zydras donator item - merchant dress
-/obj/item/clothing/suit/roguetown/shirt/dress/silkydress/zydrasdress //Recolored silky dress
-	name = "Gold-Black silky dress"
-	desc = "A gorgeous black and gold dress. It seems the padding was removed."
-	icon_state = "zydrasdress"
-	item_state = "zydrasdress"
-	sleevetype = "zydrasdress"
+
+//Zydras donator items - iconoclast pyromaniac - who up icono they clast
+/obj/item/clothing/suit/roguetown/armor/brigandine/light/zydrasiconopauldrons
+	name = "gilded pauldrons"
+	desc = "A ritual-acquired set of pauldrons and gorget. Seemingly protects the gut, too."
+	icon_state = "zydras_iconopauldrons"
+	item_state = "zydras_iconopauldrons"
+	sleevetype = "zydras_iconopauldrons"
 	icon = 'icons/clothing/donor_clothes.dmi'
 	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'
 	sleeved = 'icons/clothing/onmob/donor_sleeves_armor.dmi' //No sleeves
+
+/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/iron/zydrasiconosash //who up icono they clast
+	name = "gilded cloth sash"
+	desc = "A ritual-acquired sash of purple cloth, lined with gold. Seemingly protects the gut, too."
+	icon_state = "zydras_iconosash"
+	item_state = "zydras_iconosash"
+	sleevetype = "zydras_iconosash"
+	icon = 'icons/clothing/donor_clothes.dmi'
+	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'
+	sleeved = 'icons/clothing/onmob/donor_sleeves_armor.dmi' //No sleeves
+
+/obj/item/clothing/head/roguetown/helmet/heavy/sheriff/zydrasiconocrown
+	name = "toper-iron crown"
+	desc = "A iron crown with a toper studded into it. Any blow landing upon the wearer's head seems to divert to the gem."
+	flags_inv = null //It's a crown, it ain't hiding anything
+	flags_cover = null 
+	icon_state = "zydras_iconocrown"
+	item_state = "zydras_iconocrown"
+	icon = 'icons/clothing/donor_clothes.dmi'
+	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'
+
 
 //Eiren's donator items - zweihander and sabres
 /obj/item/rogueweapon/greatsword/zwei/eiren
@@ -142,6 +164,34 @@
 	icon_state = "eiren3"
 	icon = 'icons/obj/items/donor_weapons.dmi'
 	sheathe_icon = "eiren3"
+
+/obj/item/clothing/suit/roguetown/armor/longcoat/eiren //Longcoat has no armor, ignore the /armor/ path.
+	name = "Darkwood's Embrace"
+	desc = "A tough leather coat, taken from one of the few remaining arcyne studies of Lord Darkwood. Ancient, but in remarkably good condition as the weight of memory and sin tries to drag you down."
+	sleeved = TRUE
+	icon = 'icons/clothing/donor_clothes.dmi'
+	icon_state = "eirencoat"
+	item_state = "eirencoat"
+	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'
+	sleeved = 'icons/clothing/onmob/donor_sleeves_armor.dmi'
+	sleevetype = "eirencoat"
+	detail_tag = "_detail"
+	detail_color = CLOTHING_RED
+	color = CLOTHING_WHITE
+	boobed = FALSE
+
+/obj/item/clothing/suit/roguetown/armor/longcoat/eiren/Initialize()
+	. = ..()
+	update_icon()
+
+/obj/item/clothing/suit/roguetown/armor/longcoat/eiren/update_icon()
+	cut_overlays()
+	if(get_detail_tag())
+		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
+		pic.appearance_flags = RESET_COLOR
+		if(get_detail_color())
+			pic.color = get_detail_color()
+		add_overlay(pic)
 
 //pretzel's special sword
 /obj/item/rogueweapon/greatsword/weeperslathe
@@ -180,5 +230,105 @@
 	body_parts_covered = HEAD
 	flags_inv = HIDEEARS|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR|HIDETAIL
 	block2add = FOV_BEHIND
+	icon = 'icons/clothing/donor_clothes.dmi'
+	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'
+
+// DASFOX
+/obj/item/clothing/head/roguetown/helmet/heavy/knight/armet/dasfox
+	name = "archaic ceremonial valkyrhelm"
+	desc = "A winged and angular helm of archaic design, tracing its lineage back to the Celestial Empire's fall. \
+		House Timbermere makes sole use of its design within Azuria, claiming it as their heritage right. \
+		This one has been gilded by Astrata's own colors, with a hand-woven plume atop to bear heraldic colors."
+	icon_state = "valkyrhelm"
+	icon = 'icons/clothing/donor_clothes.dmi'
+	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'
+
+/obj/item/clothing/head/roguetown/helmet/heavy/knight/armet/dasfox/attackby(obj/item/W, mob/living/user, params)
+	..()
+	if(!(istype(W, /obj/item/natural/feather) && !detail_tag))
+		return
+	var/choice = input(user, "Choose a color.", "Plume") as anything in COLOR_MAP
+	user.visible_message(span_warning("[user] adds [W] to [src]."))
+	user.transferItemToLoc(W, src, FALSE, FALSE)
+	detail_color = COLOR_MAP[choice]
+	detail_tag = "_detail"
+	update_icon()
+	if(loc == user && ishuman(user))
+		var/mob/living/carbon/H = user
+		H.update_inv_head()
+
+/obj/item/clothing/neck/roguetown/psicross/astrata/dasfox
+	name = "defiled Astratan periapt"
+	desc = "This golden-lashed eye atop a blade was once a periapt of Astrata, \
+	used in prayer and reverence of Her Tyrannical Light. This one has been damaged heavily, \
+	and near-shattered- and is bound together by cloth and silver wires. \
+	In lieu of its former nature, it now serves as amulet or attachment to armor due to the braided wire to be \
+	utilized as a chain."
+	icon = 'icons/clothing/donor_clothes.dmi'
+	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'
+	icon_state = "astrata_periapt"
+
+/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/dasfox
+	name = "archaic ceremonial cuirass"
+	desc = "A cuirass and tasset set of archaic design, tracing its lineage back to the Celestial Empire's fall. \
+		House Timbermere makes sole use of its design within Azuria, claiming it as their heritage right. \
+		This one has been gilded by Astrata's own colors atop a sleeved surcoat to bear heraldic colors."
+	icon = 'icons/clothing/donor_clothes.dmi'
+	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'
+	icon_state = "archaiccuirass"
+	sleeved = 'icons/clothing/onmob/donor_sleeves_armor.dmi'
+	detail_tag = "_det"
+	detail_color = CLOTHING_WHITE
+	boobed = FALSE
+	boobed_detail = FALSE
+
+/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/dasfox/update_icon()
+	cut_overlays()
+	if(!get_detail_tag())
+		return
+	var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
+	message_admins("[pic.icon_state]")
+	pic.appearance_flags = RESET_COLOR
+	if(get_detail_color())
+		pic.color = get_detail_color()
+	add_overlay(pic)
+
+/obj/item/rogueweapon/spear/lance/dasfox
+	name = "La Rosa de la Chevalerie"
+	desc = "A jousting lance, designed to look much like the flower- a softness backed by steel. \
+		Handwoven silk is draped down the length and kept in place by steel vines, while heart-shaped ties keep silk on the grip from moving much even during proper jousts. \
+		The cup guard has been forged, in lieu of its natural shape, into a blooming rosa - genteel and pleasant in view for a weapon of war."
+	icon = 'icons/obj/items/donor_weapons_64.dmi'
+	icon_state = "dasfox_lance"
+
+
+//RYAN180602
+/obj/item/caparison/ryan
+	name = "western estates caparison"
+	desc = "To the west, Grenzelhoft. The scrawny coastlines make it hard to lay anchor. The waters flow, regardless."
+	icon = 'icons/clothing/donor_clothes.dmi'
+	icon_state = "ryan_caparison"
+	caparison_icon = 'icons/clothing/onmob/donor_caparisons.dmi'
+	caparison_state = "ryan_caparison"
+	female_caparison_state = "ryan_caparison-f"
+
+/obj/item/clothing/head/roguetown/helmet/heavy/psydonhelm/ryan
+	name = "maimed psydonic helm"
+	desc = "Disavowed lamb, suicidal hero, cursed idiot - Psydon is dead. Will you follow Him to the grave, as a beacon of dying hope, or surrender to temptation?"
+	icon_state = "ryan_maimedhelm"
+	icon = 'icons/clothing/donor_clothes.dmi'
+	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes64.dmi'
+
+//KORUU
+/obj/item/clothing/head/roguetown/mentorhat/koruu
+	name = "well-worn bamboo hat"
+	desc = "A bamboo hat, made from shaven rice straw and woven into place alongside a coating of lacquer. This particular hat seems worn with age, yet well maintained. The phrase, '葉隠' can be seen stitched in gold in the inner lining of the hat."
+	armor = ARMOR_CLOTHING
+
+//DAKKEN12
+/obj/item/clothing/head/roguetown/helmet/bascinet/pigface/hounskull/dakken
+	name = "armoured avantyne barbute"
+	desc = "A heavy-metal barbute that seems to be more avantyne than steel. It carries a tormented lustre about it, glinting under the sun as threads of the dark metal wind through its visor."
+	icon_state = "dakken_zizbarb"
 	icon = 'icons/clothing/donor_clothes.dmi'
 	mob_overlay_icon = 'icons/clothing/onmob/donor_clothes.dmi'

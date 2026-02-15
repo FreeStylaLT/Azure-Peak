@@ -12,8 +12,10 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	if(isnull(donoritem))
 		if(ckeywhitelist)
 			donoritem = TRUE
+	var/obj/targetitem = path
+	desc = targetitem.desc
 	if (triumph_cost)
-		desc += "<b>Costs [triumph_cost] TRIUMPH.</b>"
+		desc += "<br><b>Costs [triumph_cost] TRIUMPHS.</b>"
 
 /datum/loadout_item/proc/donator_ckey_check(key)
 	if(ckeywhitelist && ckeywhitelist.Find(key))
@@ -39,11 +41,13 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	path = /obj/item/book/rogue/loadoutbook
 
 //TOOLS
+/datum/loadout_item/paper_parasol
+	name = "Paper Parasol"
+	path = /obj/item/rogueweapon/mace/parasol
 
-/datum/loadout_item/bauernwehr
-	name = "Bauernwehr (-3 TRI)"
-	path = /obj/item/rogueweapon/huntingknife/throwingknife/bauernwehr
-	triumph_cost = 3
+/datum/loadout_item/fine_parasol
+	name = "Fine Parasol"
+	path = /obj/item/rogueweapon/mace/parasol/noble
 
 //HATS
 /datum/loadout_item/shalal
@@ -130,6 +134,26 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Salvia Crown"
 	path = /obj/item/flowercrown/salvia
 
+/datum/loadout_item/matricaria_crown
+	name = "Matricaria Crown"
+	path = /obj/item/flowercrown/matricaria
+
+/datum/loadout_item/calendula_crown
+	name = "Calendula Crown"
+	path = /obj/item/flowercrown/calendula
+
+/datum/loadout_item/manabloom_crown
+	name = "Manabloom Crown"
+	path = /obj/item/flowercrown/manabloom
+
+/datum/loadout_item/briar_crown
+	name = "Briar Thorn Crown"
+	path = /obj/item/flowercrown/briar
+
+/datum/loadout_item/briarthorns
+	name = "Briar Thorns"
+	path = /obj/item/clothing/head/roguetown/briarthorns
+
 //CLOAKS
 /datum/loadout_item/tabard
 	name = "Tabard"
@@ -203,9 +227,21 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Tabard's Shroud, Black"
 	path = /obj/item/clothing/head/roguetown/roguehood/shroudblack
 
+/datum/loadout_item/tabardwhite
+	name = "Tabard, White"
+	path = /obj/item/clothing/suit/roguetown/shirt/robe/tabardwhite
+
+/datum/loadout_item/shroudwhite
+	name = "Tabard's Shroud, White"
+	path = /obj/item/clothing/head/roguetown/roguehood/shroudwhite
+
 /datum/loadout_item/poncho
 	name = "Poncho"
 	path = /obj/item/clothing/cloak/poncho
+
+/datum/loadout_item/aproncook
+	name = "Apron, Cooking"
+	path = /obj/item/clothing/cloak/apron/cook
 
 //SHOES
 /datum/loadout_item/darkboots
@@ -250,7 +286,7 @@ GLOBAL_LIST_EMPTY(loadout_items)
 
 /datum/loadout_item/rumaclanshoes
 	name = "Raised Sandals"
-	path = /obj/item/clothing/shoes/roguetown/armor/rumaclan
+	path = /obj/item/clothing/shoes/roguetown/armor/rumaclan/shitty
 
 //SHIRTS
 /datum/loadout_item/longcoat
@@ -400,6 +436,7 @@ GLOBAL_LIST_EMPTY(loadout_items)
 /datum/loadout_item/eastshirt2
 	name = "White Foreign Shirt"
 	path = /obj/item/clothing/suit/roguetown/shirt/undershirt/eastshirt2
+
 //PANTS
 /datum/loadout_item/tights
 	name = "Cloth Tights"
@@ -530,6 +567,10 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Psydonian Cross"
 	path = /obj/item/clothing/neck/roguetown/psicross
 
+/datum/loadout_item/psicross/reform
+	name = "Reformist Psydonian Cross"
+	path = /obj/item/clothing/neck/roguetown/psicross/reform
+
 /datum/loadout_item/psicross/astrata
 	name = "Amulet of Astrata"
 	path = /obj/item/clothing/neck/roguetown/psicross/astrata
@@ -590,6 +631,30 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Amulet of Graggar"
 	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/graggar
 
+/datum/loadout_item/psicross/gronnzizo
+	name = "Wolf Talisman"
+	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/gronn
+
+/datum/loadout_item/psicross/gronnbaotha
+	name = "Leopard Talisman"
+	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/baothagronn
+
+/datum/loadout_item/psicross/gronnmatthios
+	name = "Bear Talisman"
+	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/matthios/gronn
+
+/datum/loadout_item/psicross/gronngraggar
+	name = "Moose Talisman"
+	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/graggar/gronn
+
+/datum/loadout_item/psicross/gronndendor
+	name = "Volfskinned Talisman"
+	path = /obj/item/clothing/neck/roguetown/psicross/dendor/gronn
+
+/datum/loadout_item/psicross/gronnabyssor
+	name = "Hadal Talisman"
+	path = /obj/item/clothing/neck/roguetown/psicross/abyssor/gronn
+
 /datum/loadout_item/wedding_band
 	name = "silver wedding band"
 	path = /obj/item/clothing/ring/band
@@ -622,7 +687,7 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Fitted Coat"
 	path = /obj/item/clothing/cloak/cotehardie
 
-// caparisons
+//CAPARISONS
 
 /datum/loadout_item/caparison
 	name = "Caparison"
@@ -643,6 +708,7 @@ GLOBAL_LIST_EMPTY(loadout_items)
 //Donator Section
 //All these items are stored in the donator_fluff.dm in the azure modular folder for simplicity.
 //All should be subtypes of existing weapons/clothes/armor/gear, whatever, to avoid balance issues I guess. Idk, I'm not your boss.
+// Please make sure to NOT create a subtype of donator_x/item unless there's a parent type, else it will show up as parent loadout datum due to the implicitly defined parent
 
 /datum/loadout_item/donator_plex
 	name = "Donator Kit - Rapier di Aliseo"
@@ -689,9 +755,19 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	path = /obj/item/enchantingkit/bigfoot_axe
 	ckeywhitelist = list("bigfoot02")
 
-/datum/loadout_item/donator_zydras
-	name = "Donator Kit - Padded silky dress"
-	path = /obj/item/enchantingkit/zydras
+/datum/loadout_item/donator_zydrasiconocrown
+	name = "Donator Kit - Iconoclast Crown"
+	path = /obj/item/enchantingkit/zydrasiconocrown
+	ckeywhitelist = list("1ceres")
+
+/datum/loadout_item/donator_zydrasiconopauldrons
+	name = "Donator Kit - Iconoclast Pauldrons"
+	path = /obj/item/enchantingkit/zydrasiconopauldrons
+	ckeywhitelist = list("1ceres")
+
+/datum/loadout_item/donator_zydrasiconosash
+	name = "Donator Kit - Iconoclast Sash"
+	path = /obj/item/enchantingkit/zydrasiconosash
 	ckeywhitelist = list("1ceres")
 
 /datum/loadout_item/donator_eiren
@@ -704,9 +780,16 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	path = /obj/item/enchantingkit/eirensabre
 	ckeywhitelist = list("eirenxiv")
 
+/*	Swapped out for _eiren4
 /datum/loadout_item/donator_eiren3
 	name = "Donator Kit - Cinis"
 	path = /obj/item/enchantingkit/eirensabre2
+	ckeywhitelist = list("eirenxiv")
+*/
+
+/datum/loadout_item/donator_eiren4
+	name = "Donator Kit - Darkwood's Embrace"
+	path = /obj/item/clothing/suit/roguetown/armor/longcoat/eiren
 	ckeywhitelist = list("eirenxiv")
 
 /datum/loadout_item/donator_waff
@@ -733,3 +816,259 @@ GLOBAL_LIST_EMPTY(loadout_items)
 	name = "Donator Item - Royal Gown"
 	path = /obj/item/clothing/suit/roguetown/shirt/dress/royal
 	ckeywhitelist = list("willmbrink")
+
+/datum/loadout_item/donator_willmbrink/sleeves
+	name = "Donator Item - Royal Sleeves"
+	path = /obj/item/clothing/wrists/roguetown/royalsleeves
+
+/datum/loadout_item/donator_dasfox
+	name = "Donator Kit - Archaic Ceremonial Valkyrhelm"
+	path = /obj/item/enchantingkit/dasfox_helm
+	ckeywhitelist = list("dasfox", "purplepineapple") // on request by dasfox
+
+/datum/loadout_item/donator_dasfox/cuirass
+	name = "Donator Kit - Archaic Ceremonial Cuirass"
+	path = /obj/item/enchantingkit/dasfox_cuirass
+
+/datum/loadout_item/donator_dasfox/periapt
+	name = "Donator Item - Defiled Astratan Periapt"
+	path = /obj/item/clothing/neck/roguetown/psicross/astrata/dasfox
+	ckeywhitelist = list("dasfox")
+
+/datum/loadout_item/donator_dasfox/lance
+	name = "Donator Item - Decorated Lance"
+	path = /obj/item/enchantingkit/dasfox_lance
+	ckeywhitelist = list("dasfox", "cre77") // on request by dasfox
+
+/datum/loadout_item/donator_ryan
+	name = "Donator Item - Western Estates Caparison"
+	path = /obj/item/caparison/ryan
+	ckeywhitelist = list("ryan180602")
+
+/datum/loadout_item/donator_ryan/psy_helm
+	name = "Donator Kit - Unorthodoxist Psydonite Helm"
+	path = /obj/item/enchantingkit/ryan_psyhelm
+
+/datum/loadout_item/donator_koruu
+	name = "Donator Kit - Well-Worn Bamboo Hat"
+	path = /obj/item/clothing/head/roguetown/mentorhat/koruu
+	ckeywhitelist = list("koruu", "painfeeler", "poots13")
+
+/datum/loadout_item/donator_dakken
+	name = "Donator Kit - Armoured Avantyne Barbute"
+	path = /obj/item/enchantingkit/dakken_zizhelm
+	ckeywhitelist = list("dakken12")
+
+//////////////////
+//  TRIUMPHS !  //
+//////////////////
+
+//Everything in this section costs TRI. Very rudimentary, but it should help us gradually realign some sense of value to this otherwise-neglected system.
+//When it comes to equipment, avoid adding anything that an Adventurer - or non-combative Noble - couldn't spawn with, or otherwise acquire within the first dae of the week.
+//If adding more items, ensure they're a Triumph-exclusive child. If they can be smelted down, reduce the sum to one ingot. If they can be sold, blacklist it from the Stockpile.
+
+// -3 TRI Minisection.
+// Nearly all characters can comfortably earn +3-5 TRI per week, assuming they sleep ever-so-often.
+
+/datum/loadout_item/triumph_knife
+	name = "Laborer's Knife (-3 TRI)"
+	path = /obj/item/rogueweapon/huntingknife/throwingknife/triumph
+	triumph_cost = 3
+
+/datum/loadout_item/triumph_heavygloves
+	name = "Heavy Leather Gloves (-3 TRI)"
+	path = /obj/item/clothing/gloves/roguetown/angle
+	triumph_cost = 3
+
+/datum/loadout_item/triumph_heavyboots
+	name = "Heavy Leather Boots (-3 TRI)"
+	path = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
+	triumph_cost = 3
+
+/datum/loadout_item/triumph_necklace
+	name = "Golden Necklace, Ornate (-3 TRI)"
+	path = /obj/item/clothing/neck/roguetown/ornateamulet/noble/triumph
+	triumph_cost = 3
+
+/datum/loadout_item/triumph_ring
+	name = "Golden Ring, Ornate (-3 TRI)"
+	path = /obj/item/clothing/ring/gold/triumph
+	triumph_cost = 3
+
+/datum/loadout_item/triumph_circlet
+	name = "Golden Circlet, Ornate (-3 TRI)"
+	path = /obj/item/clothing/head/roguetown/circlet/triumph
+	triumph_cost = 3
+
+/datum/loadout_item/triumph_weaponkitaxe
+	name = "Morphing Elixir, 'Valorian Axe' (-3 TRI)"
+	path = /obj/item/enchantingkit/triumph_weaponkit_axe
+	triumph_cost = 3
+
+// -5 TRI Minisection.
+
+/datum/loadout_item/triumph_shortsatchel
+	name = "Short Satchel (-5 TRI)"
+	path = /obj/item/storage/backpack/rogue/satchel/short
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_bedroll
+	name = "Waterskin (-5 TRI)"
+	path = /obj/item/reagent_containers/glass/bottle/waterskin
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_messkit
+	name = "Mess Kit (-5 TRI)"
+	path = /obj/item/storage/gadget/messkit
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_foldtable
+	name = "Folding Table (-5 TRI)"
+	path = /obj/structure/table/wood/folding
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_bedroll
+	name = "Bedroll (-5 TRI)"
+	path = /obj/item/bedroll
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_scabbardnoble
+	name = "Decorated Scabbard, Silver (-5 TRI)"
+	path = /obj/item/rogueweapon/scabbard/sword/noble
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_sheathnoble
+	name = "Decorated Sheath, Silver (-5 TRI)"
+	path = /obj/item/rogueweapon/scabbard/sheath/noble
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_psycross
+	name = "Golden Psycross, Ornate (-5 TRI)"
+	path = /obj/item/clothing/neck/roguetown/psicross/g/triumph
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_zcross
+	name = "Golden Zizote Amulet, Ornate (-5 TRI)"
+	path = /obj/item/clothing/neck/roguetown/psicross/inhumen/g/triumph
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_astcross
+	name = "Golden Astratan Amulet, Ornate (-5 TRI)"
+	path = /obj/item/clothing/neck/roguetown/psicross/astrata/g/triumph
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_signet
+	name = "Golden Signet Ring, Ornate (-5 TRI)"
+	path = /obj/item/clothing/ring/signet/triumph
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_gildedshirt
+	name = "Gilded Dress Shirt (-5 TRI)"
+	path = /obj/item/clothing/suit/roguetown/shirt/dress/royal/prince
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_pristinedress
+	name = "Pristine Dress (-5 TRI)"
+	path = /obj/item/clothing/suit/roguetown/shirt/dress/royal/princess
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_royalsleeves
+	name = "Royal Sleeves (-5 TRI)"
+	path = /obj/item/clothing/wrists/roguetown/royalsleeves
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_goldhalfmask
+	name = "Golden Halfmask, Ornate (-5 TRI)"
+	path = /obj/item/clothing/mask/rogue/lordmask/triumph
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_goldfullmask
+	name = "Golden Mask, Ornate (-5 TRI)"
+	path = /obj/item/clothing/mask/rogue/facemask/goldmask/triumph
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_goldfullmaskc
+	name = "Crestless Golden Mask, Ornate (-5 TRI)"
+	path = /obj/item/clothing/mask/rogue/facemask/goldmaskc/triumph
+	triumph_cost = 5
+
+//
+
+/datum/loadout_item/triumph_armorkit
+	name = "Morphing Elixir, 'Valorian Steel Armor' (-5 TRI)"
+	path = /obj/item/enchantingkit/triumph_armorkit
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_weaponkittri
+	name = "Morphing Elixir, 'Valorian Longsword' (-5 TRI)"
+	path = /obj/item/enchantingkit/triumph_weaponkit_tri
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_weaponkitwide
+	name = "Morphing Elixir, 'Wideguard Longsword' (-5 TRI)"
+	path = /obj/item/enchantingkit/triumph_weaponkit_wide
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_weaponkitrock
+	name = "Morphing Elixir, 'Rockhillian Longsword' (-5 TRI)"
+	path = /obj/item/enchantingkit/triumph_weaponkit_rock
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_weaponkitsabre
+	name = "Morphing Elixir, 'Sabreguard Longsword' (-5 TRI)"
+	path = /obj/item/enchantingkit/triumph_weaponkit_sabre
+	triumph_cost = 5
+
+/datum/loadout_item/triumph_weaponkitpsy
+	name = "Morphing Elixir, 'Psycrucifix Longsword' (-5 TRI)"
+	path = /obj/item/enchantingkit/triumph_weaponkit_psy
+	triumph_cost = 5
+
+// -7 TRI Minisection.
+
+/datum/loadout_item/triumph_buttpack
+	name = "Belted Satchel (-7 TRI)"
+	path = /obj/item/storage/backpack/rogue/satchel/beltpack
+	triumph_cost = 7
+
+/datum/loadout_item/triumph_lunchpouch
+	name = "Pouch of Luncheons (-7 TRI)"
+	path = /obj/item/storage/belt/rogue/pouch/triumphlunch
+	triumph_cost = 7
+
+/datum/loadout_item/triumph_grenzhat
+	name = "Grenzelhoftian Beret (-7 TRI)"
+	path = /obj/item/clothing/head/roguetown/grenzelhofthat/triumph
+	triumph_cost = 7
+
+/datum/loadout_item/triumph_lordcloak
+	name = "Lordly Cloak (-7 TRI)"
+	path = /obj/item/clothing/cloak/lordcloak
+	triumph_cost = 7
+
+/datum/loadout_item/triumph_ladycloak
+	name = "Ladylike Cloak (-7 TRI)"
+	path = /obj/item/clothing/cloak/lordcloak/ladycloak
+	triumph_cost = 7
+
+/datum/loadout_item/triumph_scabbardroyal
+	name = "Decorated Scabbard, Golden (-7 TRI)"
+	path = /obj/item/rogueweapon/scabbard/sword/royal
+	triumph_cost = 7
+
+/datum/loadout_item/triumph_sheathroyal
+	name = "Decorated Sheath, Golden (-7 TRI)"
+	path = /obj/item/rogueweapon/scabbard/sheath/royal
+	triumph_cost = 7
+
+/datum/loadout_item/triumph_gdorpelring
+	name = "Golden Dorpel Ring, Ornate (-7 TRI)"
+	path = /obj/item/clothing/ring/diamond/triumph
+	triumph_cost = 7
+
+// Beyond.
+
+/datum/loadout_item/triumph_buffpot
+	name = "Vial of Distilled Triumphance (-70 TRI)"
+	path = /obj/item/reagent_containers/glass/bottle/alchemical/tripot
+	triumph_cost = 70

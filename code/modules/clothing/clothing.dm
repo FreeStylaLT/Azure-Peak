@@ -5,7 +5,7 @@
 	break_sound = 'sound/foley/cloth_rip.ogg'
 	blade_dulling = DULLING_CUT
 	max_integrity = 200
-	integrity_failure = 0.1
+	integrity_failure = ARMOR_INTEG_FAILURE
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
 	///What level of bright light protection item has.
 	var/flash_protect = FLASH_PROTECTION_NONE
@@ -57,6 +57,7 @@
 	sellprice = 1
 	var/naledicolor = FALSE
 	var/chunkcolor = "#5e5e5e"
+	var/material_category = ARMOR_MAT_LEATHER
 
 /obj/item
 	var/blocking_behavior
@@ -68,10 +69,17 @@
 	var/altdetail_color
 	var/boobed_detail = TRUE
 	var/sleeved_detail = TRUE
+	var/malumblessed_c = FALSE
 	var/list/original_armor //For restoring broken armor
 
 /obj/item/clothing/New()
 	..()
+
+/obj/item/clothing/Initialize()
+	. = ..()
+	if(max_integrity && integrity_failure && integrity_failure == ARMOR_INTEG_FAILURE)
+		max_integrity += (max_integrity * 0.11142857143)	// don't ask
+		obj_integrity = max_integrity
 
 /obj/item/clothing/examine(mob/user)
 	. = ..()
@@ -123,7 +131,6 @@
 				if(l_sleeve_zone == BODY_ZONE_L_LEG)
 					body_parts_covered &= ~LEG_LEFT
 				l_sleeve_status = SLEEVE_ROLLED
-			return
 		else if(user.zone_selected == r_sleeve_zone)
 			if(r_sleeve_status == SLEEVE_ROLLED)
 				if(r_sleeve_zone == BODY_ZONE_R_ARM)
@@ -137,7 +144,6 @@
 				if(r_sleeve_zone == BODY_ZONE_R_LEG)
 					body_parts_covered &= ~LEG_RIGHT
 				r_sleeve_status = SLEEVE_ROLLED
-			return
 	else
 		if(user.zone_selected == r_sleeve_zone)
 			if(r_sleeve_status == SLEEVE_NOMOD)
@@ -159,9 +165,8 @@
 				var/obj/item/Sr = new salvage_result(get_turf(src))
 				Sr.color = color
 				user.put_in_hands(Sr)
-				return
 			else
-				user.visible_message(span_warning("[user] tries to tear [src]."))
+				user.visible_message(span_warning("[user] tries and fails to tear [src]."), span_warning("You try and fail to tear [src]."))
 				return
 		if(user.zone_selected == l_sleeve_zone)
 			if(l_sleeve_status == SLEEVE_NOMOD)
@@ -183,15 +188,14 @@
 				var/obj/item/Sr = new salvage_result(get_turf(src))
 				Sr.color = color
 				user.put_in_hands(Sr)
-				return
 			else
-				user.visible_message(span_warning("[user] tries to tear [src]."))
+				user.visible_message(span_warning("[user] tries and fails to tear [src]."), span_warning("You try and fail to tear [src]."))
 				return
 	if(loc == L)
 		L.regenerate_clothes()
 
 
-/obj/item/clothing/mob_can_equip(mob/M, mob/equipper, slot, disable_warning = 0)
+/obj/item/clothing/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
 	. = ..()
 	if(!.)
 		return FALSE
@@ -506,6 +510,35 @@ BLIND     // can't see anything
 /obj/item/clothing/proc/step_action() //this was made to rewrite clown shoes squeaking
 	SEND_SIGNAL(src, COMSIG_CLOTHING_STEP_ACTION)
 
+/obj/item/clothing/proc/pick_damage_sound(tier)
+	var/picked_sound
+	switch(material_category)
+		if(ARMOR_MAT_PLATE)
+			switch(tier)
+				if(1)
+					picked_sound = 'sound/combat/armor_degrade_plate1.ogg'
+				if(2)
+					picked_sound = 'sound/combat/armor_degrade_plate2.ogg'
+				if(3)
+					picked_sound = 'sound/combat/armor_degrade_plate3.ogg'
+		if(ARMOR_MAT_CHAINMAIL)
+			switch(tier)
+				if(1)
+					picked_sound = 'sound/combat/armor_degrade_chain1.ogg'
+				if(2)
+					picked_sound = 'sound/combat/armor_degrade_chain2.ogg'
+				if(3)
+					picked_sound = 'sound/combat/armor_degrade_chain3.ogg'
+		if(ARMOR_MAT_LEATHER)
+			switch(tier)
+				if(1)
+					picked_sound = 'sound/combat/armor_degrade_leather1.ogg'
+				if(2)
+					picked_sound = 'sound/combat/armor_degrade_leather2.ogg'
+				if(3)
+					picked_sound = 'sound/combat/armor_degrade_leather3.ogg'
+	return (picked_sound ? picked_sound : FALSE)
+
 /obj/item/clothing/take_damage(damage_amount, damage_type = BRUTE, damage_flag, sound_effect, attack_dir, armor_penetration)
 	var/newdam = run_obj_armor(damage_amount, damage_type, damage_flag, attack_dir, armor_penetration)
 	var/eff_maxint = max_integrity - (max_integrity * integrity_failure)
@@ -518,17 +551,17 @@ BLIND     // can't see anything
 	var/sfx
 	if(ratio > 0.75 && ratio_newinteg < 0.75)
 		text = "Armor <br><font color = '#8aaa4d'>marred</font>"
-		sfx = 'sound/combat/armor_degrade1.ogg'
+		sfx = pick_damage_sound(1)
 		chunkicon = "chunkfall1"
 		y_offset = -5
 	if(ratio > 0.5 && ratio_newinteg < 0.5)
 		text = "Armor <br><font color = '#d4d36c'>damaged</font>"
-		sfx = 'sound/combat/armor_degrade2.ogg'
+		sfx = pick_damage_sound(2)
 		chunkicon = "chunkfall2"
 		y_offset = 15
 	if(ratio > 0.25 && ratio_newinteg < 0.25)
 		text = "Armor <br><font color = '#a8705a'>sundered</font>"
-		sfx = 'sound/combat/armor_degrade3.ogg'
+		sfx = pick_damage_sound(3)
 		chunkicon = "chunkfall3"
 		y_offset = 30
 	if(text)
@@ -548,7 +581,7 @@ BLIND     // can't see anything
 /obj/item/clothing/generate_tooltip(examine_text, showcrits)
 	if(!armor)	// No armor
 		return examine_text
-	
+
 	// Fake armor
 	if(armor.getRating("slash") == 0 && armor.getRating("stab") == 0 && armor.getRating("blunt") == 0 && armor.getRating("piercing") == 0)
 		return examine_text

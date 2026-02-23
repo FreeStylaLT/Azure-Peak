@@ -70,6 +70,9 @@
 		user.visible_message("<font color='yellow'>[user] points at [L]!</font>")
 		if(L.anti_magic_check(TRUE, TRUE))
 			return FALSE
+		if(spell_guard_check(L, TRUE))
+			L.visible_message(span_warning("[L] shields against the divine flame!"))
+			return TRUE
 		L.adjust_fire_stacks(2)
 		L.ignite_mob()
 
@@ -104,7 +107,7 @@
 
 /obj/effect/proc_holder/spell/invoked/revive
 	name = "Anastasis"
-	desc = "Focus Astratas energy though a stationary psycross, reviving the target from death."
+	desc = "Focus Astratas energy through a stationary psycross, reviving the target from death."
 	overlay_state = "revive"
 	base_icon_state = "regalyscroll"
 	releasedrain = 90
@@ -250,9 +253,12 @@
 				O.fire_act()
 			return TRUE
 		if(L.anti_magic_check())
-			visible_message(span_warning("The magic fades away around you [L] "))  //antimagic needs some testing
+			L.visible_message(span_warning("The magic fades away around [L]!"))
 			playsound(L, 'sound/magic/magic_nulled.ogg', 100)
 			return
+		if(spell_guard_check(L, TRUE))
+			L.visible_message(span_warning("[L] resists the flame order!"))
+			return TRUE
 		if(L.fire_stacks != 0)
 			if(L.fire_stacks >= 20) //cap
 				firemodificator = 0 //any*0 = 0
@@ -288,7 +294,7 @@
 	sound = 'sound/magic/astrata_choir.ogg'
 	associated_skill = /datum/skill/magic/holy
 	antimagic_allowed = FALSE
-	invocations = list("Astrata show me true.")
+	invocations = "Astrata show me true."
 	invocation_type = "shout"
 	recharge_time = 90 SECONDS
 	devotion_cost = 30
@@ -299,7 +305,8 @@
 		revert_cast()
 		return FALSE
 	var/mob/living/carbon/human/H = user
-	H.apply_status_effect(/datum/status_effect/buff/astrata_gaze, user.get_skill_level(associated_skill))
+	var/skill_level = H.get_skill_level(associated_skill)
+	H.apply_status_effect(/datum/status_effect/buff/astrata_gaze, skill_level)
 	return TRUE
 
 /atom/movable/screen/alert/status_effect/buff/astrata_gaze
@@ -311,28 +318,42 @@
 	id = "astratagaze"
 	alert_type = /atom/movable/screen/alert/status_effect/buff/astrata_gaze
 	duration = 20 SECONDS
+	var/skill_level = 0
+	status_type = STATUS_EFFECT_REPLACE
 
-/datum/status_effect/buff/astrata_gaze/on_creation(mob/living/new_owner, assocskill)
-	var/per_bonus = 0
-	if(assocskill)
-		if(assocskill > SKILL_LEVEL_NOVICE)
-			per_bonus++
-		duration *= assocskill
-	if(GLOB.tod == "day" || GLOB.tod == "dawn" || GLOB.tod == "dusk") //dusk added, so long nights.
-		per_bonus++
-		duration *= 2
-	if(per_bonus > 0)
-		effectedstats = list(STATKEY_PER = per_bonus)
-	. = ..()
+/datum/status_effect/buff/astrata_gaze/on_creation(mob/living/new_owner, slevel)
+    // Only store skill level here
+    skill_level = slevel
+    .=..()
 
-/datum/status_effect/buff/astrata_gaze/on_apply(assocskill)
-	if(ishuman(owner))
-		var/mob/living/carbon/human/H = owner
-		H.viewcone_override = TRUE
-		H.hide_cone()
-		H.update_cone_show()
-	to_chat(owner, span_info("She shines through me! I can perceive all clear as dae!"))
-	. = ..()
+/datum/status_effect/buff/astrata_gaze/on_apply()
+	// Reset base values because the miracle can 
+	// now actually be recast at high enough skill and during day time
+	// This is a safeguard because buff code makes my head hurt
+    var/per_bonus = 0
+    duration = 20 SECONDS
+
+    if(skill_level > SKILL_LEVEL_NOVICE)
+        per_bonus++
+
+    if(GLOB.tod == "dawn" || GLOB.tod == "day" || GLOB.tod == "dusk")
+        per_bonus++
+        duration *= 2
+
+    duration *= skill_level
+
+    if(per_bonus)
+        effectedstats = list(STATKEY_PER = per_bonus)
+
+    if(ishuman(owner))
+        var/mob/living/carbon/human/H = owner
+        H.viewcone_override = TRUE
+        H.hide_cone()
+        H.update_cone_show()
+
+    to_chat(owner, span_info("She shines through me! I can perceive all clear as dae!"))
+
+    return ..()
 
 /datum/status_effect/buff/astrata_gaze/on_remove()
 	. = ..()
@@ -378,13 +399,13 @@
 	return TRUE
 
 /atom/movable/screen/alert/status_effect/buff/dragonhide/fireresist
-	name = "Fireresistance"
+	name = "Fire Resistance"
 	desc = "Flames dance at my heels, yet do not sting!"
 	icon_state = "fire"
 
 /datum/status_effect/buff/dragonhide/fireresist
 	id = "fireresist"
-	examine_text = "<font color='red'>A fireresistance!"
+	examine_text = "<font color='red'>SUBJECTPRONOUN is shielded by a veil of sacred flame!</font>"
 	alert_type = /atom/movable/screen/alert/status_effect/buff/dragonhide/fireresist
 	effectedstats = list(STATKEY_CON = -1) //Target body loosing CON, but getting fireresist.
 	duration = 11 SECONDS
@@ -767,6 +788,10 @@
 		revert_cast()
 		return FALSE
 
+	if(spell_guard_check(target, TRUE))
+		target.visible_message(span_warning("[target] resists the immolation!"))
+		return TRUE
+
 	// Channeling requirement
 	user.visible_message(span_danger("[user] begins lighting [target] ablaze with strange, divine fire!"))
 	if(!do_after(user, 1 SECONDS, target = target))
@@ -840,11 +865,11 @@
 
 #undef IMMOLATION_FILTER
 
-//T4 spell. Very slow turf-target ability to cast on day or in churh/nearby Bishop. Take devostating damage, gibs all not-panteon carbons and kill all panteon users.
+//T4 spell. Very slow turf-target ability to cast on day or in churh/nearby Bishop. Take devostating damage, gibs all not-pantheon carbons and kill all pantheon users.
 
 /obj/effect/proc_holder/spell/invoked/sunstrike
 	name = "Sun Strike"
-	desc = "Focus Astratas energy though a stationary Psycross or Bishop hands. Call Devastating Solar Mercy on enemy head."
+	desc = "Focus Astratas energy through a stationary Psycross or Bishop's hands. Call down the mercy of the Sun Goddess upon the enemy."
 	overlay_state = "sunstrike"
 	base_icon_state = "regalyscroll"
 	releasedrain = 200
@@ -1016,7 +1041,7 @@
 
 /obj/effect/proc_holder/spell/self/astrata_sword
 	name = "Solar Blade"
-	desc = "Call for a blade to preserve light and order in Psydonia. Its strength is middling, but it glows fiercly and can be used to cauterize wounds."
+	desc = "Call for a blade to preserve light and order in Psydonia. Its strength is middling, but it glows fiercely and can be used to cauterize wounds."
 	overlay_state = "sacredflame"
 	req_items = list(/obj/item/clothing/neck/roguetown/psicross)
 	associated_skill = /datum/skill/magic/holy

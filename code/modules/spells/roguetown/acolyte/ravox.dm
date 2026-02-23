@@ -135,13 +135,16 @@
 	if(isliving(targets[1]))
 		var/mob/living/target = targets[1]
 		if(target.mob_biotypes & MOB_UNDEAD)
+			if(spell_guard_check(target, TRUE))
+				target.visible_message(span_warning("[target] resists Ravox's judgment!"))
+				return TRUE
 			if(ishuman(target)) //BLEED AND PAIN
 				var/mob/living/carbon/human/human_target = target
 				var/datum/physiology/phy = human_target.physiology
 				phy.bleed_mod *= 1.5
 				phy.pain_mod *= 1.5
 				addtimer(CALLBACK(src, PROC_REF(restore_modifiers), phy), 19 SECONDS)
-				human_target.visible_message(span_danger("[target]'s wounds become inflammed as their vitality is sapped away!"), span_userdanger("Ravox inflammes my wounds and weakens my body!"))
+				human_target.visible_message(span_danger("[target]'s wounds become inflamed as their vitality is sapped away!"), span_userdanger("Ravox inflames my wounds and weakens my body!"))
 				return TRUE
 			return FALSE
 
@@ -208,6 +211,9 @@
 /obj/effect/proc_holder/spell/invoked/tug_of_war/cast(list/targets, mob/living/user)
 	if(isliving(targets[1]))
 		var/mob/living/target = targets[1]
+		if(spell_guard_check(target, TRUE))
+			target.visible_message(span_warning("[target] holds firm against the pull!"))
+			return TRUE
 		var/chance = 0
 		if(target.mob_biotypes & MOB_UNDEAD)
 			pull_distance++
@@ -312,6 +318,10 @@ GLOBAL_LIST_EMPTY(arenafolks) // we're just going to use a list and add to it. S
 		to_chat(user, span_warning("[target] is in no shape to accept the duel!"))
 		revert_cast()
 		return FALSE
+
+	if(spell_guard_check(target, TRUE))
+		target.visible_message(span_warning("[target] stands firm, refusing the trial!"))
+		return TRUE
 
 	for(var/obj/structure/fluff/ravox/challenger/aflag in thearena)
 		challengerspawnpoint = get_turf(aflag)

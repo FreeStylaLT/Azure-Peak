@@ -3,6 +3,7 @@
 #define STATS_ALIVE_DWARVES "alive_dwarves"
 #define STATS_ALIVE_DARK_ELVES "alive_dark_elves"
 #define STATS_ALIVE_WOOD_ELVES "alive_wood_elves"
+#define STATS_ALIVE_SUN_ELVES "alive_sun_elves"
 #define STATS_ALIVE_HALF_ELVES "alive_half_elves"
 #define STATS_ALIVE_HALF_ORCS "alive_half_orcs"
 #define STATS_ALIVE_GOBLINS "alive_goblins"
@@ -115,6 +116,7 @@
 //Dendor
 #define STATS_TREES_CUT "trees_cut"
 #define STATS_PLANTS_HARVESTED "plants_harvested"
+#define STATS_ANIMALS_TAMED "animals_tamed"
 #define STATS_WEREVOLVES "werevolves"
 #define STATS_FOREST_DEATHS "forest_deaths"
 
@@ -135,6 +137,7 @@
 #define STATS_MASTERWORKS_FORGED "masterworks_forged"
 #define STATS_ROCKS_MINED "ores_mined"
 #define STATS_CRAFT_SKILLS "craft_skills"
+#define STATS_CRAFTED_ITEMS "craft_items"
 #define STATS_BEARDS_SHAVED "beards_shaved"
 
 //Abyssor
@@ -181,6 +184,7 @@
 #define STATS_LOCKS_PICKED "locks_picked"
 #define STATS_BANDITS "bandits"
 #define STATS_INDEBTED "indebt_people"
+#define STATS_GOLD_TRANSMUTED "gold_transmuted"
 
 GLOBAL_LIST_INIT(azure_round_stats, list(
 	STATS_DEATHS = 0,
@@ -207,6 +211,7 @@ GLOBAL_LIST_INIT(azure_round_stats, list(
 	STATS_POTIONS_BREWED = 0,
 	STATS_ASTRATA_REVIVALS = 0,
 	STATS_PLANTS_HARVESTED = 0,
+	STATS_ANIMALS_TAMED = 0,
 	STATS_LAWS_AND_DECREES_MADE = 0,
 	STATS_ALIVE_NOBLES = 0,
 	STATS_BOOKS_PRINTED = 0,
@@ -230,6 +235,7 @@ GLOBAL_LIST_INIT(azure_round_stats, list(
 	STATS_CRITS_MADE = 0,
 	STATS_ROCKS_MINED = 0,
 	STATS_CRAFT_SKILLS = 0,
+	STATS_CRAFTED_ITEMS = 0,
 	STATS_ABYSSOR_REMEMBERED = 0,
 	STATS_LEECHES_EMBEDDED = 0,
 	STATS_HUGS_MADE = 0,
@@ -250,6 +256,7 @@ GLOBAL_LIST_INIT(azure_round_stats, list(
 	STATS_ALIVE_DWARVES = 0,
 	STATS_ALIVE_DARK_ELVES = 0,
 	STATS_ALIVE_HALF_ELVES = 0,
+	STATS_ALIVE_SUN_ELVES = 0,
 	STATS_ALIVE_HALF_ORCS = 0,
 	STATS_ALIVE_GOBLINS = 0,
 	STATS_ALIVE_KOBOLDS = 0,
@@ -337,6 +344,7 @@ GLOBAL_LIST_INIT(azure_round_stats, list(
 	STATS_STARTING_TREASURY = 0,
 	STATS_RURAL_TAXES_COLLECTED = 0,
 	STATS_BANK_INTEREST_CREATED = 0,
+	STATS_GOLD_TRANSMUTED = 0,
 ))
 
 GLOBAL_LIST_EMPTY(patron_follower_counts)
@@ -359,6 +367,7 @@ GLOBAL_LIST_EMPTY(patron_follower_counts)
 #define FEATURED_STATS_FARMERS "farmers"
 #define FEATURED_STATS_STORYTELLERS "storytellers"
 #define FEATURED_STATS_VIRTUES	"virtues"
+#define FEATURED_STATS_ORIGINS	"origins"
 #define FEATURED_STATS_STATPACKS "statpacks"
 #define FEATURED_STATS_VICES	"vices"
 
@@ -466,15 +475,22 @@ GLOBAL_LIST_INIT(featured_stats, list(
 		"color" = "#6375c5",
 		"entries" = list(),
 		"object_stat" = TRUE
-	),	FEATURED_STATS_VIRTUES = list(
-		"name" = "TOP 10 Virtues",
+	),	
+	FEATURED_STATS_ORIGINS = list(
+		"name" = "TOP Origins",
+		"color" = "#602d91",
+		"entries" = list(),
+		"object_stat" = TRUE,
+	),
+	FEATURED_STATS_VIRTUES = list(
+		"name" = "TOP Virtues",
 		"color" = "#df5cb8",
 		"entries" = list(),
 		"object_stat" = TRUE,
 		"admin_only" = TRUE
 	),
 	FEATURED_STATS_STATPACKS = list(
-		"name" = "TOP 10 Statpacks",
+		"name" = "TOP Statpacks",
 		"color" = "#3aa4e2",
 		"entries" = list(),
 		"object_stat" = TRUE,

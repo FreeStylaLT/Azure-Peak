@@ -271,7 +271,7 @@
 	if(HAS_TRAIT(src, TRAIT_FREEMAN))
 		if(HAS_TRAIT(examiner, TRAIT_FREEMAN))
 			tooltip = "Fellow Free Man!"
-			. += SPAN_TOOLTIP(tooltip, "⚖️" )
+			. += SPAN_TOOLTIP(tooltip, "⚖️ " )
 
 	if(HAS_TRAIT(examiner, TRAIT_INQUISITION))
 		if(HAS_TRAIT(src, TRAIT_INQUISITION) && HAS_TRAIT(examiner, TRAIT_INQUISITION))

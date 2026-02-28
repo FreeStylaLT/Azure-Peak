@@ -131,36 +131,15 @@
 				origin = span_bold("nowhere..")
 			else
 				origin = dna.species.origin
-		var/astratan_symbol
-		var/astratan_tooltip
-		if(HAS_TRAIT(user, TRAIT_ASTRATAN_AFFINITY) && get_dist(user, src) <= 2)
-			if(!HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS))	//Guarded virtue protects from this
-				if(issunelf(src) || patron?.type == /datum/patron/divine/astrata)
-					astratan_symbol = icon2html('icons/misc/language.dmi', world, "celestial")
-					astratan_tooltip = SPAN_TOOLTIP("One of Astrata's [issunelf(src) ? "chosen" : "followers"]", astratan_symbol)
-		. += span_info("[pronoun] [wording] [origin]. [astratan_tooltip]")	//"He hails from [X / Nowhere]" || "His [word] originates from [X]" || "His [word] is implacable..."
+		. += span_info("[pronoun] [wording] [origin]. ") + generate_examine_tooltip(user)	//"He hails from [X / Nowhere]" || "His [word] originates from [X]" || "His [word] is implacable..."
 
-		if(HAS_TRAIT(src, TRAIT_WITCH))
-			if(HAS_TRAIT(user, TRAIT_NOBLE) || HAS_TRAIT(user, TRAIT_INQUISITION) || HAS_TRAIT(user, TRAIT_WITCH))
-				. += span_warning("A witch! Their presence brings an unsettling aura.")
-			else if(HAS_TRAIT(user, TRAIT_FREEMAN) || HAS_TRAIT(user, TRAIT_CABAL) || HAS_TRAIT(user, TRAIT_HORDE) || HAS_TRAIT(user, TRAIT_DEPRAVED))
-				. += span_notice("A practitioner of the old ways.")
-			else
-				. += span_notice("Something about them seems... different.")
-
+		if((HAS_TRAIT(user, TRAIT_BLACKOAK) && !(src.dna.species.name == "Elf" || src.dna.species.name == "Dark Elf" || src.dna.species.name == "Half-Elf")))
+			. += span_phobia("An invader...")
+			
 		if(SSticker.rulermob == src)
 			. += span_notice("<b>The ruler of this land.</b>")
 		else if(GLOB.lord_titles[name])
 			. += span_notice("[m3] been granted the title of \"[GLOB.lord_titles[name]]\".")
-
-		if(HAS_TRAIT(src, TRAIT_NOBLE) || HAS_TRAIT(src, TRAIT_DEFILED_NOBLE))
-			if(HAS_TRAIT(user, TRAIT_NOBLE) || HAS_TRAIT(user, TRAIT_DEFILED_NOBLE))
-				. += span_notice("A fellow noble.")
-			else
-				. += span_notice("A noble!")
-
-		if((HAS_TRAIT(user, TRAIT_BLACKOAK) && !(src.dna.species.name == "Elf" || src.dna.species.name == "Dark Elf" || src.dna.species.name == "Half-Elf")))
-			. += span_phobia("An invader...")
 
 		//For tennite schism god-event
 		if(length(GLOB.tennite_schisms))
@@ -172,11 +151,6 @@
 				var/datum/patron/their_god = (mob_side == "astrata") ? S.astrata_god.resolve() : S.challenger_god.resolve()
 				if(their_god)
 					. += (user_side == mob_side) ? span_notice("Fellow [their_god.name] supporter!") : span_userdanger("Vile [their_god.name] supporter!")
-
-		if(ishuman(user))
-			var/mob/living/carbon/human/H = user
-			if(H.marriedto == name)
-				. += span_love("It's my spouse.")
 
 		if(name in GLOB.excommunicated_players)
 			. += span_userdanger("HERETIC! SHAME!")
@@ -261,27 +235,9 @@
 		var/villain_text = get_villain_text(user)
 		if(villain_text)
 			. += villain_text
-		var/heretic_text = get_heretic_text(user)
-		if(heretic_text)
-			. += span_notice(heretic_text)
-		var/inquisition_text = get_inquisition_text(user)
-		if(inquisition_text)
-			. +=span_notice(inquisition_text)
-		var/clergy_text = get_clergy_text(user)
-		if(clergy_text)
-			. +=span_notice(clergy_text)
 
 		if (HAS_TRAIT(src, TRAIT_LEPROSY))
 			. += span_necrosis("A LEPER...")
-
-		if (HAS_TRAIT(src, TRAIT_BEAUTIFUL) || (issunelf(src) && issunelf(user)))
-			switch (pronouns)
-				if (HE_HIM)
-					. += span_beautiful_masc("[m1] handsome!")
-				if (SHE_HER)
-					. += span_beautiful_fem("[m1] beautiful!")
-				if (THEY_THEM, IT_ITS)
-					. += span_beautiful_nb("[m1] good-looking!")
 
 		if (HAS_TRAIT(src, TRAIT_UNSEEMLY))
 			switch (pronouns)

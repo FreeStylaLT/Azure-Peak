@@ -238,3 +238,72 @@
 	else
 		ADD_TRAIT(src, TRAIT_COMBAT_AWARE, TRAIT_VIRTUE)
 	to_chat(src, "I will see [HAS_TRAIT(src, TRAIT_COMBAT_AWARE) ? "more" : "less"] combat information now.")
+
+/mob/living/carbon/human/proc/generate_examine_tooltip(mob/living/examiner)
+	var/tooltip
+	if(HAS_TRAIT(examiner, TRAIT_ASTRATAN_AFFINITY) && get_dist(examiner, src) <= 2)
+		var/astratan_symbol
+		if(!HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS))	//Guarded virtue protects from this
+			if(issunelf(src) || patron?.type == /datum/patron/divine/astrata)
+				astratan_symbol = icon2html('icons/misc/language.dmi', world, "celestial")
+				. += SPAN_TOOLTIP("One of Astrata's [issunelf(src) ? "chosen" : "followers"]", astratan_symbol)
+	if(HAS_TRAIT(src, TRAIT_BEAUTIFUL) || (issunelf(src) && issunelf(examiner)))
+		var/heart
+		switch (pronouns)
+			if (HE_HIM)
+				tooltip = "[p_they(TRUE)] [p_are()] handsome!"
+				heart = "💙"
+			if (SHE_HER)
+				tooltip = "[p_they(TRUE)] [p_are()] beautiful!"
+				heart = "❤️"
+			if (THEY_THEM, IT_ITS)
+				tooltip = "[p_they(TRUE)] [p_are()] good-looking!"
+				heart = "💜"
+		. += SPAN_TOOLTIP(tooltip, "[heart] ")
+
+	if(HAS_TRAIT(src, TRAIT_NOBLE) || HAS_TRAIT(src, TRAIT_DEFILED_NOBLE))
+		if(HAS_TRAIT(examiner, TRAIT_NOBLE) || HAS_TRAIT(examiner, TRAIT_DEFILED_NOBLE))
+			tooltip = "A fellow noble."
+		else
+			tooltip = "A noble!"
+		. += SPAN_TOOLTIP(tooltip, "👑 " )
+
+	if(HAS_TRAIT(src, TRAIT_FREEMAN))
+		if(HAS_TRAIT(examiner, TRAIT_FREEMAN))
+			tooltip = "Fellow Free Man!"
+			. += SPAN_TOOLTIP(tooltip, "⚖️" )
+
+	if(HAS_TRAIT(examiner, TRAIT_INQUISITION))
+		if(HAS_TRAIT(src, TRAIT_INQUISITION) && HAS_TRAIT(examiner, TRAIT_INQUISITION))
+			tooltip = "A fellow adherent to the Holy Otavan Inquisition's missives."
+		if(HAS_TRAIT(src, TRAIT_PURITAN) && HAS_TRAIT(examiner, TRAIT_INQUISITION))
+			tooltip = "My superior, sent by the Holy Otavan Inquisition to lead our sect."
+		if(HAS_TRAIT(src, TRAIT_INQUISITION) && HAS_TRAIT(examiner, TRAIT_PURITAN))
+			tooltip = "A subordinate to my authority, as willed by the Holy Otavan Inquisition."
+		if(HAS_TRAIT(src, TRAIT_PURITAN) && HAS_TRAIT(examiner, TRAIT_PURITAN))
+			tooltip = "Myself. I lead this sect of the Holy Otavan Inquisition."
+		var/psy_symbol = icon2html('icons/misc/language.dmi', world, "psydon")
+		. += SPAN_TOOLTIP(tooltip, psy_symbol)
+
+	if(HAS_TRAIT(examiner, TRAIT_CLERGY))
+		if(HAS_TRAIT(src, TRAIT_CLERGY) && HAS_TRAIT(examiner, TRAIT_CLERGY))
+			tooltip = "A fellow member of the Azurian Church of the Ten."
+		if(HAS_TRAIT(src, TRAIT_CHOSEN) && HAS_TRAIT(examiner, TRAIT_CLERGY))
+			tooltip = "The Bishop, the leader of my Church and Chosen of the Ten."
+		if(HAS_TRAIT(src, TRAIT_CLERGY) && HAS_TRAIT(examiner, TRAIT_CHOSEN))
+			tooltip = "A member of the clergy under my leadership, as willed by the Ten."
+		if(HAS_TRAIT(src, TRAIT_CHOSEN) && HAS_TRAIT(examiner, TRAIT_CHOSEN))
+			tooltip = "Myself. I am the Bishop of Azuria, voice of the Ten in these lands."
+		var/astrata_symbol = icon2html('icons/misc/language.dmi', world, "celestial")
+		. += SPAN_TOOLTIP(tooltip, astrata_symbol)
+
+	if(HAS_TRAIT(src, TRAIT_WITCH))
+		if(HAS_TRAIT(examiner, TRAIT_NOBLE) || HAS_TRAIT(examiner, TRAIT_INQUISITION) || HAS_TRAIT(examiner, TRAIT_WITCH))
+			tooltip = "A witch! Their presence brings an unsettling aura."
+		else if(HAS_TRAIT(examiner, TRAIT_FREEMAN) || HAS_TRAIT(examiner, TRAIT_CABAL) || HAS_TRAIT(examiner, TRAIT_HORDE) || HAS_TRAIT(examiner, TRAIT_DEPRAVED))
+			tooltip = "A practitioner of the old ways."
+		else
+			tooltip = "Something about them seems... different."
+		. += SPAN_TOOLTIP(tooltip, "🧹" )
+	return .
+

@@ -35,6 +35,21 @@
 		flags_inv |= HIDE_HEADTOP
 	user.update_inv_head()
 
+/obj/item/clothing/head/roguetown/helmet/obj_break(damage_flag)
+	. = ..()
+	if(istype(loc, /mob/living/carbon/human))
+		var/mob/living/carbon/human/H = loc
+		if(H.head && H.head == src)
+			H.dropItemToGround(src, silent = TRUE)
+			if(material_category == ARMOR_MAT_PLATE || material_category == ARMOR_MAT_CHAINMAIL)
+				do_sparks(2, TRUE, get_turf(H))
+			var/turnangle = (prob(50) ? 270 : 90)
+			var/turndir = turn(H.dir, turnangle)
+			var/dist = rand(1, 3)
+			var/current_turf = get_turf(H)
+			var/target_turf = get_ranged_target_turf(current_turf, turndir, dist)
+			throw_at(target_turf, dist, 12, H, FALSE)
+
 /obj/item/clothing/head/roguetown/helmet/getonmobprop(tag)
 	if(tag)
 		switch(tag)
@@ -351,6 +366,7 @@
 	body_parts_covered = HEAD|HAIR|EARS
 	flags_inv = HIDEEARS|HIDEHAIR
 	smeltresult = /obj/item/ingot/steel //STOP TOUCHING THE FOV IT IS NOT MEANT TO HAVE A FULL HELMET BLOCK ON IT THIS IS THE 3RD TIME SOMEONE DONE THIS.
+	material_category = ARMOR_MAT_PLATE
 
 /obj/item/clothing/head/roguetown/helmet/bascinet/attackby(obj/item/W, mob/living/user, params)
 	..()

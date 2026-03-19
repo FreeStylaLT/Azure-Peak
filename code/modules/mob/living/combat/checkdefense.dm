@@ -20,6 +20,12 @@
 		if(CAR)
 			CAR.adjust_arousal_special(src, 2)
 
+	if(is_swinging == SWINGDELAY_CANCEL)
+		is_swinging = SWINGDELAY_DISRUPTED
+		if(swingdelay_visual)
+			qdel(swingdelay_visual)
+		return FALSE
+
 	switch(d_intent)
 		if(INTENT_PARRY)
 			return attempt_parry(intenty, user)

@@ -218,3 +218,9 @@
 	var/max_breath = 100
 	var/last_breath_spent = 0
 	var/client/swimming_filter_client = null
+
+	/// Are we in a swingdelay sleep?
+	var/is_swinging = FALSE
+
+	/// Mostly used to delete the "!" when a cancellation happens
+	var/swingdelay_visual

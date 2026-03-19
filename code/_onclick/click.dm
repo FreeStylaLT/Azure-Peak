@@ -249,6 +249,9 @@
 						if(used_intent.cleave)
 							used_intent.cleave.show_cleave_visuals(src, target_turf)
 						else
+							if(used_intent.swingdelay)
+								var/mob/living/L = src
+								L.is_swinging = used_intent.swingdelay_type
 							do_attack_animation(target_turf, used_intent.animname, W, used_intent = src.used_intent)
 				resolveAdjacentClick(A,W,params)
 				return
@@ -323,6 +326,9 @@
 							if(used_intent.cleave)
 								used_intent.cleave.show_cleave_visuals(src, T)
 							else
+								if(used_intent.swingdelay)
+									var/mob/living/L = src
+									L.is_swinging = used_intent.swingdelay_type
 								do_attack_animation(T, used_intent.animname, used_intent.masteritem, used_intent = src.used_intent)
 						var/adf = used_intent.clickcd
 						if(istype(rmb_intent, /datum/rmb_intent/aimed))

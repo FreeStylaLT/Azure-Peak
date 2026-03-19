@@ -179,7 +179,7 @@
 			if(HAS_TRAIT(UH, TRAIT_FENCERDEXTERITY))
 				prob2defend -= 10
 
-		if(is_swinging == SWINGDELAY_PENALTY)
+		if(L.is_swinging == SWINGDELAY_PENALTY)
 			prob2defend -= 20
 
 		prob2defend = clamp(prob2defend, 5, 90)

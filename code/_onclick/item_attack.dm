@@ -113,6 +113,8 @@
 	else if(_attacker_signal & COMPONENT_ITEM_NO_DEFENSE)
 		override_status = ATTACK_OVERRIDE_NODEFENSE
 
+	if(user.is_swinging)
+		return FALSE
 
 	if(HAS_TRAIT(M, TRAIT_TEMPO))
 		if(ishuman(M) && ishuman(user) && user.mind)
@@ -158,12 +160,16 @@
 		if(!user.used_intent.noaa && isnull(user.mind) && !user.used_intent.cleave)
 			if(get_dist(get_turf(user), get_turf(M)) <= user.used_intent.reach)
 				user.do_attack_animation(M, user.used_intent.animname, user.used_intent.masteritem, used_intent = user.used_intent, simplified = TRUE)
-		user.is_swinging = user.used_intent.swingdelay_type
-		sleep(swingdelay)
+		addtimer(CALLBACK(src, PROC_REF(process_attack), M, user, _attacker_signal, override_status, swingdelay, cached_intent))
+	else
+		process_attack(M, user, override_status, swingdelay, cached_intent)
+
+/obj/item/proc/process_attack(mob/living/M, mob/living/user, _attacker_signal, override_status, swingdelay, datum/intent/cached_intent)
 	if(user.is_swinging == SWINGDELAY_DISRUPTED)
 		user.is_swinging = FALSE
 		return	//Our attack got disrupted.
-	user.is_swinging = FALSE
+	if(user.is_swinging)
+		user.is_swinging = FALSE
 	if(user.a_intent != cached_intent)
 		return
 	if(QDELETED(src) || QDELETED(M))

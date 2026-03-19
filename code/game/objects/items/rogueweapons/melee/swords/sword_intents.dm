@@ -309,6 +309,8 @@
 
 // GREATSWORDS
 /datum/intent/sword/cut/zwei
+	swingdelay = 1.5 SECONDS
+	swingdelay_type = SWINGDELAY_CANCEL
 	reach = 2
 
 /datum/intent/sword/cut/zwei/cleave
@@ -332,6 +334,8 @@
 
 /datum/intent/sword/thrust/zwei
 	reach = 2
+	swingdelay = 1.5 SECONDS
+	swingdelay_type = SWINGDELAY_PENALTY
 
 // ESTOC
 

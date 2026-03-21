@@ -113,6 +113,9 @@
 	if(next_move > world.time)
 		return
 
+	if(is_swinging)
+		return
+
 	if(modifiers["middle"] && atkswinging == "middle")
 		if(mmb_intent)
 			if(mmb_intent.get_chargetime())
@@ -241,17 +244,18 @@
 			return
 
 	if(W)
+		var/mob/living/L = src
 		if(ismob(A))
 			if(CanReach(A,W))
+				if(L.used_intent?.swingdelay)
+					to_chat(world, "setting is_swinging")
+					L.is_swinging = L.used_intent?.swingdelay_type
 				var/turf/target_turf = get_turf(A)
 				if(get_dist(my_turf, target_turf) <= used_intent.reach)
 					if(!used_intent.noaa)
 						if(used_intent.cleave)
 							used_intent.cleave.show_cleave_visuals(src, target_turf)
 						else
-							if(used_intent.swingdelay)
-								var/mob/living/L = src
-								L.is_swinging = used_intent.swingdelay_type
 							do_attack_animation(target_turf, used_intent.animname, W, used_intent = src.used_intent)
 				resolveAdjacentClick(A,W,params)
 				return
@@ -296,6 +300,9 @@
 	// Allows you to click on a box's contents, if that box is on the ground, but no deeper than that
 	if(isturf(A) || isturf(A.loc) || (A.loc && isturf(A.loc.loc)))
 		if(CanReach(A) || CanReach(A, W))
+			if(used_intent?.swingdelay)
+				to_chat(world, "setting is_swinging")
+				is_swinging = used_intent?.swingdelay_type
 			if(isopenturf(A))
 				var/turf/T = A
 				if(used_intent.noaa)
@@ -326,9 +333,6 @@
 							if(used_intent.cleave)
 								used_intent.cleave.show_cleave_visuals(src, T)
 							else
-								if(used_intent.swingdelay)
-									var/mob/living/L = src
-									L.is_swinging = used_intent.swingdelay_type
 								do_attack_animation(T, used_intent.animname, used_intent.masteritem, used_intent = src.used_intent)
 						var/adf = used_intent.clickcd
 						if(istype(rmb_intent, /datum/rmb_intent/aimed))
@@ -375,7 +379,7 @@
 			if(HAS_TRAIT(L, TRAIT_DUALWIELDER) && L.last_used_double_attack <= world.time)
 				var/obj/item/offh = L.get_inactive_held_item()
 				var/dual_wielding = offh && (istype(W, offh) || istype(offh, W)) && W != offh && !L.check_arm_grabbed(L.get_inactive_hand_index())
-				if(dual_wielding)
+				if(dual_wielding && !is_swinging)
 					var/forceoffhand = L.dualwieldpitystacks >= L.dualwieldpitythreshhold
 					if(forceoffhand)
 						L.dualwieldpitystacks = 0
@@ -419,6 +423,10 @@
 		swingi.loc = swingtarget.loc
 
 /mob/proc/aftermiss()
+	if(is_swinging)
+		if(mind)
+			to_chat(world, "resetting is_swinging in aftermiss, weird?")
+		is_swinging = FALSE
 	if(ishuman(src))
 		var/mob/living/carbon/human/H = src
 		H.stamina_add(used_intent.misscost)

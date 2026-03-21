@@ -521,8 +521,9 @@
 		animation_type = item_animation_override || used_intent?.get_attack_animation_type()
 	if(used_intent?.swingdelay)
 		var/mob/living/L = src
+		if(L.is_swinging && !(isnull(L.swingdelay_visual) || QDELETED(L.swingdelay_visual)))	// This likely means we called a duplicate do_attack_animation with a swingdelay and it was already set. Let's not draw these more than needed.
+			return
 		var/icon_state = "eff_swingdelay"
-		to_chat(world, "checking is_swinging for the animation: [is_swinging]")
 		switch(L.is_swinging)
 			if(SWINGDELAY_PENALTY)
 				icon_state = "eff_swingdelay_penalty"

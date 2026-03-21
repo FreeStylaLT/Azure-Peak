@@ -319,5 +319,11 @@
 
 	var/datum/weakref/offered_item_ref
 
+	/// Are we in a swingdelay sleep?
+	var/is_swinging = FALSE
+
+	/// Mostly used to delete the "!" when a cancellation happens
+	var/atom/swingdelay_visual
+
 	/// cooldown for the next time this person can offer
 	COOLDOWN_DECLARE(offer_cooldown)

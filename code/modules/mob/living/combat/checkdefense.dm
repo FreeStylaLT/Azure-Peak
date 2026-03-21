@@ -20,6 +20,8 @@
 		if(CAR)
 			CAR.adjust_arousal_special(src, 2)
 
+	if(mind)
+		to_chat(world, "checking is_swinging, expecting 3. Getting: [is_swinging]")
 	if(is_swinging == SWINGDELAY_CANCEL)
 		is_swinging = SWINGDELAY_DISRUPTED
 		if(swingdelay_visual)

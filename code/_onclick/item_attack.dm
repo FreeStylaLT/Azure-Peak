@@ -113,9 +113,6 @@
 	else if(_attacker_signal & COMPONENT_ITEM_NO_DEFENSE)
 		override_status = ATTACK_OVERRIDE_NODEFENSE
 
-	if(user.is_swinging)
-		return FALSE
-
 	if(HAS_TRAIT(M, TRAIT_TEMPO))
 		if(ishuman(M) && ishuman(user) && user.mind)
 			var/mob/living/carbon/human/H = M
@@ -150,7 +147,7 @@
 //	if(force)
 //		user.emote("attackgrunt")
 
-	var/swingdelay = user.used_intent.swingdelay
+	var/swingdelay = user.used_intent?.swingdelay
 	var/_swingdelay_mod = SEND_SIGNAL(src, COMSIG_LIVING_SWINGDELAY_MOD)
 	if(_swingdelay_mod)
 		swingdelay += _swingdelay_mod
@@ -160,15 +157,19 @@
 		if(!user.used_intent.noaa && isnull(user.mind) && !user.used_intent.cleave)
 			if(get_dist(get_turf(user), get_turf(M)) <= user.used_intent.reach)
 				user.do_attack_animation(M, user.used_intent.animname, user.used_intent.masteritem, used_intent = user.used_intent, simplified = TRUE)
-		addtimer(CALLBACK(src, PROC_REF(process_attack), M, user, _attacker_signal, override_status, swingdelay, cached_intent))
+		addtimer(CALLBACK(src, PROC_REF(process_attack), M, user, _attacker_signal, override_status, swingdelay, cached_intent), swingdelay)
 	else
 		process_attack(M, user, override_status, swingdelay, cached_intent)
 
 /obj/item/proc/process_attack(mob/living/M, mob/living/user, _attacker_signal, override_status, swingdelay, datum/intent/cached_intent)
 	if(user.is_swinging == SWINGDELAY_DISRUPTED)
 		user.is_swinging = FALSE
+		if(user.mind)
+			to_chat(world, "resetting is_swinging in swingdelay_disrupted where it SHOULD BE")
 		return	//Our attack got disrupted.
 	if(user.is_swinging)
+		if(user.mind)
+			to_chat(world, "resetting is_swinging in process_attack, normal behaviour")
 		user.is_swinging = FALSE
 	if(user.a_intent != cached_intent)
 		return
@@ -288,6 +289,10 @@
 		return
 	if(O.attacked_by(src, user))
 		user.do_attack_animation(O, simplified = TRUE)
+		if(user.is_swinging)
+			if(user.mind)
+				to_chat(world, "resetting in attack_obj, abnormal")
+			user.is_swinging = FALSE
 		return TRUE
 
 /obj/item/proc/attack_turf(turf/T, mob/living/user, multiplier)
@@ -297,6 +302,10 @@
 	if(T.max_integrity)
 		if(T.attacked_by(src, user, multiplier))
 			user.do_attack_animation(T, simplified = TRUE)
+			if(user.mind)
+				to_chat(world, "resetting in attack_turf, abnormal")
+			if(user.is_swinging)
+				user.is_swinging = FALSE
 			return TRUE
 
 /// Executes cleave secondary attacks around an origin turf. Primary is excluded from targets (if any).
@@ -706,6 +715,10 @@
 			user.changeNext_move(adf)
 			playsound(get_turf(src), pick(swingsound), 100, FALSE, -1)
 			user.aftermiss()
+	var/mob/living/L = user
+	if(L.mind)
+		to_chat(world, "resetting is_swinging in afterattack, kinda normal")
+	L.is_swinging = FALSE
 
 // Called if the target gets deleted by our attack
 /obj/item/proc/attack_qdeleted(atom/target, mob/user, proximity_flag, click_parameters)

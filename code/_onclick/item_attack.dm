@@ -287,25 +287,25 @@
 		return
 	if(item_flags & NOBLUDGEON)
 		return
+	if(user.is_swinging)
+		if(user.mind)
+			to_chat(world, "resetting in attack_obj, abnormal")
+		user.is_swinging = FALSE
 	if(O.attacked_by(src, user))
 		user.do_attack_animation(O, simplified = TRUE)
-		if(user.is_swinging)
-			if(user.mind)
-				to_chat(world, "resetting in attack_obj, abnormal")
-			user.is_swinging = FALSE
 		return TRUE
 
 /obj/item/proc/attack_turf(turf/T, mob/living/user, multiplier)
 	if(SEND_SIGNAL(src, COMSIG_ITEM_ATTACK_TURF, T, user) & COMPONENT_NO_ATTACK_OBJ)
 		return
 	execute_cleave(user, T)
+	if(user.mind)
+		to_chat(world, "resetting in attack_turf, abnormal")
+	if(user.is_swinging)
+		user.is_swinging = FALSE
 	if(T.max_integrity)
 		if(T.attacked_by(src, user, multiplier))
 			user.do_attack_animation(T, simplified = TRUE)
-			if(user.mind)
-				to_chat(world, "resetting in attack_turf, abnormal")
-			if(user.is_swinging)
-				user.is_swinging = FALSE
 			return TRUE
 
 /// Executes cleave secondary attacks around an origin turf. Primary is excluded from targets (if any).

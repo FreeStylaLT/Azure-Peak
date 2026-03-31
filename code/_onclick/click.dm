@@ -247,9 +247,6 @@
 		var/mob/living/L = src
 		if(ismob(A))
 			if(CanReach(A,W))
-				if(L.used_intent?.swingdelay)
-					to_chat(world, "setting is_swinging")
-					L.is_swinging = L.used_intent?.swingdelay_type
 				var/turf/target_turf = get_turf(A)
 				if(get_dist(my_turf, target_turf) <= used_intent.reach)
 					if(!used_intent.noaa)
@@ -300,9 +297,6 @@
 	// Allows you to click on a box's contents, if that box is on the ground, but no deeper than that
 	if(isturf(A) || isturf(A.loc) || (A.loc && isturf(A.loc.loc)))
 		if(CanReach(A) || CanReach(A, W))
-			if(used_intent?.swingdelay)
-				to_chat(world, "setting is_swinging")
-				is_swinging = used_intent?.swingdelay_type
 			if(isopenturf(A))
 				var/turf/T = A
 				if(used_intent.noaa)

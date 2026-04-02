@@ -207,6 +207,12 @@
 	/// Parry timer for projectiles post-attack. Hooks into the attack animation, so is fairly clunky.
 	var/projectile_parry_timer
 
+	var/tempatarget = null
+	var/pegleg = 0			//Handles check & slowdown for peglegs. Fuckin' bootleg, literally, but hey it at least works.
+	var/construct = 0
+	var/burialrited = FALSE
+	var/feint_perc = 50
+
 	/// Toggle delay for Specials, or really anything else that you don't want input spam to instantly cycle through.
 	var/toggle_delay = 1 SECONDS
 	/// Toggle timer for Specials, or really anything else that you don't want input spam to instantly cycle through.

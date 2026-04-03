@@ -463,8 +463,6 @@
 		if(zone_selected == user.zone_selected && zone_selected == BODY_ZONE_CHEST)	//different, weaker variant for chest-to-chest
 			chance = 7.5
 		if(prob(chance))
-			weapon_binded = TRUE
-
 			apply_status_effect(/datum/status_effect/buff/weapon_binded)
 			user.apply_status_effect(/datum/status_effect/debuff/weapon_binded)
 

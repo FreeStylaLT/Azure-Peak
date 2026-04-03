@@ -411,3 +411,38 @@
 				return TRUE
 			if(has_status_effect(/datum/status_effect/buff/tempo_three))
 				return TRUE
+
+//These are mostly called in parry.dm and dodge.dm, spec_attacked_by and rmb_intents
+/mob/living/proc/change_feint(num)
+	feint_perc = clamp(feint_perc + num, FEINT_PERC_MIN, FEINT_PERC_MAX)
+
+/mob/living/carbon/human/change_feint(num, mob/living/attacker)
+	if(!mind || !ishuman(attacker))
+		feint_perc += clamp(feint_perc + num, FEINT_PERC_MIN, FEINT_PERC_MAX)
+		return
+	var/org_value
+	var/new_value
+	if(LAZYACCESS(feint_list, attacker))
+		org_value = feint_list[attacker]
+		feint_list[attacker] = clamp(feint_list[attacker] + num, FEINT_PERC_MIN, FEINT_PERC_MAX)
+		new_value = feint_list[attacker]
+	else
+		feint_list[attacker] = attacker.feint_perc	//We start at 50% with fresh attackers, we don't need to add more here.
+	if(org_value < FEINT_PERC_NOTIFY && new_value > FEINT_PERC_NOTIFY)
+		to_chat(attacker, span_notice("Their defense is getting focused! It feels like a cointoss, now... (~50% to feint)"))
+	else if(new_value == FEINT_PERC_MAX)
+		to_chat(attacker, span_notice("<b>Their guard is the highest it will ever be! Now's my chance! (100% to feint)</b>"))
+
+/mob/living/carbon/human/proc/get_feint_perc(mob/living/carbon/human/target)
+	if(!mind)
+		return feint_perc
+	if(LAZYACCESS(feint_list, attacker))
+		return feint_list[attacker]
+	else
+		return FEINT_PERC_MIN
+
+/mob/living/proc/feint_mod(mob/living/attacker)
+	var/intmod = clamp(round((attacker.STAINT - STAINT) / 2), -5, 5)
+	if(!mind)
+		intmod *= 2
+	return intmod

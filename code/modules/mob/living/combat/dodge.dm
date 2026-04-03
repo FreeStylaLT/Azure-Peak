@@ -221,6 +221,10 @@
 
 		if(!dodge_status)
 			return FALSE
+
+		var/feintmod = L.feint_mod(user)
+		L.change_feint(FEINT_PERC_INCREASE_BASE + feintmod, (ishuman(src) ? user : null))
+
 		if(!UH?.mind) // For NPC, reduce the drained to 5 stamina
 			drained = drained_npc
 

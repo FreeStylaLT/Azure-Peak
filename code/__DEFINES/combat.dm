@@ -352,7 +352,8 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define EXPOSED_INTEG_MOD 2.5	//Multiplier for integrity damage if we hit an Exposed target.
 #define VULN_INTEG_MOD 1.3		//Multiplier for integrity damage if we hit a Vulnerable target.
 #define BASE_RCLICK_CD 30 SECONDS
-#define FEINT_RCLICK_CD 20 SECONDS
+#define BAIT_RCLICK_CD 20 SECONDS
+#define FEINT_RCLICK_CD 5 SECONDS
 
 /* TEMPO DEFINES */
 #define TEMPO_CULL_DELAY 	12 SECONDS	//Interval for checking our tempo lists. Only relevant to player mobs with TRAIT_TEMPO
@@ -422,3 +423,10 @@ Medical defines
 
 #define PROB_ATTACK_EMOTE_PLAYER 10
 #define PROB_ATTACK_EMOTE_NPC 10
+
+#define FEINT_PERC_MIN 10
+#define FEINT_PERC_MAX 100
+#define FEINT_PERC_NOTIFY 50
+#define FEINT_PERC_START 50
+#define FEINT_PERC_INCREASE_BASE 10
+#define FEINT_PERC_DECREASE_BASE 30

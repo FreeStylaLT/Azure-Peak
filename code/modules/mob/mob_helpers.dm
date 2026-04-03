@@ -60,13 +60,25 @@
 			return TRUE
 		if(BODY_ZONE_PRECISE_EARS)
 			return TRUE
-		//--Optional Neck & Skull Additions--
+		if(BODY_ZONE_PRECISE_SKULL)
+			return TRUE
+		if(BODY_ZONE_HEAD)
+			return TRUE
+		//--Optional Neck Addition--
 		//if(BODY_ZONE_PRECISE_NECK)
-		//	return TRUE
-		//if(BODY_ZONE_PRECISE_SKULL)
 		//	return TRUE
 
 	return FALSE
+
+/proc/check_bait_subzone(zone)
+	if(!zone)
+		return FALSE
+	switch(zone)
+		if(BODY_ZONE_PRECISE_R_EYE, BODY_ZONE_PRECISE_L_EYE, BODY_PRECISE_NOSE, BODY_PRECISE_MOUTH, BODY_PRECISE_EARS, BODY_PRECISE_SKULL, BODY_ZONE_HEAD)
+			return BODY_ZONE_HEAD
+		else
+			return check_zone(zone)
+		
 
 /// Returns the targeting zone equivalent of a given bodypart. Kudos to you if you find a use for this.
 /proc/bodypart_to_zone(part)

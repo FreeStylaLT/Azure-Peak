@@ -45,7 +45,7 @@
 
 	return zone
 
-///Returns a TRUE / FALSE if the zone is a FACE coverage subzone. Used mainly by accuracy_check & bait.
+///Returns a TRUE / FALSE if the zone is a FACE / HEAD coverage subzone. Used mainly by accuracy_check & bait.
 /proc/check_face_subzone(zone)
 	if(!zone)
 		return FALSE
@@ -73,11 +73,9 @@
 /proc/check_bait_subzone(zone)
 	if(!zone)
 		return FALSE
-	switch(zone)
-		if(BODY_ZONE_PRECISE_R_EYE, BODY_ZONE_PRECISE_L_EYE, BODY_PRECISE_NOSE, BODY_PRECISE_MOUTH, BODY_PRECISE_EARS, BODY_PRECISE_SKULL, BODY_ZONE_HEAD)
-			return BODY_ZONE_HEAD
-		else
-			return check_zone(zone)
+	if(check_face_subzone(zone))
+		return BODY_ZONE_HEAD
+	return zone
 		
 
 /// Returns the targeting zone equivalent of a given bodypart. Kudos to you if you find a use for this.

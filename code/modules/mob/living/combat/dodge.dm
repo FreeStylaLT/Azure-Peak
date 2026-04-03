@@ -63,6 +63,8 @@
 			if(do_dodge(user, turfy))
 				flash_fullscreen("blackflash2")
 				user.aftermiss()
+				var/feintmod = feint_mod(user)
+				change_feint(FEINT_PERC_INCREASE_BASE + feintmod, (ishuman(src) ? user : null))
 				return TRUE
 			else
 				return FALSE

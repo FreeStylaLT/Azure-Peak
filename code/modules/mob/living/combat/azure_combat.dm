@@ -49,6 +49,7 @@
 		H.apply_status_effect(/datum/status_effect/debuff/exposed, 3 SECONDS)
 		H.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
 		H.Slowdown(3)
+		change_feint(-FEINT_PERC_MAX, H)
 		to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
 		remove_status_effect(/datum/status_effect/buff/clash)
 		apply_status_effect(/datum/status_effect/buff/adrenaline_rush)
@@ -137,10 +138,12 @@
 			HU.play_overhead_indicator('icons/mob/overhead_effects.dmi', "clashtwo", 1 SECONDS, OBJ_LAYER, soundin = 'sound/combat/clash_disarm_us.ogg', y_offset = 24)
 			disarmed(IM)
 			Slowdown(5)
+			HU.change_feint(-FEINT_PERC_MAX, src)
 			success = TRUE
 		if(prob(prob_opp))
 			HU.disarmed(IU)
 			HU.Slowdown(5)
+			change_feint(-FEINT_PERC_MAX, HU)
 			play_overhead_indicator('icons/mob/overhead_effects.dmi', "clashtwo", 1 SECONDS, OBJ_LAYER, soundin = 'sound/combat/clash_disarm_opp.ogg', y_offset = 24)
 			success = TRUE
 		if(!success)
@@ -206,6 +209,10 @@
 			bait_stacks = 0
 			to_chat(src, span_info("My focus and balance returns. I won't lose my footing if I am baited again."))
 
+/mob/living/carbon/human/proc/purge_feint()
+	if(!cmode)
+		feint_perc = initial(feint_perc)
+		LAZYCLEARLIST(feint_list)
 ///A Unique Stat comparison between src and HT.
 ///It takes the highest stats up to 14 and lowest stats 'up to' 14.
 ///It compares the highest and the lowest of both targets and adds them to the probability.
@@ -424,20 +431,23 @@
 	var/new_value
 	if(LAZYACCESS(feint_list, attacker))
 		org_value = feint_list[attacker]
+		if(org_value == FEINT_PERC_MAX)
+			return
 		feint_list[attacker] = clamp(feint_list[attacker] + num, FEINT_PERC_MIN, FEINT_PERC_MAX)
 		new_value = feint_list[attacker]
 	else
-		feint_list[attacker] = attacker.feint_perc	//We start at 50% with fresh attackers, we don't need to add more here.
+		feint_list[attacker] = attacker.feint_perc	//We start at a specific value with fresh attackers, we don't need to add more here.
 	if(org_value < FEINT_PERC_NOTIFY && new_value > FEINT_PERC_NOTIFY)
 		to_chat(attacker, span_notice("Their defense is getting focused! It feels like a cointoss, now... (~50% to feint)"))
-	else if(new_value == FEINT_PERC_MAX)
+	else if(org_value < FEINT_PERC_MAX && new_value == FEINT_PERC_MAX)
+		attacker.playsound_local(get_turf(attacker), 'sound/combat/feint_ready.ogg', 100, TRUE)
 		to_chat(attacker, span_notice("<b>Their guard is the highest it will ever be! Now's my chance! (100% to feint)</b>"))
 
 /mob/living/carbon/human/proc/get_feint_perc(mob/living/carbon/human/target)
 	if(!mind)
 		return feint_perc
-	if(LAZYACCESS(feint_list, attacker))
-		return feint_list[attacker]
+	if(LAZYACCESS(feint_list, target))
+		return feint_list[target]
 	else
 		return FEINT_PERC_MIN
 
@@ -446,3 +456,42 @@
 	if(!mind)
 		intmod *= 2
 	return intmod
+
+/mob/living/carbon/human/proc/try_bind(obj/item/used_weapon, mob/living/user)	//user is the attacker in this context
+	if(check_bait_subzone(zone_selected) == check_bait_subzone(user.zone_selected))
+		var/chance = 100	//Only here so chest vs chest has a smaller chance to trigger a bind.
+		if(zone_selected == user.zone_selected && zone_selected == BODY_ZONE_CHEST)	//different, weaker variant for chest-to-chest
+			chance = 7.5
+		if(prob(chance))
+			weapon_binded = TRUE
+
+			apply_status_effect(/datum/status_effect/buff/weapon_binded)
+			user.apply_status_effect(/datum/status_effect/debuff/weapon_binded)
+
+			//This is mostly here for dramatic effect, though the clickcd is to prevent instant-baiting 
+			//and give both players a split second to decide if they want to swap zones
+			//(our zones are matching in this moment, after all!)
+			user.Immobilize(0.5 SECONDS)
+			user.apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
+
+			Immobilize(0.5 SECONDS)
+			apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
+
+			flash_fullscreen("whiteflash")
+			user.flash_fullscreen("whiteflash")
+			var/datum/effect_system/spark_spread/S = new()
+			var/turf/front = get_step(src,src.dir)
+			S.set_up(3, 1, front)
+			S.start()
+
+			var/soundcategory = WBALANCE_NORMAL
+			var/sfx
+			if(used_weapon)
+				soundcategory = used_weapon.wbalance
+			sfx = pick_bind_sfx(soundcategory)
+			if(sfx)
+				playsound(src, sfx, 100, TRUE, 2)
+			visible_message(span_notice("[src] binds their weapon with [user]'s! They saw that attack coming!"))
+			return TRUE
+		else
+			return FALSE

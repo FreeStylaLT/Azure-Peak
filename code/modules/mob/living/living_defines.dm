@@ -211,7 +211,7 @@
 	var/pegleg = 0			//Handles check & slowdown for peglegs. Fuckin' bootleg, literally, but hey it at least works.
 	var/construct = 0
 	var/burialrited = FALSE
-	var/feint_perc = 50
+	var/feint_perc = FEINT_PERC_START
 
 	/// Toggle delay for Specials, or really anything else that you don't want input spam to instantly cycle through.
 	var/toggle_delay = 1 SECONDS

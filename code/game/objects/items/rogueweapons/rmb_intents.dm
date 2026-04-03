@@ -12,6 +12,7 @@
 /mob/living/carbon/human/on_cmode()
 	if(!cmode)	//We just toggled it off.
 		addtimer(CALLBACK(src, PROC_REF(purge_bait)), 30 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
+		addtimer(CALLBACK(src, PROC_REF(purge_feint)), 30 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
 		addtimer(CALLBACK(src, PROC_REF(clear_tempo_all)), 30 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
 	if(!HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS))
 		filtered_balloon_alert(TRAIT_COMBAT_AWARE, (cmode ? ("<i><font color = '#831414'>Tense</font></i>") : ("<i><font color = '#c7c6c6'>Relaxed</font></i>")), y_offset = 32)
@@ -193,7 +194,7 @@
 	var/perc
 	if(ishuman(L) && ishuman(user) && user.mind && L.mind)
 		var/mob/living/carbon/human/HL = L
-		perc = HL.get_feint(user)
+		perc = HL.get_feint_perc(user)
 	else
 		perc = L.feint_perc
 
@@ -225,7 +226,7 @@
 		playsound(user, 'sound/combat/feint.ogg', 100, TRUE)
 		if(user.client?.prefs.showrolls)
 			to_chat(user, span_warning("[L.p_they(TRUE)] did not fall for my feint... [perc]%"))
-		newcd += (100 - perc) * 20
+		newcd += (100 - perc) * 2
 		user.apply_status_effect(/datum/status_effect/debuff/feintcd, newcd)
 		if(special_msg)
 			to_chat(user, special_msg)
@@ -236,7 +237,7 @@
 		effect_to_apply = /datum/status_effect/debuff/exposed
 
 	L.apply_status_effect(effect_to_apply, feintdur)
-	L.changeNext_move(max(1.5 SECONDS + skill_factor, 2.5 SECONDS))	//We don't want to use the clickcd status effect here because it will override the ability to riposte (it's a very hard override on clicks)
+	L.changeNext_move(2)	//We don't want to use the clickcd status effect here because it will override the ability to riposte (it's a very hard override on clicks)
 	L.Immobilize(0.5 SECONDS)
 	L.stamina_add(L.stamina * 0.1)
 	L.Slowdown(2)

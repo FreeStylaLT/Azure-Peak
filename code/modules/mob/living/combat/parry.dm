@@ -178,8 +178,6 @@
 	if(!(mobility_flags & MOBILITY_STAND))
 		prob2defend *= 0.65
 
-	if(has_status_effect(/datum/status_effect/swingdelay/penalty))
-		prob2defend -= 20
 
 	if(HAS_TRAIT(H, TRAIT_SENTINELOFWITS))
 		if(ishuman(H))
@@ -215,6 +213,8 @@
 			text += " Twice! Disadvantage! ([(prob2defend / 100) * (prob2defend / 100) * 100]%)"
 		to_chat(src, span_info("[text]"))
 
+	if(has_status_effect(/datum/status_effect/swingdelay/penalty))
+		prob2defend -= 50
 
 	if(HAS_TRAIT(src, TRAIT_NODEF))
 		prob2defend = 0

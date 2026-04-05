@@ -153,9 +153,15 @@
 		swingdelay += _swingdelay_mod
 
 	var/datum/intent/cached_intent = user.used_intent
-	process_attack(M, user, override_status, swingdelay, cached_intent)
+	if(swingdelay && cached_intent.swingdelay_type)
+		if(user.add_swingdelay(cached_intent))
+			sleep(cached_intent.swingdelay)
 
-/obj/item/proc/process_attack(mob/living/M, mob/living/user, _attacker_signal, override_status, swingdelay, datum/intent/cached_intent)
+	if(user.has_status_effect(/datum/status_effect/swingdelay/disrupt) && !user.is_swinging) //Getting struck w/ /disrupt swingdelay type sets our is_swinging to false. If we had the effect, but not the bool, we were interrupted. (Or something else went wrong.)
+		return
+
+	user.is_swinging = FALSE
+
 	if(user.a_intent != cached_intent)
 		return
 	if(QDELETED(src) || QDELETED(M))

@@ -10,7 +10,11 @@
 		return FALSE
 	if(!(mobility_flags & MOBILITY_MOVE))
 		return FALSE
-	if(has_status_effect(/datum/status_effect/swingdelay/disrupt))
+		
+	var/datum/status_effect/swingdelay/disrupt/SW = has_status_effect(/datum/status_effect/swingdelay/disrupt)
+	if(SW)
+		SW.attacked()
+		is_swinging = FALSE
 		return FALSE
 
 	if(client && used_intent)

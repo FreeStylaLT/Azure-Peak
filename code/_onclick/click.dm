@@ -264,14 +264,6 @@
 			return
 
 	if(W)
-		if(isliving(src))
-			var/mob/living/L = src
-			if(used_intent.swingdelay && !L.is_swinging())
-				if(L.last_swing < world.time)
-					if(L.add_swingdelay(used_intent))
-						addtimer(CALLBACK(src, PROC_REF(ClickOn), A, params), used_intent.swingdelay)
-						return
-	
 		if(ismob(A))
 			if(CanReach(A,W))
 				var/turf/target_turf = get_turf(A)
@@ -392,16 +384,17 @@
 		return FALSE
 	if(!used_intent.swingdelay || !used_intent.swingdelay_type)
 		return FALSE
-	last_swing = world.time + used_intent.swingdelay + 2
+	last_swing = world.time + used_intent.swingdelay
+	var/delay = used_intent.swingdelay + 2	//We want the status effect to last longer than the delay itself so we'd have 2 tick overhead to check for a cancelled swingdelay.
 	switch(used_intent.swingdelay_type)
 		if(SWINGDELAY_NORMAL)
-			apply_status_effect(/datum/status_effect/swingdelay, (used_intent.swingdelay - 1))
+			apply_status_effect(/datum/status_effect/swingdelay, delay)
 			return TRUE
 		if(SWINGDELAY_PENALTY)
-			apply_status_effect(/datum/status_effect/swingdelay/penalty, (used_intent.swingdelay - 1))
+			apply_status_effect(/datum/status_effect/swingdelay/penalty, delay)
 			return TRUE
 		if(SWINGDELAY_CANCEL)
-			apply_status_effect(/datum/status_effect/swingdelay/disrupt, (used_intent.swingdelay - 1))
+			apply_status_effect(/datum/status_effect/swingdelay/disrupt, delay)
 			return TRUE
 
 /mob/living/proc/is_swinging()

@@ -205,9 +205,6 @@
 		if(!is_in_cone)
 			ignore_DE_bonus = TRUE
 
-		if(L.has_status_effect(/datum/status_effect/swingdelay/penalty))
-			prob2defend -= 20
-
 		prob2defend = clamp(prob2defend, 5, 90)
 		if(I && IL)	//Skilldiff applies extra stamloss, tentative
 			drained += (UH.get_skill_level(I.associated_skill) - H.get_skill_level(IL.associated_skill))
@@ -261,6 +258,9 @@
 
 		if(user.client?.prefs.showrolls && !HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS) && has_trait && client)
 			to_chat(user, span_info("Their roll to dodge was... [prob2defend]%"))
+
+		if(L.has_status_effect(/datum/status_effect/swingdelay/penalty))
+			prob2defend -= 50
 
 		var/dodge_status = FALSE
 		if((!defender_dualw && !attacker_dualw) || (defender_dualw && attacker_dualw)) //They cancel each other out

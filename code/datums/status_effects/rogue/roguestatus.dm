@@ -58,10 +58,14 @@
 		duration = newdur
 	. = ..()
 	
+/datum/status_effect/swingdelay/on_apply()
+	. = ..()
+	owner.is_swinging = TRUE
 
 /atom/movable/screen/alert/status_effect/swingdelay
 	name = "Swinging!"
 	desc = "I am swinging my weapon! Why did I have the time to read this?!"
+	icon = 'icons/mob/combat_debuffs.dmi'
 	icon_state = "swingdelay"
 
 /datum/status_effect/swingdelay/penalty
@@ -78,6 +82,12 @@
 	id = "swingdelay_disrupt"
 	alert_type = /atom/movable/screen/alert/status_effect/swingdelay_disrupt
 	mob_effect_icon_state = "eff_swingdelay_cancel"
+
+/datum/status_effect/swingdelay/disrupt/proc/attacked()
+	owner.is_swinging = FALSE
+	playsound(owner, 'sound/combat/swingdelay_disrupted.ogg', 100, TRUE)
+	if(mob_effect)
+		mob_effect.icon_state = "eff_swingdelay_disrupted"
 
 /atom/movable/screen/alert/status_effect/swingdelay_disrupt
 	name = "Swinging fiercely!"

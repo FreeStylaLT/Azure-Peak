@@ -133,7 +133,7 @@
 
 	if(isliving(src))
 		var/mob/living/L = src
-		if(L.has_status_effect(/datum/status_effect/swingdelay))
+		if(L.is_swinging())
 			return
 
 	if(modifiers["middle"] && atkswinging == "middle")
@@ -264,13 +264,14 @@
 			return
 
 	if(W)
-	/*
-		if(used_intent.swingdelay && isliving(src))
+		if(isliving(src))
 			var/mob/living/L = src
-			if(L.add_swingdelay(used_intent))
-				addtimer(CALLBACK(src, PROC_REF(ClickOn), A, params), used_intent.swingdelay)
-				return
-	*/
+			if(used_intent.swingdelay && !L.is_swinging())
+				if(L.last_swing < world.time)
+					if(L.add_swingdelay(used_intent))
+						addtimer(CALLBACK(src, PROC_REF(ClickOn), A, params), used_intent.swingdelay)
+						return
+	
 		if(ismob(A))
 			if(CanReach(A,W))
 				var/turf/target_turf = get_turf(A)
@@ -385,23 +386,27 @@
 	atkswinging = null
 	//update_warning()
 
-/*
+
 /mob/living/proc/add_swingdelay(datum/intent/used_intent)
 	if(!used_intent)
 		return FALSE
 	if(!used_intent.swingdelay || !used_intent.swingdelay_type)
 		return FALSE
+	last_swing = world.time + used_intent.swingdelay + 2
 	switch(used_intent.swingdelay_type)
 		if(SWINGDELAY_NORMAL)
 			apply_status_effect(/datum/status_effect/swingdelay, (used_intent.swingdelay - 1))
 			return TRUE
-		if(SWINGDELAY_PENALTY)\
+		if(SWINGDELAY_PENALTY)
 			apply_status_effect(/datum/status_effect/swingdelay/penalty, (used_intent.swingdelay - 1))
 			return TRUE
 		if(SWINGDELAY_CANCEL)
 			apply_status_effect(/datum/status_effect/swingdelay/disrupt, (used_intent.swingdelay - 1))
 			return TRUE
-*/
+
+/mob/living/proc/is_swinging()
+	return (has_status_effect(/datum/status_effect/swingdelay) || has_status_effect(/datum/status_effect/swingdelay/penalty) || has_status_effect(/datum/status_effect/swingdelay/disrupt))
+
 //Branching path for Adjacent clicks with or without items
 //DOES NOT ACTUALLY KNOW IF YOU'RE ADJACENT, DO NOT CALL ON IT'S OWN
 /mob/proc/resolveAdjacentClick(atom/A,obj/item/W,params,used_hand)

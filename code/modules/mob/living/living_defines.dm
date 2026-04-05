@@ -211,6 +211,7 @@
 	var/toggle_delay = 1 SECONDS
 	/// Toggle timer for Specials, or really anything else that you don't want input spam to instantly cycle through.
 	var/toggle_timer
+	var/last_swing = 0
 	var/is_swimming = FALSE
 	var/is_underwater = FALSE
 	var/drowning_drowniness = 0

@@ -10,6 +10,8 @@
 		return FALSE
 	if(!(mobility_flags & MOBILITY_MOVE))
 		return FALSE
+	if(has_status_effect(/datum/status_effect/swingdelay/disrupt))
+		return FALSE
 
 	if(client && used_intent)
 		if(client.charging && used_intent.tranged && !used_intent.tshield)
@@ -19,13 +21,6 @@
 		var/datum/component/arousal/CAR = GetComponent(/datum/component/arousal)
 		if(CAR)
 			CAR.adjust_arousal_special(src, 2)
-
-	if(mind)
-		to_chat(world, "checking is_swinging, expecting 3. Getting: [is_swinging]")
-	if(is_swinging == SWINGDELAY_CANCEL)
-		is_swinging = SWINGDELAY_DISRUPTED
-		if(swingdelay_visual)
-			qdel(swingdelay_visual)
 		return FALSE
 
 	switch(d_intent)

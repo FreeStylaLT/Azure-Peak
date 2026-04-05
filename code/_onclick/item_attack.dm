@@ -153,25 +153,9 @@
 		swingdelay += _swingdelay_mod
 
 	var/datum/intent/cached_intent = user.used_intent
-	if(swingdelay)
-		user.is_swinging = user.used_intent?.swingdelay_type
-		if(!user.used_intent.noaa && isnull(user.mind) && !user.used_intent.cleave)
-			if(get_dist(get_turf(user), get_turf(M)) <= user.used_intent.reach)
-				user.do_attack_animation(M, user.used_intent.animname, user.used_intent.masteritem, used_intent = user.used_intent, simplified = TRUE)
-		addtimer(CALLBACK(src, PROC_REF(process_attack), M, user, _attacker_signal, override_status, swingdelay, cached_intent), swingdelay)
-	else
-		process_attack(M, user, override_status, swingdelay, cached_intent)
+	process_attack(M, user, override_status, swingdelay, cached_intent)
 
-/obj/item/proc/process_attack(mob/living/M, mob/living/user, _attacker_signal, override_status, swingdelay, datum/intent/cached_intent)
-	if(user.is_swinging == SWINGDELAY_DISRUPTED)
-		user.is_swinging = FALSE
-		if(user.mind)
-			to_chat(world, "resetting is_swinging in swingdelay_disrupted where it SHOULD BE")
-		return	//Our attack got disrupted.
-	if(user.is_swinging)
-		if(user.mind)
-			to_chat(world, "resetting is_swinging in process_attack, normal behaviour")
-		user.is_swinging = FALSE
+/obj/item/proc/process_attack(mob/living/M, mob/living/user, _attacker_signal, override_status, swingdelay, datum/intent/cached_intent)E
 	if(user.a_intent != cached_intent)
 		return
 	if(QDELETED(src) || QDELETED(M))
@@ -288,10 +272,6 @@
 		return
 	if(item_flags & NOBLUDGEON)
 		return
-	if(user.is_swinging)
-		if(user.mind)
-			to_chat(world, "resetting in attack_obj, abnormal")
-		user.is_swinging = FALSE
 	if(O.attacked_by(src, user))
 		user.do_attack_animation(O, simplified = TRUE)
 		return TRUE
@@ -300,10 +280,6 @@
 	if(SEND_SIGNAL(src, COMSIG_ITEM_ATTACK_TURF, T, user) & COMPONENT_NO_ATTACK_OBJ)
 		return
 	execute_cleave(user, T)
-	if(user.mind)
-		to_chat(world, "resetting in attack_turf, abnormal")
-	if(user.is_swinging)
-		user.is_swinging = FALSE
 	if(T.max_integrity)
 		if(T.attacked_by(src, user, multiplier))
 			user.do_attack_animation(T, simplified = TRUE)
@@ -716,10 +692,6 @@
 			user.changeNext_move(adf)
 			playsound(get_turf(src), pick(swingsound), 100, FALSE, -1)
 			user.aftermiss()
-	var/mob/living/L = user
-	if(L.mind)
-		to_chat(world, "resetting is_swinging in afterattack, kinda normal")
-	L.is_swinging = FALSE
 
 // Called if the target gets deleted by our attack
 /obj/item/proc/attack_qdeleted(atom/target, mob/user, proximity_flag, click_parameters)

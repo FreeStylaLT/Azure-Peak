@@ -506,11 +506,6 @@
 	return
 
 /mob/living/proc/do_item_attack_animation_wrapper(atom/A, visual_effect_icon, obj/item/used_item, animation_type, datum/intent/used_intent)
-	if(is_swinging == SWINGDELAY_DISRUPTED)
-		return
-	if(swingdelay_visual)
-		qdel(swingdelay_visual)
-		swingdelay_visual = null
 	do_item_attack_animation(A, visual_effect_icon, used_item, animation_type, used_intent)
 
 /mob/living/do_attack_animation(atom/A, visual_effect_icon, obj/item/used_item, no_effect, item_animation_override = null, datum/intent/used_intent, simplified = TRUE)
@@ -519,18 +514,6 @@
 	var/animation_type
 	if(used_item || !simplified)
 		animation_type = item_animation_override || used_intent?.get_attack_animation_type()
-	if(used_intent?.swingdelay)
-		var/mob/living/L = src
-		var/sw_icon_state = "eff_swingdelay"
-		switch(L.is_swinging)
-			if(SWINGDELAY_PENALTY)
-				sw_icon_state = "eff_swingdelay_penalty"
-			if(SWINGDELAY_CANCEL)
-				sw_icon_state = "eff_swingdelay_cancel"
-		if(L.swingdelay_visual && sw_icon_state != "eff_swingdelay" && !(isnull(L.swingdelay_visual) || QDELETED(L.swingdelay_visual)))
-			var/atom/vis = L.swingdelay_visual
-			vis.icon_state = sw_icon_state
-		L.swingdelay_visual = L.play_overhead_indicator_flick('icons/mob/mob_effects.dmi', sw_icon_state, used_intent?.swingdelay, MOB_EFFECT_LAYER_SWINGDELAY, y_offset = 3)
 		addtimer(CALLBACK(src, PROC_REF(do_item_attack_animation_wrapper), A, visual_effect_icon, used_item, animation_type, used_intent), used_intent.swingdelay)
 	setMovetype(movement_type & ~FLOATING) // If we were without gravity, the bouncing animation got stopped, so we make sure we restart the bouncing after the next movement.
 	wiggle(A)

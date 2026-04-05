@@ -174,7 +174,7 @@
 	if(!(mobility_flags & MOBILITY_STAND))
 		prob2defend *= 0.65
 
-	if(is_swinging == SWINGDELAY_PENALTY)
+	if(has_status_effect(/datum/status_effect/swingdelay/penalty))
 		prob2defend -= 20
 
 	if(HAS_TRAIT(H, TRAIT_SENTINELOFWITS))

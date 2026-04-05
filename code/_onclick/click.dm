@@ -113,7 +113,7 @@
 	if(next_move > world.time)
 		return
 
-	if(is_swinging)
+	if(has_status_effect(/datum/status_effect/swingdelay))
 		return
 
 	if(modifiers["middle"] && atkswinging == "middle")
@@ -244,7 +244,11 @@
 			return
 
 	if(W)
-		var/mob/living/L = src
+		if(used_intent.swingdelay && isliving(src))
+			var/mob/living/L = src
+			if(L.add_swingdelay(used_intent))
+				addtimer(CALLBACK(src, PROC_REF(ClickOn), A, params), used_intent.swingdelay)
+				return
 		if(ismob(A))
 			if(CanReach(A,W))
 				var/turf/target_turf = get_turf(A)
@@ -359,6 +363,22 @@
 	atkswinging = null
 	//update_warning()
 
+/mob/living/proc/add_swingdelay(datum/intent/used_intent)
+	if(!used_intent)
+		return FALSE
+	if(!used_intent.swingdelay || !used_intent.swingdelay_type)
+		return FALSE
+	switch(used_intent.swingdelay_type)
+		if(SWINGDELAY_NORMAL)
+			apply_status_effect(/datum/status_effect/swingdelay, (used_intent.swingdelay - 1))
+			return TRUE
+		if(SWINGDELAY_PENALTY)\
+			apply_status_effect(/datum/status_effect/swingdelay/penalty, (used_intent.swingdelay - 1))
+			return TRUE
+		if(SWINGDELAY_CANCEL)
+			apply_status_effect(/datum/status_effect/swingdelay/disrupt, (used_intent.swingdelay - 1))
+			return TRUE
+
 //Branching path for Adjacent clicks with or without items
 //DOES NOT ACTUALLY KNOW IF YOU'RE ADJACENT, DO NOT CALL ON IT'S OWN
 /mob/proc/resolveAdjacentClick(atom/A,obj/item/W,params,used_hand)
@@ -373,7 +393,7 @@
 			if(HAS_TRAIT(L, TRAIT_DUALWIELDER) && L.last_used_double_attack <= world.time)
 				var/obj/item/offh = L.get_inactive_held_item()
 				var/dual_wielding = offh && (istype(W, offh) || istype(offh, W)) && W != offh && !L.check_arm_grabbed(L.get_inactive_hand_index())
-				if(dual_wielding && !is_swinging)
+				if(dual_wielding && !has_status_effect(/datum/status_effect/swingdelay))
 					var/forceoffhand = L.dualwieldpitystacks >= L.dualwieldpitythreshhold
 					if(forceoffhand)
 						L.dualwieldpitystacks = 0
@@ -417,10 +437,6 @@
 		swingi.loc = swingtarget.loc
 
 /mob/proc/aftermiss()
-	if(is_swinging)
-		if(mind)
-			to_chat(world, "resetting is_swinging in aftermiss, weird?")
-		is_swinging = FALSE
 	if(ishuman(src))
 		var/mob/living/carbon/human/H = src
 		H.stamina_add(used_intent.misscost)

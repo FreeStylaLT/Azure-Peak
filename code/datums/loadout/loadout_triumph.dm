@@ -211,6 +211,7 @@
 	path = /obj/item/reagent_containers/glass/bottle/alchemical/tripot
 	triumph_cost = 99
 	sort_category = "Triumphs"
+	logged = TRUE
 
 //////////////////
 //  RESKINS  !  //

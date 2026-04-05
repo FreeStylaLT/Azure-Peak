@@ -1247,4 +1247,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 								I.name = metadata["custom_name"]
 							if(metadata["custom_desc"])
 								I.desc = metadata["custom_desc"]
+							if(LI.logged)
+								message_admins("[LI] was just retrieved by [ADMIN_FLW(user)] [user] ([key_name(user)]) from [host_object].")
+								log_admin("[LI] was just retrieved by [user] ([key_name(user)]) from [host_object]")
 							I.update_icon()

@@ -29,6 +29,12 @@
 	effectedstats = list(STATKEY_STR = 1, STATKEY_PER = 1, STATKEY_INT = 1, STATKEY_CON = 1, STATKEY_WIL = 1, STATKEY_SPD = 1, STATKEY_LCK = 1)
 	duration = 777 MINUTES
 
+/datum/status_effect/buff/alch/tripot/on_apply()
+	. = ..()
+	message_admins("[owner] ([key_name(owner)]) [ADMIN_FLW(owner)] received the Triumphance buff.")
+	log_admin("[owner] ([key_name(owner)]) received the Triumphance buff.")
+
+
 /atom/movable/screen/alert/status_effect/buff/alch/tripot
 	name = "Triumphance"
 	desc = "My latest triumph has empowered me! I am a true champion of Azuria!"

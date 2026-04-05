@@ -1,4 +1,0 @@
-author: "WeNeedMorePhoron"
-delete-after: True
-changes:
-  - rscdel: "Randomly generated half elven name no longer append \"Halfelfen\" as the last name because that's stupid"

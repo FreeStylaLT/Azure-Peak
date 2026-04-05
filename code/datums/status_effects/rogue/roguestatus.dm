@@ -77,9 +77,9 @@
 /datum/status_effect/swingdelay/disrupt
 	id = "swingdelay_disrupt"
 	alert_type = /atom/movable/screen/alert/status_effect/swingdelay_disrupt
+	mob_effect_icon_state = "eff_swingdelay_cancel"
 
 /atom/movable/screen/alert/status_effect/swingdelay_disrupt
 	name = "Swinging fiercely!"
 	desc = "THEY WILL JAB ME AND INTERRUPT THE ATTACK YOU GOBLINBRAINED WRETCH! LOOK AT THE ENEMY!!!"
 	icon_state = "swingdelay_disrupt"
-	mob_effect_icon_state = "eff_swingdelay_cancel"

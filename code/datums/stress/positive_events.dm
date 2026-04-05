@@ -6,7 +6,7 @@
 /datum/stressevent/seeblessed
 	timer = 30 MINUTES
 	stressadd = -2
-	desc = span_green("Regular visits to Church center my spirit.")
+	desc = span_green("I feel joy within these halls.")
 
 /datum/stressevent/viewsinpunish
 	timer = 5 MINUTES
@@ -82,7 +82,7 @@
 /datum/stressevent/sweet
 	timer = 8 MINUTES
 	stressadd = -2
-	desc = span_green("Sweets raise even the lowest of moods!")
+	desc = span_green("Sweet treats like these can raise even the lowest of moods!")
 
 /datum/stressevent/hydrated
 	timer = 10 MINUTES
@@ -500,4 +500,3 @@
 	timer = 10 MINUTES // this will :) you for a while
 	stressadd = -2
 	desc = span_boldred("Long ago, XYLIX put up an extra star in the sky to anger NOC... seeing it is a FANTASTIC sign!")
-

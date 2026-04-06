@@ -13,9 +13,10 @@
 		
 	var/datum/status_effect/swingdelay/disrupt/SW = has_status_effect(/datum/status_effect/swingdelay/disrupt)
 	if(SW)
-		SW.attacked()
-		is_swinging = FALSE
-		return FALSE
+		if(!SW.is_disrupted())
+			SW.attacked()
+			is_swinging = FALSE
+			return FALSE
 
 	if(client && used_intent)
 		if(client.charging && used_intent.tranged && !used_intent.tshield)

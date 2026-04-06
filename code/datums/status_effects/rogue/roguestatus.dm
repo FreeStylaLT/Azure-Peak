@@ -70,26 +70,31 @@
 
 /datum/status_effect/swingdelay/penalty
 	id = "swingdelay_pen"
-	alert_type = /atom/movable/screen/alert/status_effect/swingdelay_pen
+	alert_type = /atom/movable/screen/alert/status_effect/swingdelay/penalty
 	mob_effect_icon_state = "eff_swingdelay_penalty"
 
-/atom/movable/screen/alert/status_effect/swingdelay_pen
+/atom/movable/screen/alert/status_effect/swingdelay/penalty
 	name = "Swinging with a penalty!"
 	desc = "I am swinging my weapon! My guard is weaker! Pay attention to the screen, not here, you loon!"
 	icon_state = "swingdelay_penalty"
 
 /datum/status_effect/swingdelay/disrupt
 	id = "swingdelay_disrupt"
-	alert_type = /atom/movable/screen/alert/status_effect/swingdelay_disrupt
+	alert_type = /atom/movable/screen/alert/status_effect/swingdelay/disrupt
 	mob_effect_icon_state = "eff_swingdelay_cancel"
+	var/is_disrupted = FALSE
 
 /datum/status_effect/swingdelay/disrupt/proc/attacked()
 	owner.is_swinging = FALSE
+	is_disrupted = TRUE
 	playsound(owner, 'sound/combat/swingdelay_disrupted.ogg', 100, TRUE)
 	if(mob_effect)
 		mob_effect.icon_state = "eff_swingdelay_disrupted"
 
-/atom/movable/screen/alert/status_effect/swingdelay_disrupt
+/datum/status_effect/swingdelay/disrupt/proc/is_disrupted()
+	return is_disrupted
+
+/atom/movable/screen/alert/status_effect/swingdelay/disrupt
 	name = "Swinging fiercely!"
 	desc = "THEY WILL JAB ME AND INTERRUPT THE ATTACK YOU GOBLINBRAINED WRETCH! LOOK AT THE ENEMY!!!"
 	icon_state = "swingdelay_disrupt"

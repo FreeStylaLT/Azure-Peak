@@ -119,7 +119,6 @@
 #define SWINGDELAY_NORMAL 1	//No penalties, we just swing.
 #define SWINGDELAY_PENALTY 2 //We suffer a defensive penalty if struck during it. Otherwise, normal.
 #define SWINGDELAY_CANCEL 3 //We have -no- defense during it, and it can be interrupted if we are hit.
-#define SWINGDELAY_DISRUPTED "cancelled"
 
 //Grab levels
 #define GRAB_PASSIVE				0

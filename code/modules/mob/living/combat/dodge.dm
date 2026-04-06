@@ -205,7 +205,6 @@
 		if(!is_in_cone)
 			ignore_DE_bonus = TRUE
 
-		prob2defend = clamp(prob2defend, 5, 90)
 		if(I && IL)	//Skilldiff applies extra stamloss, tentative
 			drained += (UH.get_skill_level(I.associated_skill) - H.get_skill_level(IL.associated_skill))
 

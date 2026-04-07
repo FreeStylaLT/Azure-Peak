@@ -78,6 +78,7 @@
 	icon_state = "swingdelay_penalty"
 
 /datum/status_effect/swingdelay/disrupt
+	id = "swingdelay_disrupt"
 	alert_type = /atom/movable/screen/alert/status_effect/swingdelay/disrupt
 	mob_effect_icon_state = "eff_swingdelay_cancel"
 	var/is_disrupted = FALSE

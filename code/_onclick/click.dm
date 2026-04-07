@@ -397,7 +397,7 @@
 			return TRUE
 
 /mob/living/proc/is_swinging()
-	return has_status_effect(/datum/status_effect/swingdelay)
+	return (has_status_effect(/datum/status_effect/swingdelay) || has_status_effect(/datum/status_effect/swingdelay/disrupt))
 
 //Branching path for Adjacent clicks with or without items
 //DOES NOT ACTUALLY KNOW IF YOU'RE ADJACENT, DO NOT CALL ON IT'S OWN

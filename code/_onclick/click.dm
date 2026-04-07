@@ -132,8 +132,8 @@
 		return
 
 	if(isliving(src))
-		var/mob/living/L = src
-		if(L.is_swinging())
+		var/mob/living/clicker = src
+		if(clicker.is_swinging())
 			return
 
 	if(modifiers["middle"] && atkswinging == "middle")

@@ -545,7 +545,7 @@
 	var/animation_type
 	if(used_item || !simplified)
 		animation_type = item_animation_override || used_intent?.get_attack_animation_type()
-		if(used_intent.swingdelay && used_intent.swingdelay_type && !is_swinging)
+		if(used_intent.swingdelay && used_intent.swingdelay_type && swing_state)
 			addtimer(CALLBACK(src, PROC_REF(do_item_attack_animation_wrapper), A, visual_effect_icon, used_item, animation_type, used_intent), used_intent.swingdelay)
 			wiggle(A)
 		else

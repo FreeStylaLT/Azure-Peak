@@ -60,7 +60,7 @@
 	
 /datum/status_effect/swingdelay/on_apply()
 	. = ..()
-	owner.is_swinging = TRUE
+	owner.swing_state = TRUE
 
 /atom/movable/screen/alert/status_effect/swingdelay
 	name = "Swinging!"
@@ -69,7 +69,6 @@
 	icon_state = "swingdelay"
 
 /datum/status_effect/swingdelay/penalty
-	id = "swingdelay_pen"
 	alert_type = /atom/movable/screen/alert/status_effect/swingdelay/penalty
 	mob_effect_icon_state = "eff_swingdelay_penalty"
 
@@ -79,13 +78,12 @@
 	icon_state = "swingdelay_penalty"
 
 /datum/status_effect/swingdelay/disrupt
-	id = "swingdelay_disrupt"
 	alert_type = /atom/movable/screen/alert/status_effect/swingdelay/disrupt
 	mob_effect_icon_state = "eff_swingdelay_cancel"
 	var/is_disrupted = FALSE
 
 /datum/status_effect/swingdelay/disrupt/proc/attacked()
-	owner.is_swinging = FALSE
+	owner.swing_state = FALSE
 	is_disrupted = TRUE
 	playsound(owner, 'sound/combat/swingdelay_disrupted.ogg', 100, TRUE)
 	if(mob_effect)

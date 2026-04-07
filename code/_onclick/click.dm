@@ -384,7 +384,6 @@
 		return FALSE
 	if(!used_intent.swingdelay || !used_intent.swingdelay_type)
 		return FALSE
-	last_swing = world.time + used_intent.swingdelay
 	var/delay = used_intent.swingdelay + 2	//We want the status effect to last longer than the delay itself so we'd have 2 tick overhead to check for a cancelled swingdelay.
 	switch(used_intent.swingdelay_type)
 		if(SWINGDELAY_NORMAL)
@@ -398,7 +397,7 @@
 			return TRUE
 
 /mob/living/proc/is_swinging()
-	return (has_status_effect(/datum/status_effect/swingdelay) || has_status_effect(/datum/status_effect/swingdelay/penalty) || has_status_effect(/datum/status_effect/swingdelay/disrupt))
+	return has_status_effect(/datum/status_effect/swingdelay)
 
 //Branching path for Adjacent clicks with or without items
 //DOES NOT ACTUALLY KNOW IF YOU'RE ADJACENT, DO NOT CALL ON IT'S OWN

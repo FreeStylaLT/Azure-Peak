@@ -157,10 +157,12 @@
 		if(user.add_swingdelay(cached_intent))
 			sleep(cached_intent.swingdelay)
 
-	if(user.has_status_effect(/datum/status_effect/swingdelay/disrupt) && !user.is_swinging) //Getting struck w/ /disrupt swingdelay type sets our is_swinging to false. If we had the effect, but not the bool, we were interrupted. (Or something else went wrong.)
+	// Getting struck w/ /disrupt swingdelay type sets our swing_state to false. 
+	// If we had the effect, but not the bool, we were interrupted. (Or something else went wrong.)
+	if(user.has_status_effect(/datum/status_effect/swingdelay) && !user.swing_state)
 		return
 
-	user.is_swinging = FALSE
+	user.swing_state = FALSE
 
 	if(user.a_intent != cached_intent)
 		return

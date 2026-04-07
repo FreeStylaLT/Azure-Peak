@@ -15,7 +15,7 @@
 	if(SW)
 		if(!SW.is_disrupted())
 			SW.attacked()
-			is_swinging = FALSE
+			swing_state = FALSE
 			return FALSE
 
 	if(client && used_intent)

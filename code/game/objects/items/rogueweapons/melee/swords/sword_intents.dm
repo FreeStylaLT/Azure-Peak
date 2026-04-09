@@ -58,7 +58,7 @@
 
 /datum/intent/sword/thrust/arming
 	clickcd = CLICK_CD_QUICK // Less than rapier
-	penfactor = PEN_MEDIUM // Arming sword thrust — penetrates light armor.
+	penfactor = PEN_LIGHT
 
 /datum/intent/sword/thrust/heavy
 	penfactor = PEN_MEDIUM

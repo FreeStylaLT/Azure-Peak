@@ -80,7 +80,7 @@
 	icon_state = "inpick"
 	clickcd = CLICK_CD_CHARGED
 	penfactor = PEN_HEAVY
-	swingdelay_type = SWINGDELAY_PENALTY
+	swingdelay_type = SWINGDELAY_CANCEL
 	swingdelay = 0.9 SECONDS
 
 /datum/intent/sword/thrust/long/halfsword/jab

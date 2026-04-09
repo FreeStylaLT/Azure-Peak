@@ -118,6 +118,8 @@
 
 #undef SHARPNESS_PENALTY_RATIO_ONE
 #undef SHARPNESS_PENALTY_RATIO_TWO
+#undef SHARPNESS_PENALTY_RATIO_THREE
+#undef SHARPNESS_PENALTY_RATIO_FOUR
 
 /mob/living/proc/getarmor(def_zone, type, damage, armor_penetration, blade_dulling, intdamfactor, used_weapon)
 	return 0

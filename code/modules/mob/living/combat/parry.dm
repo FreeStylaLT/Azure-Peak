@@ -232,7 +232,7 @@
 		to_chat(src, span_info("[text]"))
 
 	if(has_status_effect(/datum/status_effect/swingdelay/penalty))
-		prob2defend -= 50
+		prob2defend = clamp(prob2defend - 50, 5, 90)
 
 	if(HAS_TRAIT(src, TRAIT_NODEF))
 		prob2defend = 0

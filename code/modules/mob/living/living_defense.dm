@@ -50,8 +50,10 @@
 		update_sneak_invis(reset = TRUE)
 	return blocked
 
-#define SHARPNESS_PENALTY_RATIO_ONE 0.65
-#define SHARPNESS_PENALTY_RATIO_TWO 0.5
+#define SHARPNESS_PENALTY_RATIO_ONE 0.7
+#define SHARPNESS_PENALTY_RATIO_TWO 0.6
+#define SHARPNESS_PENALTY_RATIO_THREE 0.5
+#define SHARPNESS_PENALTY_RATIO_FOUR 0.4
 
 /proc/get_pen_info(mob/living/carbon/human/target, mob/living/attacker, obj/item/clothing/used_armor, def_zone, d_type, armor_pen, obj/item/I)
 	if(!target || !def_zone || !d_type || !armor_pen || !ishuman(target))
@@ -77,16 +79,18 @@
 			if(dullness_ratio > SHARPNESS_TIER1_THRESHOLD)	// We are above 80% sharpness, so we go along as planned and get a small bonus.
 				sharpness_bonus += 1
 				use_bonus = TRUE
-			else if(dullness_ratio < SHARPNESS_TIER1_FLOOR)	// We are below sharpness threshold where we use damfactors & STR for damage, so we won't use it for pen either.
+			else if(dullness_ratio < SHARPNESS_TIER2_THRESHOLD + 0.1)	// We are below sharpness threshold where we use damfactors & STR for damage, so we won't use it for pen either.
 				use_bonus = FALSE
 				damfactor_bonus = 0
 			else	// We are inbetween, so we'll apply a penalty.
-				if(dullness_ratio < SHARPNESS_PENALTY_RATIO_ONE && dullness_ratio > SHARPNESS_PENALTY_RATIO_TWO)
-					sharpness_bonus = -1
-					damfactor_bonus = max(damfactor_bonus - 1, 0)
-				else if(dullness_ratio <= SHARPNESS_PENALTY_RATIO_TWO)
-					sharpness_bonus = -2
-					damfactor_bonus = max(damfactor_bonus - 2, 0)
+				if(dullness_ratio < SHARPNESS_PENALTY_RATIO_ONE)
+					damfactor_bonus = max(damfactor_bonus - 1, 0) // -1 from damfactor
+				if(dullness_ratio <= SHARPNESS_PENALTY_RATIO_TWO)
+					sharpness_bonus -= 1	//-1 from the total
+				if(dullness_ratio <= SHARPNESS_PENALTY_RATIO_THREE)
+					damfactor_bonus = max(damfactor_bonus - 1, 0) // -2 from damfactor
+				if(dullness_ratio <= SHARPNESS_PENALTY_RATIO_FOUR)
+					sharpness_bonus -= 1	//-2 from the total
 
 		if(use_bonus)
 			switch(I.wbalance)

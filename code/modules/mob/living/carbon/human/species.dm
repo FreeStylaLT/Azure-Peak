@@ -1826,18 +1826,26 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 			user.filtered_balloon_alert(TRAIT_COMBAT_AWARE, text, show_self = FALSE)
 
 	if(H.client?.prefs.combat_toggles & HITZONE_TEXT)
-		H.balloon_alert(H, "[bodyzone2readablezone(selzone)]...")
-
-	var/armor_block = H.run_armor_check(selzone, I.d_type, "", "",pen, damage = Iforce, blade_dulling=bladec, intdamfactor = used_intfactor, used_weapon = I)
+		H.balloon_alert(H, "[bodyzone2readablezone(selzone)]...") 
+		
+	var/pen_info_check = get_pen_info(H, user, H.get_best_worn_armor(def_zone, int.item_d_type), def_zone, int.item_d_type, int.penfactor, I)
+	var/armor_block = H.run_armor_check(selzone, I.d_type, "", "",pen, damage = Iforce, blade_dulling=bladec, intdamfactor = used_intfactor, used_weapon = I, pen_info = pen_info_check)
+	to_chat(world, "we produced armor block: [armor_block] vs [Iforce]")
 
 	var/nodmg = FALSE
 
 	if(Iforce)
 		H.retaliate(user)
 
+		var/post_weakness_dmg
+		var/post_reduction_dmg
+
 		var/weakness = H.check_weakness(I, user)
+
+		post_weakness_dmg = Iforce * ((weakness == 0) ? 1 : weakness)
+		to_chat(world, "post_weakness_dmg = [post_weakness_dmg]")
 		H.next_attack_msg.Cut()
-		if(!apply_damage(Iforce * weakness, I.damtype, def_zone, armor_block, H))
+		if(!apply_damage(post_weakness_dmg, I.damtype, def_zone, armor_block, H))
 			nodmg = TRUE
 			H.next_attack_msg += VISMSG_ARMOR_BLOCKED
 			var/obj/item/clothing/C = H.get_best_worn_armor(def_zone, I.d_type)	//this is kinda relying on the proc returnig the same as run_armor_check did. Clunky!
@@ -1851,7 +1859,8 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 				user.changeNext_def(clamp(user.dodgetime - 1, 0, CLICK_CD_DODGE))
 				user.changeMaxDodge(1)
 		if(!nodmg)
-			var/datum/wound/crit_wound = affecting.bodypart_attacked_by(user.used_intent.blade_class, (Iforce * weakness) * ((100-armor_block)/100), user, selzone, crit_message = TRUE, weapon = I)
+			post_reduction_dmg = (post_weakness_dmg - armor_block)
+			var/datum/wound/crit_wound = affecting.bodypart_attacked_by(user.used_intent.blade_class, post_reduction_dmg, user, selzone, crit_message = TRUE, weapon = I, pen_info = pen_info_check)
 			if(should_embed_weapon(crit_wound, I))
 				var/can_impale = TRUE
 				if(!affecting)
@@ -1974,6 +1983,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 /datum/species/proc/apply_damage(damage, damagetype = BRUTE, def_zone = null, blocked, mob/living/carbon/human/H, forced = FALSE, spread_damage = FALSE)
 	SEND_SIGNAL(H, COMSIG_MOB_APPLY_DAMGE, damage, damagetype, def_zone)
 	var/hit_percent = 1
+	to_chat(world, "we're in apply_damage with damage:[damage] vs blocked:[blocked]")
 	damage = max(damage-blocked,0)
 	hit_percent = (hit_percent * (100-H.physiology.damage_resistance))/100
 	var/atom/movable/screen/zone_sel/zone_sel

@@ -13,8 +13,8 @@
 #define PEN_NONE			0	// No penetration. Training weapons, base cuts/chops.
 #define PEN_LIGHT			1	// Falx cut, axe chop. Penetrates trash armor (NPC cloth/bad leather).
 #define PEN_MEDIUM			2	// Sword thrusts, longsword chop. Penetrates player light armor (gambeson, hardened leather).
-#define PEN_HEAVY			3	// Spear, estoc. Penetrates mail/brigandine/plate at same-tier 20%.
-#define PEN_BSTEEL			4	// Halfsword, dagger pick. Penetrates plate fully, blacksteel at 20%.
+#define PEN_HEAVY			3	// Spear, estoc. Penetrates mail/brigandine/plate.alist
+#define PEN_BSTEEL			4	// Halfsword, dagger pick. Penetrates plate fully, blacksteel.
 
 // Damage Blocking tiers (0-4). Armor clothing.
 #define DBLOCK_NONE			0	// No blocking. Unarmored skin.
@@ -150,6 +150,7 @@
 // PADDED: Best Blunt protection, Bodkin immune. But Axe CHOP (MEDIUM) and most thrusts (LIGHT) get through. 
 // LEATHER: Decent Blunt DR. Axe CHOP (MEDIUM), sword thrust (MEDIUM) and bodkin (HEAVY) get through. Better vs stab than padded, worse vs piercing.
 #define ARMOR_PADDED list("blunt" = DR_SUPER, "slash" = DBLOCK_MEDIUM, "stab" = DBLOCK_LIGHT, "piercing" = DBLOCK_BSTEEL, "fire" = DR_MEDIUM, "acid" = DR_NONE)
+#define ARMOR_LEATHER_NPC list("blunt" = DR_HEAVY, "slash" = DBLOCK_LIGHT, "stab" = DBLOCK_LIGHT, "piercing" = DBLOCK_MEDIUM, "fire" = DR_MEDIUM, "acid" = DR_NONE)
 #define ARMOR_LEATHER list("blunt" = DR_ULTRA, "slash" = DBLOCK_MEDIUM, "stab" = DBLOCK_MEDIUM, "piercing" = DBLOCK_HEAVY, "fire" = DR_MEDIUM, "acid" = DR_NONE)
 
 // LIGHT ARMOR - SNOWFLAKE. Not comfortable with them, but not touching it atm.

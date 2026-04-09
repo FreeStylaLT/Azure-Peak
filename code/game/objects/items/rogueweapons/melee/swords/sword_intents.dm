@@ -46,7 +46,7 @@
 	animname = "stab"
 	blade_class = BCLASS_STAB
 	hitsound = list('sound/combat/hits/bladed/genstab (1).ogg', 'sound/combat/hits/bladed/genstab (2).ogg', 'sound/combat/hits/bladed/genstab (3).ogg')
-	penfactor = PEN_MEDIUM
+	penfactor = PEN_LIGHT
 	chargetime = 0
 	swingdelay = 0
 	item_d_type = "stab"
@@ -66,15 +66,22 @@
 	swingdelay = 6
 
 /datum/intent/sword/thrust/long
-	penfactor = PEN_MEDIUM // Longsword thrust — same pen tier, higher base damage
-	// Their cut is actually pretty decent when 2handed and should be inferior to zwei.
+	penfactor = PEN_LIGHT // Longsword thrust — same pen tier, higher base damage
+
+/datum/intent/sword/thrust/long/deep
+	name = "lunge"
+	icon_state = "inlunge"
+	penfactor = PEN_MEDIUM
+	damfactor = 1.2
+	swingdelay = 0.8 SECONDS
+	swingdelay_type = SWINGDELAY_PENALTY
 
 /datum/intent/sword/thrust/long/halfsword
 	icon_state = "inpick"
 	clickcd = CLICK_CD_CHARGED
 	penfactor = PEN_HEAVY
 	swingdelay_type = SWINGDELAY_PENALTY
-	swingdelay = 0.7 SECONDS
+	swingdelay = 0.9 SECONDS
 
 /datum/intent/sword/thrust/long/halfsword/jab
 	name = "jab"
@@ -334,7 +341,8 @@
 /datum/intent/sword/thrust/estoc
 	name = "thrust"
 	penfactor = PEN_HEAVY	// Penetrates mail/plate at same-tier 20%. Estoc's purpose — point blank, telegraphed.
-	swingdelay = 6
+	swingdelay_type = SWINGDELAY_PENALTY
+	swingdelay = 0.6 SECONDS
 
 /datum/intent/sword/thrust/estoc/lunge
 	name = "lunge"

@@ -70,7 +70,6 @@
 
 /datum/wound/dynamic/puncture/upgrade(dam, armor, exposed, pen_info)
 	whp += (dam * PUNC_UPG_WHPRATE)
-	to_chat(world, "we're in wound upgrade with dam: [dam] and peninfo: [pen_info]")
 	if(!armor || exposed)
 		set_bleed_rate(bleed_rate + PUNC_UPG_CLAMP_RAW)
 	else

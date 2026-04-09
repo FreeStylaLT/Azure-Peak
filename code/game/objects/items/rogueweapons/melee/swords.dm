@@ -142,7 +142,7 @@
 	force = 25
 	force_wielded = 30
 	possible_item_intents = list(/datum/intent/sword/cut, /datum/intent/sword/thrust/long, /datum/intent/sword/strike)
-	gripped_intents = list(/datum/intent/sword/cut/long, /datum/intent/sword/thrust/long, /datum/intent/sword/chop)
+	gripped_intents = list(/datum/intent/sword/cut/long, /datum/intent/sword/thrust/long, /datum/intent/sword/chop, /datum/intent/sword/thrust/long/deep)
 	alt_grips = list(/datum/alt_grip/mordhau/sword, /datum/alt_grip/halfsword)
 	icon_state = "longsword"
 	icon = 'icons/roguetown/weapons/swords64.dmi'
@@ -1037,7 +1037,7 @@
 	desc = "A very popular backsword made for cavalrymen that originated in Naledi and spread its influence further north, reaching Aavnr as a \"Szablya\" and notoriously cementing itself as the preferred weapon of the Potentate's Hussars."
 	icon_state = "saber"
 	sheathe_icon = "saber"
-	possible_item_intents = list(/datum/intent/sword/cut/sabre, /datum/intent/sword/thrust/sabre, /datum/intent/sword/strike)
+	possible_item_intents = list(/datum/intent/sword/cut/sabre, /datum/intent/sword/cut/sabre/heavy, /datum/intent/sword/thrust/sabre, /datum/intent/sword/strike)
 	gripped_intents = null
 	parrysound = list('sound/combat/parry/bladed/bladedthin (1).ogg', 'sound/combat/parry/bladed/bladedthin (2).ogg', 'sound/combat/parry/bladed/bladedthin (3).ogg')
 	swingsound = BLADEWOOSH_SMALL
@@ -1051,6 +1051,17 @@
 	clickcd = 8		//Faster than sword by 4
 	damfactor = 1.25	//Better than rapier (Base is 1.1 for swords)
 	penfactor = PEN_NONE
+
+/datum/intent/sword/cut/sabre/heavy
+	name = "precise swing"
+	icon_state = "inhack"
+	blade_class = BCLASS_CHOP
+	damfactor = 1
+	penfactor = PEN_HEAVY
+	swingdelay = 1.1 SECONDS
+	swingdelay_type = SWINGDELAY_CANCEL
+	canparry = FALSE
+	candodge = FALSE
 
 /datum/intent/sword/thrust/sabre
 	clickcd = 9			//Fast but still not as fast as rapier n' shittier.
@@ -1229,7 +1240,7 @@
 	inhand_y_dimension = 64
 	dropshrink = 0.75
 	max_blade_int = 230
-	possible_item_intents = list(/datum/intent/sword/thrust/rapier, /datum/intent/sword/cut/rapier)
+	possible_item_intents = list(/datum/intent/sword/thrust/rapier, /datum/intent/sword/thrust/rapier/lunge, /datum/intent/sword/cut/rapier)
 	gripped_intents = null
 	special = /datum/special_intent/piercing_lunge
 	parrysound = list(
@@ -1331,6 +1342,14 @@
 	clickcd = 8
 	damfactor = 1.1
 	penfactor = PEN_MEDIUM
+
+/datum/intent/sword/thrust/rapier/lunge
+	name = "deep lunge"
+	icon_state = "inlunge"
+	damfactor = 1.1
+	penfactor = PEN_BSTEEL
+	swingdelay_type = SWINGDELAY_CANCEL
+	swingdelay = 0.8 SECONDS
 
 /obj/item/rogueweapon/sword/rapier/dec
 	name = "decorated rapier"

@@ -71,8 +71,8 @@
 		if(I.sharpness && I.max_blade_int) 	// IS_BLUNT is 0, so this will be falsy with blunt weapons.
 			var/dullness_ratio = I.blade_int / I.max_blade_int
 
-			if(attacked.used_intent.damfactor > 1)
-				damfactor_bonus += floor(((attacked?.used_intent?.damfactor) - 1) * 10)
+			if(attacker.used_intent.damfactor > 1)
+				damfactor_bonus += floor(((attacker?.used_intent?.damfactor) - 1) * 10)
 
 			if(dullness_ratio > SHARPNESS_TIER1_THRESHOLD)	// We are above 80% sharpness, so we go along as planned and get a small bonus.
 				sharpness_bonus += 1

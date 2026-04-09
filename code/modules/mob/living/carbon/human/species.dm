@@ -1830,7 +1830,6 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		
 	var/pen_info_check = get_pen_info(H, user, H.get_best_worn_armor(def_zone, int.item_d_type), def_zone, int.item_d_type, int.penfactor, I)
 	var/armor_block = H.run_armor_check(selzone, I.d_type, "", "",pen, damage = Iforce, blade_dulling=bladec, intdamfactor = used_intfactor, used_weapon = I, pen_info = pen_info_check)
-	to_chat(world, "we produced armor block: [armor_block] vs [Iforce]")
 
 	var/nodmg = FALSE
 
@@ -1843,7 +1842,6 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 		var/weakness = H.check_weakness(I, user)
 
 		post_weakness_dmg = Iforce * ((weakness == 0) ? 1 : weakness)
-		to_chat(world, "post_weakness_dmg = [post_weakness_dmg]")
 		H.next_attack_msg.Cut()
 		if(!apply_damage(post_weakness_dmg, I.damtype, def_zone, armor_block, H))
 			nodmg = TRUE
@@ -1983,7 +1981,6 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 /datum/species/proc/apply_damage(damage, damagetype = BRUTE, def_zone = null, blocked, mob/living/carbon/human/H, forced = FALSE, spread_damage = FALSE)
 	SEND_SIGNAL(H, COMSIG_MOB_APPLY_DAMGE, damage, damagetype, def_zone)
 	var/hit_percent = 1
-	to_chat(world, "we're in apply_damage with damage:[damage] vs blocked:[blocked]")
 	damage = max(damage-blocked,0)
 	hit_percent = (hit_percent * (100-H.physiology.damage_resistance))/100
 	var/atom/movable/screen/zone_sel/zone_sel

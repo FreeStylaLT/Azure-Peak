@@ -54,7 +54,7 @@
 /datum/intent/sword/thrust/short
 	clickcd = 8
 	damfactor = 1.1
-	penfactor = PEN_MEDIUM
+	penfactor = PEN_LIGHT
 
 /datum/intent/sword/thrust/arming
 	clickcd = CLICK_CD_QUICK // Less than rapier
@@ -86,6 +86,7 @@
 /datum/intent/sword/thrust/long/halfsword/jab
 	name = "jab"
 	attack_verb = list("jabs")
+	penfactor = PEN_LIGHT
 	damfactor = 0.8
 	clickcd = CLICK_CD_QUICK
 	swingdelay = 0

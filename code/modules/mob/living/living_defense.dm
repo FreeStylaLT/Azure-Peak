@@ -26,17 +26,33 @@
 			blocked = block_damage * (1 - dr_mult)
 	else
 		// Penetration: tier comparison
-		if(armor_tier > 0)
-			if(armor_penetration >= armor_tier)
-				if(pen_info)
-					blocked = block_damage * (1 - (pen_info * PEN_PASSTHROUGH_RATIO)) 
-				if(penetrated_text)
-					to_chat(src, span_danger("[penetrated_text]"))
-			else
-				// Fully blocked
-				blocked = block_damage * 10
-				if(absorb_text)
-					to_chat(src, span_notice("[absorb_text]"))
+		if(attack_flag != "piercing")
+			if(armor_tier > 0)
+				if(armor_penetration >= armor_tier)
+					if(pen_info)
+						blocked = block_damage * (1 - (pen_info * PEN_PASSTHROUGH_RATIO)) 
+					if(penetrated_text)
+						to_chat(src, span_danger("[penetrated_text]"))
+				else
+					// Fully blocked
+					blocked = block_damage * 10
+					if(absorb_text)
+						to_chat(src, span_notice("[absorb_text]"))
+		else	// Unfortunate special behaviour for projectiles because they are absent most data pen_info wants (attacker mob ref, weapon sharpness, intent, etc)
+			if(armor_tier > 0)
+				if(armor_penetration == armor_tier)
+					blocked = block_damage * PEN_PASSTHROUGH_PROJ_EQUAL // We block 80% of the damage, letting 20% through to body / into integ.
+					if(penetrated_text)
+						to_chat(src, span_danger("[penetrated_text]"))
+				else if(armor_penetration > armor_tier)
+					blocked = block_damage * PEN_PASSTHROUGH_PROJ_MORE // We block 20% of the damage, letting 80% through to body / into integ.
+					if(penetrated_text)
+						to_chat(src, span_danger("[penetrated_text]"))
+				else
+					// Fully blocked
+					blocked = block_damage * 10
+					if(absorb_text)
+						to_chat(src, span_notice("[absorb_text]"))
 
 	if(used_weapon)
 		var/obj/item/I = used_weapon

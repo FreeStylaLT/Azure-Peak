@@ -36,9 +36,17 @@
 
 			// Tier-based penetration:
 			// + 10% damage per "dot" of pen and per relevant stat point.
-			if(armor_penetration >= protection)
-				consume_debuff = FALSE
-				intdamage = damage * (1 - (pen_info * PEN_PASSTHROUGH_RATIO))
+			if(d_type != "piercing")
+				if(armor_penetration >= protection)
+					consume_debuff = FALSE
+					intdamage = damage * (1 - (pen_info * PEN_PASSTHROUGH_RATIO))
+			else
+				if(armor_penetration == protection)
+					consume_debuff = FALSE
+					intdamage = damage * PEN_PASSTHROUGH_PROJ_EQUAL
+				if(armor_penetration > protection)
+					consume_debuff = FALSE
+					intdamage = damage * PEN_PASSTHROUGH_PROJ_MORE
 
 			if(intdamfactor != 1)
 				intdamage *= intdamfactor

@@ -45,6 +45,8 @@
 
 // Penetration passthrough fractions
 #define PEN_PASSTHROUGH_RATIO	0.1		// How much damage will go through per pen point (+ per relevant stat above 10). 0.1 = 10%
+#define PEN_PASSTHROUGH_PROJ_EQUAL 0.2
+#define PEN_PASSTHROUGH_PROJ_MORE 0.8
 #define PEN_PASSTHROUGH_CAP	8			// How many "dots" maximum (pen vs armor, + 1 dot per relevant stat above 10)
 // pen < armor tier: fully blocked (0 through)
 // 0.2 is calculated from 55 AP + 30 damage spear = 5 damage through on 80 plate (stab), 5 / 30 = 0.166, rounded up to 0.2. This somewhat matches old system behavior.

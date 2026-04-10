@@ -132,6 +132,11 @@
 		prob2defend += unarmed_defense
 		weapon_parry = FALSE
 
+	// We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
+	if(mainhand && !offhand)
+		if(used_weapon.wbalance == WBALANCE_SWIFT)
+			prob2defend += 10
+
 	if(intenty.masteritem)
 		attacker_skill = U.get_skill_level(intenty.masteritem.associated_skill)
 

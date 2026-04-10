@@ -229,8 +229,9 @@
 			var/mainh = get_active_held_item()
 			var/offh = get_inactive_held_item()
 			if(istype(mainh, /obj/item/rogueweapon/shield) || istype(offh, /obj/item/rogueweapon/shield))	//why do I have to pre-empt the worst of you
-				max_dodge = MAX_DODGE_FLOOR
-				L.changeNext_def(CLICK_CD_DODGE)
+				if(!istype(mainh, /obj/item/rogueweapon/shield/buckler) && !istype(offh, /obj/item/rogueweapon/shield/buckler))
+					max_dodge = MAX_DODGE_FLOOR
+					L.changeNext_def(CLICK_CD_DODGE)
 		prob2defend = clamp((prob2defend + max_dodge), 5, (90 + max_dodge))
 
 		//------------Dual Wielding Checks------------

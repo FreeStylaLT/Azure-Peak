@@ -1759,6 +1759,14 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 
 	if(!affecting)
 		return
+	
+	var/datum/status_effect/buff/clash/limbguard/LG = H.has_status_effect(/datum/status_effect/buff/clash/limbguard)
+	if(LG)
+		if(LG.protected_zone == selzone && LG.is_active)	// We "missed" into limbguard's protected zone.
+			LG.process_attack(H, H, user, I)
+			return
+
+
 	var/datum/intent/int = user.used_intent
 	if((int.intent_effect) && selzone)
 		var/do_effect = FALSE

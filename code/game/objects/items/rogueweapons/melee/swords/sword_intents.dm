@@ -61,20 +61,22 @@
 	penfactor = PEN_LIGHT
 
 /datum/intent/sword/thrust/heavy
+	name = "heavy thrust"
+	icon_state = "inlunge"
 	penfactor = PEN_MEDIUM
 	damfactor = 1.3
-	swingdelay = 6
+	swingdelay = 0.8 SECONDS
+	swingdelay_type = SWINGDELAY_PENALTY
 
 /datum/intent/sword/thrust/long
 	penfactor = PEN_LIGHT // Longsword thrust — same pen tier, higher base damage
 
 /datum/intent/sword/thrust/long/deep
-	name = "lunge"
+	name = "deep lunge"
 	icon_state = "inlunge"
 	penfactor = PEN_MEDIUM
-	damfactor = 1.2
-	swingdelay = 0.8 SECONDS
-	swingdelay_type = SWINGDELAY_PENALTY
+	damfactor = 1
+	swingdelay = 0.6 SECONDS
 
 /datum/intent/sword/thrust/long/halfsword
 	icon_state = "inpick"

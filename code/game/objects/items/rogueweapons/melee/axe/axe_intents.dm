@@ -34,7 +34,7 @@
 	icon_state = "inhack"
 	penfactor = PEN_BSTEEL
 	damfactor = 1
-	swingdelay = 1.1 SECONDS
+	swingdelay = 1 SECONDS
 	candodge = FALSE
 	canparry = FALSE
 	swingdelay_type = SWINGDELAY_CANCEL

@@ -90,7 +90,7 @@
 		if(I.sharpness && I.max_blade_int) 	// IS_BLUNT is 0, so this will be falsy with blunt weapons.
 			var/dullness_ratio = I.blade_int / I.max_blade_int
 
-			if(attacker.used_intent.damfactor > 1)
+			if(attacker.used_intent.damfactor != 1)
 				damfactor_bonus += floor(((attacker?.used_intent?.damfactor) - 1) * 10)
 
 			if(dullness_ratio > SHARPNESS_TIER1_THRESHOLD)	// We are above 80% sharpness, so we go along as planned and get a small bonus.
@@ -98,14 +98,17 @@
 				use_bonus = TRUE
 			else if(dullness_ratio < SHARPNESS_TIER2_THRESHOLD + 0.1)	// We are below sharpness threshold where we use damfactors & STR for damage, so we won't use it for pen either.
 				use_bonus = FALSE
-				damfactor_bonus = 0
+				if(damfactor_bonus > 0)
+					damfactor_bonus = 0
 			else	// We are inbetween, so we'll apply a penalty.
 				if(dullness_ratio < SHARPNESS_PENALTY_RATIO_ONE)
-					damfactor_bonus = max(damfactor_bonus - 1, 0) // -1 from damfactor
+					if(damfactor_bonus > 0)
+						damfactor_bonus = max(damfactor_bonus - 1, 0) // -1 from damfactor
 				if(dullness_ratio <= SHARPNESS_PENALTY_RATIO_TWO)
 					sharpness_bonus -= 1	//-1 from the total
 				if(dullness_ratio <= SHARPNESS_PENALTY_RATIO_THREE)
-					damfactor_bonus = max(damfactor_bonus - 1, 0) // -2 from damfactor
+					if(damfactor_bonus > 0)
+						damfactor_bonus = max(damfactor_bonus - 1, 0) // -2 from damfactor
 				if(dullness_ratio <= SHARPNESS_PENALTY_RATIO_FOUR)
 					sharpness_bonus -= 1	//-2 from the total
 

@@ -79,11 +79,13 @@
 	swingdelay = 0.6 SECONDS
 
 /datum/intent/sword/thrust/long/halfsword
-	icon_state = "inpick"
+	name = "halfsword thrust"
+	icon_state = "inimpale"
 	clickcd = CLICK_CD_CHARGED
 	penfactor = PEN_HEAVY
-	swingdelay_type = SWINGDELAY_CANCEL
-	swingdelay = 0.9 SECONDS
+	damfactor = 0.8
+	swingdelay_type = SWINGDELAY_PENALTY
+	swingdelay = 0.7 SECONDS
 
 /datum/intent/sword/thrust/long/halfsword/jab
 	name = "jab"

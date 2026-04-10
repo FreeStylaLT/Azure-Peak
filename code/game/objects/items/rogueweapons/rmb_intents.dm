@@ -233,7 +233,7 @@
 		playsound(user, 'sound/combat/feint.ogg', 100, TRUE)
 		if(user.client?.prefs.showrolls)
 			to_chat(user, span_warning("[L.p_they(TRUE)] did not fall for my feint... [perc]%"))
-		newcd += (100 - perc) * 2
+		newcd += (100 - perc) * 5
 		user.apply_status_effect(/datum/status_effect/debuff/feintcd, newcd)
 		if(special_msg)
 			to_chat(user, special_msg)
@@ -260,7 +260,7 @@
 	if(L.d_intent == INTENT_DODGE)
 		L.changeNext_def(clamp(L.dodgetime + 3, 0, CLICK_CD_DODGE))
 		L.changeMaxDodge(-3)
-		
+
 	if(user.d_intent == INTENT_DODGE)
 		user.changeNext_def(clamp((user.dodgetime - 3), 0, CLICK_CD_DODGE))
 		user.changeMaxDodge(2)

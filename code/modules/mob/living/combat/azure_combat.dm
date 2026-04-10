@@ -481,10 +481,10 @@
 	else
 		feint_list[attacker] = attacker.feint_perc	//We start at a specific value with fresh attackers, we don't need to add more here.
 	if(org_value < FEINT_PERC_NOTIFY && new_value > FEINT_PERC_NOTIFY)
-		to_chat(attacker, span_notice("Their defense is getting focused! It feels like a cointoss, now... (~50% to feint)"))
+		to_chat(attacker, span_notice("Their defense is getting focused! It feels like a cointoss, now... (~50% to feint. RMB while in Feint stance.)"))
 	else if(org_value < FEINT_PERC_MAX && new_value == FEINT_PERC_MAX)
 		attacker.playsound_local(get_turf(attacker), 'sound/combat/feint_ready.ogg', 100, TRUE)
-		to_chat(attacker, span_notice("<b>Their guard is the highest it will ever be! Now's my chance! (100% to feint)</b>"))
+		to_chat(attacker, span_notice("<b>Their guard is the highest it will ever be! Now's my chance! (100% to feint. RMB while in Feint stance.)</b>"))
 
 /mob/living/carbon/human/proc/get_feint_perc(mob/living/carbon/human/target)
 	if(!mind)

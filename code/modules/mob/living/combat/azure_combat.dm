@@ -515,8 +515,14 @@
 			user.Immobilize(0.5 SECONDS)
 			user.apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
 
-			Immobilize(0.5 SECONDS)
-			apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
+			if(!get_tempo_bonus(TEMPO_TAG_BINDABLE))
+				Immobilize(0.5 SECONDS)
+				apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
+
+			var/obj/item/rogueweapon/RW = user.get_active_held_item()
+			if(RW)
+				RW.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)
+				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), user)
 
 			flash_fullscreen("whiteflash")
 			user.flash_fullscreen("whiteflash")

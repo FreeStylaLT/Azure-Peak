@@ -169,6 +169,21 @@
 				finalmod = clamp(spdmod, 0, 30)
 			prob2defend -= finalmod
 
+	// --- Weapon binding! ---
+	var/weapon_binded = FALSE
+
+	if(has_status_effect(/datum/status_effect/buff/weapon_binded))
+		prob2defend += 20
+		weapon_binded = TRUE
+
+	if(!has_status_effect(/datum/status_effect/buff/weapon_binded) && !has_status_effect(/datum/status_effect/debuff/weapon_binded))
+		if(ishuman(src) && !user.get_tempo_bonus(TEMPO_TAG_BINDABLE))
+			var/mob/living/carbon/human/HL = src
+			if(HL.try_bind(used_weapon, user))
+				return TRUE	//Tentative, might be better if it only increased parry chance on the initial binding rather than a full block.
+
+	// --- Weapon Binding End! ---
+
 	if(HAS_TRAIT(src, TRAIT_GUIDANCE))
 		prob2defend += FULL_GUIDANCE_CHANCE
 	else if(HAS_TRAIT(src, TRAIT_LESSER_GUIDANCE))
@@ -180,24 +195,6 @@
 		prob2defend -= LESSER_GUIDANCE_CHANCE
 
 	if(HAS_TRAIT(src, TRAIT_REVERSE_GUIDANCE))
-<<<<<<< HEAD
-		prob2defend -= 20
-
-	// --- Weapon binding! ---
-	var/weapon_binded = FALSE
-
-	if(has_status_effect(/datum/status_effect/buff/weapon_binded))
-		prob2defend += 20
-		weapon_binded = TRUE
-
-	if(!has_status_effect(/datum/status_effect/buff/weapon_binded) && !has_status_effect(/datum/status_effect/debuff/weapon_binded))
-		if(ishuman(src))
-			var/mob/living/carbon/human/HL = src
-			if(HL.try_bind(used_weapon, user))
-				return TRUE	//Tentative, might be better if it only increased parry chance on the initial binding rather than a full block.
-
-	// --- Weapon Binding End! ---
-=======
 		prob2defend -= FULL_GUIDANCE_CHANCE
 	else if(HAS_TRAIT(src, TRAIT_LESSER_REVERSE_GUIDANCE))
 		prob2defend -= LESSER_GUIDANCE_CHANCE
@@ -206,7 +203,6 @@
 		prob2defend += FULL_GUIDANCE_CHANCE
 	else if(HAS_TRAIT(user, TRAIT_LESSER_REVERSE_GUIDANCE))
 		prob2defend += LESSER_GUIDANCE_CHANCE
->>>>>>> b4c07e239cab0706bf01569aafa8e02368540d02
 	
 	if(HAS_TRAIT(user, TRAIT_CURSE_RAVOX))
 		prob2defend -= 40

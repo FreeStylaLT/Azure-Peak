@@ -5,6 +5,13 @@
 
 /mob/living/Initialize()
 	. = ..()
+	var/turf/turf = get_turf(loc)
+	if(turf)
+		if(!("[turf.z]" in GLOB.weatherproof_z_levels))
+			if(SSmapping.level_has_any_trait(turf.z, list(ZTRAIT_IGNORE_WEATHER_TRAIT)))
+				GLOB.weatherproof_z_levels |= "[turf.z]"
+		if("[turf.z]" in GLOB.weatherproof_z_levels)
+			SSmatthios_mobs.register_mob(src)
 	update_a_intents()
 	swap_rmb_intent(num=1)
 	if(unique_name)
@@ -902,7 +909,7 @@
 		GLOB.dead_mob_list -= src  //If any more forms of revival are added, better to use a proc to do this - easier to search
 		GLOB.alive_mob_list += src
 		set_suicide(FALSE)
-		stat = CONSCIOUS
+		set_stat(CONSCIOUS)
 		updatehealth() //then we check if the mob should wake up.
 		update_mobility()
 		update_sight()
@@ -1119,6 +1126,9 @@
 /mob/living/can_resist()
 	return !((next_move > world.time) || incapacitated(ignore_restraints = TRUE, ignore_stasis = TRUE))
 
+/mob/living/proc/execute_resist()
+	resist()
+
 /mob/living/verb/resist()
 	set name = "Resist"
 	set category = "IC"
@@ -1316,10 +1326,7 @@
 			if(!gcord)
 				gcord = L.get_inactive_held_item()
 			to_chat(pulledby, span_warning("[src] struggles against the [gcord]!"))
-			if(!src.mind) // NPCs do less damage to the garrote
-				gcord.take_damage(10)
-			else
-				gcord.take_damage(25)
+			gcord.take_damage(25)
 		if(!HAS_TRAIT(src, TRAIT_GARROTED))
 			visible_message(span_warning("[src] struggles to break free from [L]'s grip!"), \
 						span_warning("I struggle against [L]'s grip![rchance]"), null, null, L)

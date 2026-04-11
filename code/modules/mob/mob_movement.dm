@@ -615,6 +615,7 @@
 			animate(src, alpha = initial(alpha), time =	used_time) //sneak skill makes you reveal slower but not as drastic as disappearing speed
 			spawn(used_time) regenerate_icons()
 			rogue_sneaking = FALSE
+			SEND_SIGNAL(src, COMSIG_MOB_BREAK_SNEAK)
 			return
 
 	else //not currently sneaking, check if we can sneak
@@ -656,12 +657,6 @@
 		switch(intent)
 			if(MOVE_INTENT_SNEAK)
 				m_intent = MOVE_INTENT_SNEAK
-				if(isliving(src))
-					var/mob/living/L = src
-					if((/datum/mob_descriptor/prominent/prominent_bottom in L.mob_descriptors) || (/datum/mob_descriptor/prominent/prominent_thighs in L.mob_descriptors))
-						L.loud_sneaking = TRUE
-					else
-						L.loud_sneaking = FALSE
 				update_sneak_invis()
 
 			if(MOVE_INTENT_WALK)

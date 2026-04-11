@@ -75,7 +75,7 @@
 	name = "deep lunge"
 	icon_state = "inlunge"
 	penfactor = PEN_MEDIUM
-	damfactor = 1
+	damfactor = 1.1
 	swingdelay = 0.6 SECONDS
 
 /datum/intent/sword/thrust/long/halfsword
@@ -347,6 +347,7 @@
 	name = "thrust"
 	penfactor = PEN_HEAVY	// Penetrates mail/plate at same-tier 20%. Estoc's purpose — point blank, telegraphed.
 	swingdelay_type = SWINGDELAY_PENALTY
+	damfactor = 1.3
 	swingdelay = 0.6 SECONDS
 
 /datum/intent/sword/thrust/estoc/lunge

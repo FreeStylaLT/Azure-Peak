@@ -1043,9 +1043,9 @@
 	name = "precise swing"
 	icon_state = "inhack"
 	blade_class = BCLASS_CHOP
-	damfactor = 1
+	damfactor = 1.5
 	penfactor = PEN_HEAVY
-	swingdelay = 1.1 SECONDS
+	swingdelay = 1 SECONDS
 	swingdelay_type = SWINGDELAY_CANCEL
 	canparry = FALSE
 	candodge = FALSE
@@ -1333,7 +1333,7 @@
 /datum/intent/sword/thrust/rapier/lunge
 	name = "deep lunge"
 	icon_state = "inlunge"
-	damfactor = 1.1
+	damfactor = 1.3
 	penfactor = PEN_BSTEEL
 	swingdelay_type = SWINGDELAY_CANCEL
 	swingdelay = 0.8 SECONDS

@@ -24,7 +24,7 @@
 	penfactor = PEN_MEDIUM
 	damfactor = 1.5
 	demolition_mod = 5
-	swingdelay = 1 SECONDS
+	swingdelay = 0.8 SECONDS
 	swingdelay_type = SWINGDELAY_PENALTY
 	clickcd = CLICK_CD_CHARGED // Effective Shield DPS: 25 / 2.4 = 10.4
 	item_d_type = "slash"
@@ -33,7 +33,7 @@
 	name = "hack"
 	icon_state = "inhack"
 	penfactor = PEN_BSTEEL
-	damfactor = 1
+	damfactor = 1.5
 	swingdelay = 1 SECONDS
 	candodge = FALSE
 	canparry = FALSE

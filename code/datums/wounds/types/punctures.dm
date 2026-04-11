@@ -41,11 +41,11 @@
 	name = "puncture"
 	whp = 1
 	sewn_whp = 0
-	bleed_rate = 0	// Wound's on the most contentious type of weapon (polearms), so it doesn't get a starting bonus.
+	bleed_rate = 1
 	sewn_bleed_rate = 0.04
 	clotting_rate = 0.01
 	sewn_clotting_rate = 0.01
-	clotting_threshold = 0
+	clotting_threshold = 0.15
 	sewn_clotting_threshold = 0.1
 	sew_threshold = 20
 	mob_overlay = "cut"

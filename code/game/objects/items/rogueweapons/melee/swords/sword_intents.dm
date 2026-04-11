@@ -120,6 +120,20 @@
 	item_d_type = "blunt"
 	intent_intdamage_factor = BLUNT_DEFAULT_INT_DAMAGEFACTOR
 
+/datum/intent/sword/strike/penalty
+	name = "heavy blunted swing"
+	icon_state = "incut"
+	swingdelay_type = SWINGDELAY_PENALTY
+	swingdelay = 1 SECONDS
+
+/datum/intent/sword/strike/cancel
+	name = "sluggish blunted swing"
+	icon_state = "inchop"
+	swingdelay_type = SWINGDELAY_CANCEL
+	swingdelay = 1 SECONDS
+	canparry = FALSE
+	candodge = FALSE
+
 // Freifechter Longsword intents //
 /datum/intent/sword/cut/master
 	name = "fendente"

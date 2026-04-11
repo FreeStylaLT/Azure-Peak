@@ -254,7 +254,7 @@
 	force_wielded = 15
 	sharpness = IS_BLUNT
 	possible_item_intents = list(/datum/intent/mace/strike, /datum/intent/sword/thrust/blunt)
-	gripped_intents = list(/datum/intent/mace/strike, /datum/intent/sword/thrust/blunt)
+	gripped_intents = list(/datum/intent/mace/strike, /datum/intent/sword/thrust/blunt, /datum/intent/sword/strike/penalty, /datum/intent/sword/strike/cancel)
 	icon_state = "feder"
 	throwforce = 5
 	thrown_bclass = BCLASS_BLUNT
@@ -1339,7 +1339,7 @@
 	swingdelay_type = SWINGDELAY_CANCEL
 	canparry = FALSE
 	candodge = FALSE
-	
+
 	swingdelay = 0.8 SECONDS
 
 /obj/item/rogueweapon/sword/rapier/dec

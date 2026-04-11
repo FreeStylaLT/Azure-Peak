@@ -1335,7 +1335,11 @@
 	icon_state = "inlunge"
 	damfactor = 1.3
 	penfactor = PEN_BSTEEL
+
 	swingdelay_type = SWINGDELAY_CANCEL
+	canparry = FALSE
+	candodge = FALSE
+	
 	swingdelay = 0.8 SECONDS
 
 /obj/item/rogueweapon/sword/rapier/dec

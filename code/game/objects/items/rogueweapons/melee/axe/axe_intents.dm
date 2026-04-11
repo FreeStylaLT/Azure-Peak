@@ -35,6 +35,7 @@
 	penfactor = PEN_BSTEEL
 	damfactor = 1.5
 	swingdelay = 1 SECONDS
+	
 	candodge = FALSE
 	canparry = FALSE
 	swingdelay_type = SWINGDELAY_CANCEL

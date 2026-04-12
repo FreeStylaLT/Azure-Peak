@@ -505,7 +505,7 @@
 		intmod *= 2
 	return intmod
 
-/mob/living/carbon/human/proc/try_bind(obj/item/used_weapon, mob/living/user)	//user is the attacker in this context
+/mob/living/carbon/human/proc/try_bind(obj/item/used_weapon, mob/living/user, vuln_exception = FALSE)	//user is the attacker in this context
 	if(check_bait_subzone(zone_selected) == check_bait_subzone(user.zone_selected))
 		var/chance = 100	//Only here so chest vs chest has a smaller chance to trigger a bind.
 		if(zone_selected == user.zone_selected && zone_selected == BODY_ZONE_CHEST)	//different, weaker variant for chest-to-chest
@@ -528,6 +528,10 @@
 			if(RW)
 				RW.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)
 				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), user)
+
+			if(vuln_exception)	// If we triggered this via a vuln attack, we suffer a penalty, too.
+				used_weapon.take_damage((INTEG_PARRY_DECAY_NOSHARP * 5), BRUTE, used_weapon.d_type)
+				used_weapon.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 5), src)
 
 			flash_fullscreen("whiteflash")
 			user.flash_fullscreen("whiteflash")

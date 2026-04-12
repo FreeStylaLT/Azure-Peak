@@ -33,7 +33,7 @@
 				var/held = get_active_held_item()
 				if(istype(held, /obj/item/rogueweapon))
 					var/mob/living/carbon/human/HL = src
-					if(HL.try_bind(held, user))
+					if(HL.try_bind(held, user, TRUE))
 						remove_status_effect(/datum/status_effect/debuff/vulnerable)
 						return TRUE
 

@@ -144,19 +144,20 @@
 			intenty.masteritem.remove_bintegrity(intenty.sharpness_penalty)
 
 		prob2defend -= (attacker_skill * 20)
-		if((intenty.masteritem.wbalance == WBALANCE_SWIFT) && (user.STASPD > src.STASPD)) //enemy weapon is quick, so get a bonus based on spddiff
-			var/spdmod = ((user.STASPD - src.STASPD) * 10)
-			var/permod = ((src.STAPER - user.STAPER) * 5)
-			var/intmod = ((src.STAINT - user.STAINT) * 3)
-			if(mind)
-				if(permod > 0)
-					spdmod -= permod
-				if(intmod > 0)
-					spdmod -= intmod
-			var/finalmod = spdmod
-			if(mind)
-				finalmod = clamp(spdmod, 0, 45)
-			prob2defend -= finalmod
+		if(!has_status_effect(/datum/status_effect/buff/weapon_binded))
+			if((intenty.masteritem.wbalance == WBALANCE_SWIFT) && (user.STASPD > src.STASPD)) //enemy weapon is quick, so get a bonus based on spddiff
+				var/spdmod = ((user.STASPD - src.STASPD) * 10)
+				var/permod = ((src.STAPER - user.STAPER) * 5)
+				var/intmod = ((src.STAINT - user.STAINT) * 3)
+				if(mind)
+					if(permod > 0)
+						spdmod -= permod
+					if(intmod > 0)
+						spdmod -= intmod
+				var/finalmod = spdmod
+				if(mind)
+					finalmod = clamp(spdmod, 0, 45)
+				prob2defend -= finalmod
 	else
 		attacker_skill = U.get_skill_level(/datum/skill/combat/unarmed)
 		prob2defend -= (attacker_skill * 20)
@@ -263,7 +264,7 @@
 		if(prob(prob2defend))
 			parry_status = TRUE
 
-	if(parry_status)
+	if(parry_status && !has_status_effect(/datum/status_effect/buff/weapon_binded))
 		if(intenty.masteritem)
 			if(intenty.masteritem.wbalance < WBALANCE_NORMAL && user.STASTR > src.STASTR) //enemy weapon is heavy, so get a bonus scaling on strdiff
 				drained = drained + ( intenty.masteritem.wbalance * ((user.STASTR - src.STASTR) * STAM_DRAIN_PER_STR_DIFF_HEAVY_BAL) )

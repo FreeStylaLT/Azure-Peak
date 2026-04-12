@@ -54,7 +54,10 @@
 			H.dodgetime = clamp(H.dodgetime + 5, 0, CLICK_CD_HEAVY)
 		dodgetime = clamp(dodgetime - 5, 0, CLICK_CD_DODGE)
 		H.Slowdown(3)
+
 		change_feint(-FEINT_PERC_MAX, H)
+		H.change_feint(-FEINT_PERC_MAX, src)
+		
 		to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
 		remove_status_effect(/datum/status_effect/buff/clash)
 		apply_status_effect(/datum/status_effect/buff/adrenaline_rush)
@@ -512,6 +515,7 @@
 			chance = 7.5
 		if(prob(chance))
 			apply_status_effect(/datum/status_effect/buff/weapon_binded)
+			change_feint(-FEINT_PERC_DECREASE_BASE, user)
 			user.apply_status_effect(/datum/status_effect/debuff/weapon_binded)
 
 			//This is mostly here for dramatic effect, though the clickcd is to prevent instant-baiting 

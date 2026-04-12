@@ -1867,7 +1867,7 @@ GLOBAL_LIST_EMPTY(roundstart_races)
 				I.remove_bintegrity(1)
 				I.take_damage(1, BRUTE, I.d_type)
 
-			H.change_feint(-FEINT_PERC_INCREASE_BASE, user)
+			H.change_feint(-FEINT_PERC_DECREASE_BASE, user)
 			
 			if(user.mind && user.goodluck(4) && user.d_intent == INTENT_DODGE)
 				user.changeNext_def(clamp(user.dodgetime - 1, 0, CLICK_CD_DODGE))

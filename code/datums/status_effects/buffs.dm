@@ -415,8 +415,7 @@
 
 /datum/status_effect/buff/weapon_binded/on_apply()
 	. = ..()
-	owner.stamina_add(-10)
-	owner.change_feint(-FEINT_PERC_DECREASE_BASE)
+	owner.stamina_add(-20)
 
 /atom/movable/screen/alert/status_effect/buff/weapon_bind_buff
 	name = "Weapon Bind"

@@ -503,7 +503,7 @@
 		return FEINT_PERC_MIN
 
 /mob/living/proc/feint_mod(mob/living/attacker)
-	var/intmod = clamp(round((attacker.STAINT - STAINT) / 2), -5, 5)
+	var/intmod = clamp(round(attacker.STAINT - STAINT), -5, 5)
 	if(!mind)
 		intmod *= 2
 	return intmod

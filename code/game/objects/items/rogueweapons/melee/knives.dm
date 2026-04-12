@@ -37,16 +37,16 @@
 	animname = "stab"
 	blade_class = BCLASS_STAB
 	hitsound = list('sound/combat/hits/bladed/genstab (1).ogg', 'sound/combat/hits/bladed/genstab (2).ogg', 'sound/combat/hits/bladed/genstab (3).ogg')
-	penfactor = PEN_LIGHT
+	penfactor = PEN_MEDIUM
 	chargetime = 0
-	clickcd = 8
+	clickcd = CLICK_CD_QUICK
 	item_d_type = "stab"
 
 // A slightly weaker thrust for daggers with a curved blade, or which otherwise aren't very good at stabbing.
 /datum/intent/dagger/thrust/weak
 	name = "lopsided thrust"
 	damfactor = 0.8
-	swingdelay = 0.7 SECONDS
+	swingdelay = 0.5 SECONDS
 	penfactor = PEN_MEDIUM // Slightly more pen, to compensate in penetration for the lower damage.
 	// You're still doing less damage than with a stabbier dagger, but your AP isn't penalised.
 	clickcd = CLICK_CD_QUICK

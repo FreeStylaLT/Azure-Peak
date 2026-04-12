@@ -63,9 +63,9 @@
 /datum/intent/sword/thrust/heavy
 	name = "heavy thrust"
 	icon_state = "inlunge"
-	penfactor = PEN_MEDIUM
+	penfactor = PEN_HEAVY
 	damfactor = 1.3
-	swingdelay = 0.8 SECONDS
+	swingdelay = 0.9 SECONDS
 	swingdelay_type = SWINGDELAY_PENALTY
 
 /datum/intent/sword/thrust/long
@@ -94,9 +94,6 @@
 	damfactor = 0.8
 	clickcd = CLICK_CD_QUICK
 	swingdelay = 0
-
-/datum/intent/sword/thrust/krieg
-	damfactor = 0.9
 
 /datum/intent/sword/thrust/blunt
 	blade_class = BCLASS_BLUNT

@@ -1769,7 +1769,7 @@
 	icon = 'icons/roguetown/weapons/swords64.dmi'
 	icon_state = "ssangsudo"
 	sheathe_icon = "ssangsudo"
-	gripped_intents = list(/datum/intent/sword/cut/krieg, /datum/intent/sword/thrust/krieg, /datum/intent/rend, /datum/intent/sword/strike) // better rend by .05
+	gripped_intents = list(/datum/intent/sword/cut/krieg, /datum/intent/sword/thrust/long/deep, /datum/intent/rend, /datum/intent/sword/strike) // better rend by .05
 
 /obj/item/rogueweapon/sword/long/kriegmesser/pestran
 	name = "Cleansing Edge"

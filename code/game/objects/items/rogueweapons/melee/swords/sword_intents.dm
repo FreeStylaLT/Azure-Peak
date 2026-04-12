@@ -122,12 +122,14 @@
 	icon_state = "incut"
 	swingdelay_type = SWINGDELAY_PENALTY
 	swingdelay = 1 SECONDS
+	damfactor = 1.7
 
 /datum/intent/sword/strike/cancel
 	name = "sluggish blunted swing"
 	icon_state = "inchop"
 	swingdelay_type = SWINGDELAY_CANCEL
 	swingdelay = 1 SECONDS
+	damfactor = 3
 	canparry = FALSE
 	candodge = FALSE
 

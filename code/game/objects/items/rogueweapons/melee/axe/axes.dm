@@ -383,7 +383,6 @@
 	blade_dulling = DULLING_SHAFT_METAL
 	is_silver = TRUE
 	smeltresult = /obj/item/ingot/silverblessed
-	minstr_req = TRUE
 
 /obj/item/rogueweapon/stoneaxe/battle/psyaxe/ComponentInitialize()
 	AddComponent(\
@@ -544,7 +543,6 @@
 	max_blade_int = 350
 	is_silver = TRUE
 	smeltresult = /obj/item/ingot/silver
-	minstr_req = TRUE
 
 /obj/item/rogueweapon/greataxe/silver/ComponentInitialize()
 	AddComponent(\
@@ -571,7 +569,6 @@
 	max_blade_int = 350
 	is_silver = TRUE
 	smeltresult = /obj/item/ingot/silverblessed
-	minstr_req = TRUE
 
 /obj/item/rogueweapon/greataxe/psy/ComponentInitialize()
 	AddComponent(\
@@ -606,7 +603,6 @@
 	icon_state = "doublegreataxe"
 	max_blade_int = 230
 	minstr = 13
-	minstr_req = TRUE
 
 /obj/item/rogueweapon/greataxe/steel/doublehead/graggar
 	name = "vicious greataxe"
@@ -614,7 +610,6 @@
 	power, it is only your hands that can determine whether it will defy fate.. ..or fufill it."
 	icon_state = "graggargaxe"
 	minstr = 12
-	minstr_req = FALSE //Retains same performance as before, as a precaution.
 	force = 20
 	force_wielded = 40
 	max_blade_int = 270
@@ -636,6 +631,7 @@
 	max_blade_int = 333
 	minstr = 14 //Double-headed greataxe with extra durability. Rare dungeon loot in minotaur dungeons; no longer drops from every single minotaur.
 	wbalance = WBALANCE_HEAVY
+	minstr_req = TRUE
 
 /obj/item/rogueweapon/stoneaxe/woodcut/troll
 	name = "crude heavy axe"

@@ -493,6 +493,9 @@
 	else if(org_value < FEINT_PERC_MAX && new_value == FEINT_PERC_MAX)
 		attacker.playsound_local(get_turf(attacker), 'sound/combat/feint_ready.ogg', 100, TRUE)
 		to_chat(attacker, span_notice("<b>Their guard is the highest it will ever be! Now's my chance! (100% to feint. RMB while in Feint stance.)</b>"))
+	if(ishuman(attacker) && attacker.mind)
+		var/mob/living/carbon/human/H = attacker
+		H.update_feint_hud(src)
 
 /mob/living/carbon/human/proc/get_feint_perc(mob/living/carbon/human/target)
 	if(!mind)

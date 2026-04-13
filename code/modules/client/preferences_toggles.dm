@@ -798,4 +798,15 @@ GLOBAL_LIST_INIT(ghost_orbits, list(GHOST_ORBIT_CIRCLE,GHOST_ORBIT_TRIANGLE,GHOS
 		else
 			to_chat(src, "Examines will have some information behind dropdowns.")
 
+/client/verb/toggle_feint_hud()
+	set category = "Options"
+	set name = "Toggle Feint HUD"
+	if(prefs)
+		prefs.feint_hud = !prefs.feint_hud
+		prefs.save_preferences()
+		to_chat(src, "The feint HUD will now be [prefs.feint_hud ? "visible" : "invisible"].")
+		if(ishuman(mob) && mob.hud_used)	 // HOPEFULLY this will only trigger properly in-game. Right?
+			var/mob/living/carbon/human/H = mob
+			H.onstart_feint_hud()
+
 #undef TOGGLE_CHECKBOX

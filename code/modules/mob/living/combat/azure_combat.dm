@@ -509,6 +509,8 @@
 	var/intmod = clamp(round(attacker.STAINT - STAINT), -5, 5)
 	if(!mind)
 		intmod *= 2
+	if(!attacker.mind)
+		intmod = -5	// We probably don't want AI stacking this very high.
 	return intmod
 
 /mob/living/carbon/human/proc/try_bind(obj/item/used_weapon, mob/living/user, vuln_exception = FALSE)	//user is the attacker in this context

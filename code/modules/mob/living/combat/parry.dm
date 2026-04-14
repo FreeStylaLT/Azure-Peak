@@ -144,20 +144,21 @@
 			intenty.masteritem.remove_bintegrity(intenty.sharpness_penalty)
 
 		prob2defend -= (attacker_skill * 20)
-		if(!has_status_effect(/datum/status_effect/buff/weapon_binded))
-			if((intenty.masteritem.wbalance == WBALANCE_SWIFT) && (user.STASPD > src.STASPD)) //enemy weapon is quick, so get a bonus based on spddiff
-				var/spdmod = ((user.STASPD - src.STASPD) * 10)
-				var/permod = ((src.STAPER - user.STAPER) * 5)
-				var/intmod = ((src.STAINT - user.STAINT) * 3)
-				if(mind)
-					if(permod > 0)
-						spdmod -= permod
-					if(intmod > 0)
-						spdmod -= intmod
-				var/finalmod = spdmod
-				if(mind)
-					finalmod = clamp(spdmod, 0, 45)
-				prob2defend -= finalmod
+		if(!HAS_TRAIT(user, TRAIT_FENCERDEXTERITY))	// Yet another Frei related clamp
+			if(!has_status_effect(/datum/status_effect/buff/weapon_binded))
+				if((intenty.masteritem.wbalance == WBALANCE_SWIFT) && (user.STASPD > src.STASPD)) //enemy weapon is quick, so get a bonus based on spddiff
+					var/spdmod = ((user.STASPD - src.STASPD) * 10)
+					var/permod = ((src.STAPER - user.STAPER) * 5)
+					var/intmod = ((src.STAINT - user.STAINT) * 3)
+					if(mind)
+						if(permod > 0)
+							spdmod -= permod
+						if(intmod > 0)
+							spdmod -= intmod
+					var/finalmod = spdmod
+					if(mind)
+						finalmod = clamp(spdmod, 0, 45)
+					prob2defend -= finalmod
 	else
 		attacker_skill = U.get_skill_level(/datum/skill/combat/unarmed)
 		prob2defend -= (attacker_skill * 20)

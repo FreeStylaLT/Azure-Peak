@@ -184,7 +184,7 @@
 		weapon_binded = TRUE
 
 	if(!has_status_effect(/datum/status_effect/buff/weapon_binded) && !has_status_effect(/datum/status_effect/debuff/weapon_binded))
-		if(ishuman(src) && !user.get_tempo_bonus(TEMPO_TAG_BINDABLE))
+		if(ishuman(src) && user.get_tempo_bonus(TEMPO_TAG_BINDABLE))
 			var/mob/living/carbon/human/HL = src
 			if(HL.try_bind(used_weapon, user))
 				return TRUE	//Tentative, might be better if it only increased parry chance on the initial binding rather than a full block.

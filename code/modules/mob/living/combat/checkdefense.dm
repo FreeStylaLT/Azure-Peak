@@ -29,7 +29,7 @@
 
 	if(has_status_effect(/datum/status_effect/debuff/vulnerable))
 		if(!has_status_effect(/datum/status_effect/buff/weapon_binded) && !has_status_effect(/datum/status_effect/debuff/weapon_binded))
-			if(ishuman(src) && !user.get_tempo_bonus(TEMPO_TAG_BINDABLE) && mind && user?.mind)
+			if(ishuman(src) && user.get_tempo_bonus(TEMPO_TAG_BINDABLE) && mind && user?.mind)
 				var/held = get_active_held_item()
 				if(istype(held, /obj/item/rogueweapon))
 					var/mob/living/carbon/human/HL = src

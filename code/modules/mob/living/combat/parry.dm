@@ -215,7 +215,7 @@
 		prob2defend -= 40
 
 	// parrying while knocked down sucks ass
-	if(!(mobility_flags & MOBILITY_STAND))
+	if(!(mobility_flags & MOBILITY_STAND) && !has_status_effect(/datum/status_effect/buff/weapon_binded))
 		prob2defend *= 0.65
 
 

@@ -183,12 +183,6 @@
 		prob2defend += 20
 		weapon_binded = TRUE
 
-	if(!has_status_effect(/datum/status_effect/buff/weapon_binded) && !has_status_effect(/datum/status_effect/debuff/weapon_binded))
-		if(ishuman(src) && user.get_tempo_bonus(TEMPO_TAG_BINDABLE))
-			var/mob/living/carbon/human/HL = src
-			if(HL.try_bind(used_weapon, user))
-				return TRUE	//Tentative, might be better if it only increased parry chance on the initial binding rather than a full block.
-
 	// --- Weapon Binding End! ---
 
 	if(HAS_TRAIT(src, TRAIT_GUIDANCE))
@@ -476,14 +470,6 @@
 		playsound(get_turf(src), pick(parry_sound), 100, FALSE)
 		return TRUE
 
-/mob/living/proc/pick_bind_sfx(wbalance)
-	switch(wbalance)
-		if(WBALANCE_NORMAL)
-			return pick('sound/foley/binds/bind_normal1.ogg','sound/foley/binds/bind_normal2.ogg','sound/foley/binds/bind_normal3.ogg','sound/foley/binds/bind_normal4.ogg','sound/foley/binds/bind_normal5.ogg','sound/foley/binds/bind_normal6.ogg','sound/foley/binds/bind_normal7.ogg','sound/foley/binds/bind_normal8.ogg','sound/foley/binds/bind_normal9.ogg','sound/foley/binds/bind_normal10.ogg','sound/foley/binds/bind_normal11.ogg','sound/foley/binds/bind_normal12.ogg','sound/foley/binds/bind_normal13.ogg','sound/foley/binds/bind_normal14.ogg')
-		if(WBALANCE_HEAVY)
-			return pick('sound/foley/binds/bind_heavy1.ogg','sound/foley/binds/bind_heavy2.ogg','sound/foley/binds/bind_heavy3.ogg','sound/foley/binds/bind_heavy4.ogg','sound/foley/binds/bind_heavy5.ogg','sound/foley/binds/bind_heavy6.ogg','sound/foley/binds/bind_heavy7.ogg','sound/foley/binds/bind_heavy8.ogg','sound/foley/binds/bind_heavy9.ogg','sound/foley/binds/bind_heavy10.ogg','sound/foley/binds/bind_heavy11.ogg','sound/foley/binds/bind_heavy12.ogg')
-		if(WBALANCE_SWIFT)
-			return pick('sound/foley/binds/bind_swift1.ogg','sound/foley/binds/bind_swift2.ogg','sound/foley/binds/bind_swift3.ogg','sound/foley/binds/bind_swift4.ogg','sound/foley/binds/bind_swift5.ogg','sound/foley/binds/bind_swift6.ogg')
 #undef STAM_DRAIN_PER_STR_DIFF_HEAVY_BAL
 #undef UNARMED_BASE_WDEF_BARE
 #undef UNARMED_BASE_WDEF_EQUIPPED

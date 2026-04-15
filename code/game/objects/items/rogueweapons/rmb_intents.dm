@@ -214,6 +214,11 @@
 	if(L.has_status_effect(/datum/status_effect/debuff/exposed) || L.has_status_effect(/datum/status_effect/debuff/vulnerable))
 		perc = 0
 
+	if(L.has_status_effect(/datum/status_effect/buff/weapon_binded))
+		perc = 0
+		special_msg = span_warning("They had my tricks figured out and are too aware!")
+		newcd = 10 SECONDS
+
 	if(L.has_status_effect(/datum/status_effect/debuff/feinted))
 		perc = 0
 		special_msg = span_warning("Too soon! They were expecting it!")

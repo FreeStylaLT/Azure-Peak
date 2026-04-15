@@ -12,7 +12,6 @@
 /mob/living/carbon/human/on_cmode()
 	if(!cmode)	//We just toggled it off.
 		addtimer(CALLBACK(src, PROC_REF(purge_bait)), 30 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
-		addtimer(CALLBACK(src, PROC_REF(purge_feint)), 30 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
 		addtimer(CALLBACK(src, PROC_REF(clear_tempo_all)), 30 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
 		addtimer(CALLBACK(src, PROC_REF(reset_dodgetime), 20 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE))
 	if(!HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS))
@@ -42,7 +41,7 @@
 	var/mob/living/carbon/human/HU = user
 	var/target_zone = HT.zone_selected
 	var/user_zone = HU.zone_selected
-	var/newcd = (BAIT_RCLICK_CD - HU.get_tempo_bonus(TEMPO_TAG_RCLICK_CD_BONUS))
+	var/newcd = (BASE_RCLICK_CD - HU.get_tempo_bonus(TEMPO_TAG_RCLICK_CD_BONUS))
 
 	if(HT.has_status_effect(/datum/status_effect/debuff/baited) || user.has_status_effect(/datum/status_effect/debuff/baitcd))
 		return	//We don't do anything if either of us is affected by bait statuses
@@ -193,16 +192,21 @@
 		return
 	var/mob/living/L = target
 	user.visible_message(span_danger("[user] feints an attack at [target]!"))
-
-	var/perc
-	if(ishuman(L) && ishuman(user) && user.mind && L.mind)
-		var/mob/living/carbon/human/HL = L
-		perc = HL.get_feint_perc(user)
-	else
-		perc = L.feint_perc
-
-	//if(L.has_status_effect(/datum/status_effect/feintcd))
-	//	perc += FEINT_PERC_INCREASE_BASE
+	var/perc = 50
+	var/obj/item/I = user.get_active_held_item()
+	var/ourskill = 0
+	var/theirskill = 0
+	var/skill_factor = 0
+	if(I)
+		if(I.associated_skill)
+			ourskill = user.get_skill_level(I.associated_skill)
+		if(L.mind)
+			I = L.get_active_held_item()
+			if(I?.associated_skill)
+				theirskill = L.get_skill_level(I.associated_skill)
+	perc += (ourskill - theirskill)*15 	//skill is of the essence
+	perc += (user.STAINT - L.STAINT)*10	//but it's also mostly a mindgame
+	skill_factor = (ourskill - theirskill)/2
 
 	var/special_msg
 	var/newcd = (FEINT_RCLICK_CD - user.get_tempo_bonus(TEMPO_TAG_RCLICK_CD_BONUS))
@@ -219,17 +223,12 @@
 		newcd = 5 SECONDS
 		special_msg = span_warning("They need to see me for me to feint them!")
 
-	if(L.has_status_effect(/datum/status_effect/buff/clash))
-		L.remove_status_effect(/datum/status_effect/buff/clash)
-		to_chat(user, span_notice("[L.p_their(TRUE)] Guard disrupted!"))
-		newcd += 20 SECONDS
-		perc = 100
+	perc = CLAMP(perc, 0, 90)
 
-	if(!prob(perc))
+	if(!prob(perc)) //feint intent increases the immobilize duration significantly
 		playsound(user, 'sound/combat/feint.ogg', 100, TRUE)
 		if(user.client?.prefs.showrolls)
 			to_chat(user, span_warning("[L.p_they(TRUE)] did not fall for my feint... [perc]%"))
-		newcd += (100 - perc) * 5
 		user.apply_status_effect(/datum/status_effect/debuff/feintcd, newcd)
 		if(special_msg)
 			to_chat(user, special_msg)
@@ -237,26 +236,21 @@
 			L.changeNext_def(clamp(L.dodgetime - 2, 0, CLICK_CD_DODGE))
 			L.changeMaxDodge(-2)
 		return
+
+	if(L.has_status_effect(/datum/status_effect/buff/clash))
+		L.remove_status_effect(/datum/status_effect/buff/clash)
+		to_chat(user, span_notice("[L.p_their(TRUE)] Guard disrupted!"))
 	
 	var/effect_to_apply = (L.mind ? /datum/status_effect/debuff/vulnerable : /datum/status_effect/debuff/exposed)
-	if(L.mind && perc <= 30)	//gamba
-		effect_to_apply = /datum/status_effect/debuff/exposed
 
 	L.apply_status_effect(effect_to_apply, feintdur)
-	L.changeNext_move(2)	//We don't want to use the clickcd status effect here because it will override the ability to riposte (it's a very hard override on clicks)
+	L.apply_status_effect(/datum/status_effect/debuff/clickcd, max(1.5 SECONDS + skill_factor, 2.5 SECONDS))
 	L.Immobilize(0.5 SECONDS)
 	L.stamina_add(L.stamina * 0.1)
 	L.Slowdown(2)
-	if(ishuman(L))
-		var/mob/living/carbon/human/HL = L
-		HL.change_feint(-FEINT_PERC_MAX, user)
-	else
-		L.change_feint(-FEINT_PERC_MAX)
-
 	if(L.d_intent == INTENT_DODGE)
 		L.changeNext_def(clamp(L.dodgetime + 3, 0, CLICK_CD_DODGE))
 		L.changeMaxDodge(-3)
-
 	if(user.d_intent == INTENT_DODGE)
 		user.changeNext_def(clamp((user.dodgetime - 3), 0, CLICK_CD_DODGE))
 		user.changeMaxDodge(2)

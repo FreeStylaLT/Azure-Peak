@@ -269,12 +269,6 @@
 		if(intenty.masteritem)
 			if(intenty.masteritem.wbalance < WBALANCE_NORMAL && user.STASTR > src.STASTR) //enemy weapon is heavy, so get a bonus scaling on strdiff
 				drained = drained + ( intenty.masteritem.wbalance * ((user.STASTR - src.STASTR) * STAM_DRAIN_PER_STR_DIFF_HEAVY_BAL) )
-		if(!weapon_binded)
-			var/feintmod = feint_mod(user)
-			change_feint(FEINT_PERC_INCREASE_BASE + feintmod, (ishuman(src) ? user : null))
-			if(HAS_TRAIT(src, TRAIT_COMBAT_AWARE) && user.mind)
-				var/mob/living/carbon/human/HL = src
-				text += " My Feintability vs this opponent: [HL.get_feint_perc(user)]%"
 	else
 		text += span_warning(" The enemy defeated my parry!")
 	if(src.client?.prefs.showrolls)

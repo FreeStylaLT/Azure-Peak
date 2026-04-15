@@ -54,9 +54,6 @@
 			H.dodgetime = clamp(H.dodgetime + 5, 0, CLICK_CD_HEAVY)
 		dodgetime = clamp(dodgetime - 5, 0, CLICK_CD_DODGE)
 		H.Slowdown(3)
-
-		change_feint(-FEINT_PERC_MAX, H)
-		H.change_feint(-FEINT_PERC_MAX, src)
 		
 		to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
 		remove_status_effect(/datum/status_effect/buff/clash)
@@ -146,12 +143,10 @@
 			HU.play_overhead_indicator('icons/mob/overhead_effects.dmi', "clashtwo", 1 SECONDS, OBJ_LAYER, soundin = 'sound/combat/clash_disarm_us.ogg', y_offset = 24)
 			disarmed(IM)
 			Slowdown(5)
-			HU.change_feint(-FEINT_PERC_MAX, src)
 			success = TRUE
 		if(prob(prob_opp))
 			HU.disarmed(IU)
 			HU.Slowdown(5)
-			change_feint(-FEINT_PERC_MAX, HU)
 			play_overhead_indicator('icons/mob/overhead_effects.dmi', "clashtwo", 1 SECONDS, OBJ_LAYER, soundin = 'sound/combat/clash_disarm_opp.ogg', y_offset = 24)
 			success = TRUE
 		if(!success)
@@ -221,11 +216,6 @@
 		if(bait_stacks > 0)
 			bait_stacks = 0
 			to_chat(src, span_info("My focus and balance returns. I won't lose my footing if I am baited again."))
-
-/mob/living/carbon/human/proc/purge_feint()
-	if(!cmode)
-		feint_perc = initial(feint_perc)
-		LAZYCLEARLIST(feint_list)
 
 /mob/living/carbon/human/proc/reset_dodgetime()
 	if(!cmode && mind)
@@ -470,49 +460,6 @@
 			else
 				return TRUE
 
-//These are mostly called in parry.dm and dodge.dm, spec_attacked_by and rmb_intents
-/mob/living/proc/change_feint(num)
-	feint_perc = clamp(feint_perc + num, FEINT_PERC_MIN, FEINT_PERC_MAX)
-
-/mob/living/carbon/human/change_feint(num, mob/living/attacker)
-	if(!mind || !ishuman(attacker))
-		feint_perc += clamp(feint_perc + num, FEINT_PERC_MIN, FEINT_PERC_MAX)
-		return
-	var/org_value
-	var/new_value
-	if(LAZYACCESS(feint_list, attacker))
-		org_value = feint_list[attacker]
-		if(org_value == FEINT_PERC_MAX)
-			return
-		feint_list[attacker] = clamp(feint_list[attacker] + num, FEINT_PERC_MIN, FEINT_PERC_MAX)
-		new_value = feint_list[attacker]
-	else
-		feint_list[attacker] = attacker.feint_perc	//We start at a specific value with fresh attackers, we don't need to add more here.
-	if(org_value < FEINT_PERC_NOTIFY && new_value > FEINT_PERC_NOTIFY)
-		to_chat(attacker, span_notice("Their defense is getting focused! It feels like a cointoss, now... (~50% to feint. RMB while in Feint stance.)"))
-	else if(org_value < FEINT_PERC_MAX && new_value == FEINT_PERC_MAX)
-		attacker.playsound_local(get_turf(attacker), 'sound/combat/feint_ready.ogg', 100, TRUE)
-		to_chat(attacker, span_notice("<b>Their guard is the highest it will ever be! Now's my chance! (100% to feint. RMB while in Feint stance.)</b>"))
-	if(ishuman(attacker) && attacker.mind)
-		var/mob/living/carbon/human/H = attacker
-		H.update_feint_hud(src)
-
-/mob/living/carbon/human/proc/get_feint_perc(mob/living/carbon/human/target)
-	if(!mind)
-		return feint_perc
-	if(LAZYACCESS(feint_list, target))
-		return feint_list[target]
-	else
-		return FEINT_PERC_MIN
-
-/mob/living/proc/feint_mod(mob/living/attacker)
-	var/intmod = clamp(round(attacker.STAINT - STAINT), -5, 5)
-	if(!mind)
-		intmod *= 2
-	if(!attacker.mind)
-		intmod = -5	// We probably don't want AI stacking this very high.
-	return intmod
-
 /mob/living/carbon/human/proc/try_bind(obj/item/used_weapon, mob/living/user, vuln_exception = FALSE)	//user is the attacker in this context
 	if(check_bait_subzone(zone_selected) == check_bait_subzone(user.zone_selected))
 		var/chance = 100	//Only here so chest vs chest has a smaller chance to trigger a bind.
@@ -520,7 +467,7 @@
 			chance = 7.5
 		if(prob(chance))
 			apply_status_effect(/datum/status_effect/buff/weapon_binded)
-			change_feint(-FEINT_PERC_DECREASE_BASE, user)
+			//!change_feint(-FEINT_PERC_DECREASE_BASE, user)
 			user.apply_status_effect(/datum/status_effect/debuff/weapon_binded)
 
 			//This is mostly here for dramatic effect, though the clickcd is to prevent instant-baiting 

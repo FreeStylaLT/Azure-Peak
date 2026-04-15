@@ -60,8 +60,6 @@
 			if(do_dodge(user, turfy))
 				flash_fullscreen("blackflash2")
 				user.aftermiss()
-				var/feintmod = feint_mod(user)
-				change_feint(FEINT_PERC_INCREASE_BASE + feintmod, (ishuman(src) ? user : null))
 				return TRUE
 			else
 				return FALSE
@@ -292,9 +290,6 @@
 
 		if(!dodge_status)
 			return FALSE
-
-		var/feintmod = L.feint_mod(user)
-		L.change_feint(FEINT_PERC_INCREASE_BASE + feintmod, (ishuman(src) ? user : null))
 
 		if(!UH?.mind) // For NPC, reduce the drained to 5 stamina
 			drained = drained_npc

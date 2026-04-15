@@ -1072,47 +1072,6 @@
 	if(hud_used && hud_used.internals)
 		hud_used.internals.icon_state = "internal[internal_state]"
 
-/mob/living/carbon/human/proc/onstart_feint_hud()
-	if(!client || !hud_used || !client.prefs || !client.prefs.feint_hud)
-		hud_used.feint_bar.icon_state = ""
-	else
-		hud_used.feint_bar.icon_state = "feintbar0"
-
-/mob/living/carbon/human/proc/update_feint_hud(mob/living/carbon/human/defender)
-	if(!client || !hud_used || !client.prefs || !client.prefs.feint_hud || !ishuman(defender))
-		return
-	var/val
-	var/istate
-	if(hud_used.feint_bar)
-		if(LAZYACCESS(defender.feint_list, src))
-			val = defender.feint_list[src]
-		else
-			val = defender.feint_perc
-	
-	switch(val)
-		if(0 to 19)
-			istate = "feintbar0"
-		if(20 to 39)
-			istate = "feintbar20"
-		if(40 to 49)
-			istate = "feintbar40"
-		if(50 to 59)
-			istate = "feintbar50"
-		if(60 to 69)
-			istate = "feintbar60"
-		if(70 to 79)
-			istate = "feintbar70"
-		if(80 to 89)
-			istate = "feintbar80"
-		if(90 to 99)
-			istate = "feintbar90"
-		if(100)
-			istate = "feintbar100"
-
-	if(istate)
-		hud_used.feint_bar.icon_state = istate
-
-
 /mob/living/carbon/update_stat()
 	if(status_flags & GODMODE)
 		return

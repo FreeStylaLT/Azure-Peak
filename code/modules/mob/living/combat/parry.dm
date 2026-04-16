@@ -354,8 +354,9 @@
 					if(tempobonus)	//It is either null or 0.1 to 1, multiplication by null results in 0, so we check.
 						intdam *= tempobonus
 
-					used_weapon.take_damage(intdam, BRUTE, used_weapon.d_type)
-					used_weapon.remove_bintegrity(sharp_loss, user)
+					if(!has_status_effect(/datum/status_effect/buff/weapon_binded))
+						used_weapon.take_damage(intdam, BRUTE, used_weapon.d_type)
+						used_weapon.remove_bintegrity(sharp_loss, user)
 			else
 				// Unarmed attacker
 				var/intdam = INTEG_PARRY_DECAY_UNARMED

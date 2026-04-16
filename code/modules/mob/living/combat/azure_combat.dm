@@ -486,12 +486,12 @@
 
 			var/obj/item/rogueweapon/RW = user.get_active_held_item()
 			if(RW)
-				RW.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)
-				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), user)
+				RW.take_damage((RW.sharpness ? (INTEG_PARRY_DECAY * 3) : (INTEG_PARRY_DECAY_NOSHARP * 3)), BRUTE, used_weapon.d_type)
+				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), src)
 			
 			if(used_weapon)
-				used_weapon.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)
-				used_weapon.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), user)
+				used_weapon.take_damage((used_weapon.sharpness ? (INTEG_PARRY_DECAY) : (INTEG_PARRY_DECAY_NOSHARP)), BRUTE, used_weapon.d_type)
+				used_weapon.remove_bintegrity((SHARPNESS_ONHIT_DECAY), src)
 
 			if(vuln_exception)	// If we triggered this via a vuln attack, we suffer an extra penalty.
 				used_weapon.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)

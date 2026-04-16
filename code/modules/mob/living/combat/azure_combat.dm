@@ -470,7 +470,7 @@
 	if(check_bait_subzone(zone_selected) == check_bait_subzone(user.zone_selected))
 		var/chance = 100	//Only here so chest vs chest has a smaller chance to trigger a bind.
 		if(zone_selected == user.zone_selected && zone_selected == BODY_ZONE_CHEST && !vuln_exception)
-			chance = 7.5
+			chance = 3
 		if(prob(chance))
 			apply_status_effect(/datum/status_effect/buff/weapon_binded)
 			//!change_feint(-FEINT_PERC_DECREASE_BASE, user)

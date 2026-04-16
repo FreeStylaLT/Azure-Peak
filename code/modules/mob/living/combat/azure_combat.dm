@@ -461,6 +461,10 @@
 				return TRUE
 
 /mob/living/carbon/human/proc/try_bind(obj/item/used_weapon, mob/living/user, vuln_exception = FALSE)	//user is the attacker in this context
+	if(!used_weapon)
+		return
+	if(get_skill_level(used_weapon.associated_skill) < SKILL_LEVEL_JOURNEYMAN)
+		return
 	if(check_bait_subzone(zone_selected) == check_bait_subzone(user.zone_selected))
 		var/chance = 100	//Only here so chest vs chest has a smaller chance to trigger a bind.
 		if(zone_selected == user.zone_selected && zone_selected == BODY_ZONE_CHEST && !vuln_exception)

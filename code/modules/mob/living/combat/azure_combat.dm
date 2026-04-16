@@ -479,21 +479,21 @@
 			//This is mostly here for dramatic effect, though the clickcd is to prevent instant-baiting 
 			//and give both players a split second to decide if they want to swap zones
 			//(our zones are matching in this moment, after all!)
-			user.Immobilize(0.5 SECONDS)
+			user.Immobilize(0.3 SECONDS)
 			user.apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
 
 			if(get_tempo_bonus(TEMPO_TAG_BINDABLE))
-				Immobilize(0.5 SECONDS)
+				Immobilize(0.3 SECONDS)
 				apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
 
 			var/obj/item/rogueweapon/RW = user.get_active_held_item()
 			if(RW)
-				RW.take_damage((RW.sharpness ? (INTEG_PARRY_DECAY * 3) : (INTEG_PARRY_DECAY_NOSHARP * 3)), BRUTE, used_weapon.d_type)
-				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), src)
+				RW.take_damage(RW.sharpness ? (INTEG_PARRY_DECAY) : (INTEG_PARRY_DECAY_NOSHARP), BRUTE, used_weapon.d_type)
+				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY), src)
 			
-			if(used_weapon)
-				used_weapon.take_damage((used_weapon.sharpness ? (INTEG_PARRY_DECAY) : (INTEG_PARRY_DECAY_NOSHARP)), BRUTE, used_weapon.d_type)
-				used_weapon.remove_bintegrity((SHARPNESS_ONHIT_DECAY), src)
+			//if(used_weapon)
+			//	used_weapon.take_damage((used_weapon.sharpness ? (INTEG_PARRY_DECAY) : (INTEG_PARRY_DECAY_NOSHARP)), BRUTE, used_weapon.d_type)
+			//	used_weapon.remove_bintegrity((SHARPNESS_ONHIT_DECAY), src)
 
 			if(vuln_exception)	// If we triggered this via a vuln attack, we suffer an extra penalty.
 				used_weapon.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)

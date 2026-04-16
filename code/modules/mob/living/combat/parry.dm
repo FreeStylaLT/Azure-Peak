@@ -229,7 +229,7 @@
 		if(HAS_TRAIT(U, TRAIT_FENCERDEXTERITY))
 			prob2defend -= 5
 
-	prob2defend = clamp(prob2defend, 5, (weapon_binded ? 95 : 90))
+	prob2defend = clamp(prob2defend, 5, 90)
 	if(HAS_TRAIT(user, TRAIT_HARDSHELL) && H.client)	//Dwarf-merc specific limitation w/ their armor on in pvp
 		prob2defend = clamp(prob2defend, 5, 70)
 	var/untrained_armor = FALSE

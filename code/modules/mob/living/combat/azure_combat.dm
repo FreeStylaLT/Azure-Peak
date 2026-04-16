@@ -467,6 +467,8 @@
 		return
 	if(get_skill_level(used_weapon.associated_skill) < SKILL_LEVEL_JOURNEYMAN)
 		return
+	if(has_status_effect(/datum/status_effect/debuff/bindcd))
+		return
 	if(check_bait_subzone(zone_selected) == check_bait_subzone(user.zone_selected))
 		var/chance = 100	//Only here so chest vs chest has a smaller chance to trigger a bind.
 		if(zone_selected == user.zone_selected && zone_selected == BODY_ZONE_CHEST && !vuln_exception)
@@ -474,7 +476,12 @@
 		if(prob(chance))
 			apply_status_effect(/datum/status_effect/buff/weapon_binded)
 			//!change_feint(-FEINT_PERC_DECREASE_BASE, user)
-			user.apply_status_effect(/datum/status_effect/debuff/weapon_binded)
+			user.apply_status_effect(/datum/status_effect/debuff/bindcd)
+
+			var/cd = 20 SECONDS
+			var/cd_mod = get_tempo_bonus(TEMPO_TAG_RCLICK_CD_BONUS)
+			cd = max((cd - cd_mod), 10 SECONDS)
+			apply_status_effect(/datum/status_effect/debuff/bindcd, cd)
 
 			//This is mostly here for dramatic effect, though the clickcd is to prevent instant-baiting 
 			//and give both players a split second to decide if they want to swap zones

@@ -484,10 +484,14 @@
 			if(RW)
 				RW.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)
 				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), user)
+			
+			if(used_weapon)
+				used_weapon.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)
+				used_weapon.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), user)
 
-			if(vuln_exception)	// If we triggered this via a vuln attack, we suffer a penalty, too.
-				used_weapon.take_damage((INTEG_PARRY_DECAY_NOSHARP * 5), BRUTE, used_weapon.d_type)
-				used_weapon.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 5), src)
+			if(vuln_exception)	// If we triggered this via a vuln attack, we suffer an extra penalty.
+				used_weapon.take_damage((INTEG_PARRY_DECAY_NOSHARP * 3), BRUTE, used_weapon.d_type)
+				used_weapon.remove_bintegrity((SHARPNESS_ONHIT_DECAY * 3), src)
 
 			flash_fullscreen("whiteflash")
 			user.flash_fullscreen("whiteflash")

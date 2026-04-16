@@ -177,12 +177,9 @@
 			prob2defend -= finalmod
 
 	// --- Weapon binding! ---
-	var/weapon_binded = FALSE
 
 	if(has_status_effect(/datum/status_effect/buff/weapon_binded))
 		prob2defend += 20
-		weapon_binded = TRUE
-
 	if(!has_status_effect(/datum/status_effect/buff/weapon_binded) && !has_status_effect(/datum/status_effect/debuff/weapon_binded))
 		if(ishuman(src) && user.get_tempo_bonus(TEMPO_TAG_BINDABLE) && mind)
 			var/mob/living/carbon/human/HL = src

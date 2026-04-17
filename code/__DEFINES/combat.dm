@@ -365,7 +365,7 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define VULN_INTEG_MOD 1.3		//Multiplier for integrity damage if we hit a Vulnerable target.
 #define BASE_RCLICK_CD 30 SECONDS
 #define BAIT_RCLICK_CD 20 SECONDS
-#define FEINT_RCLICK_CD 5 SECONDS
+#define FEINT_RCLICK_CD 20 SECONDS
 
 /* TEMPO DEFINES */
 #define TEMPO_CULL_DELAY 	12 SECONDS	//Interval for checking our tempo lists. Only relevant to player mobs with TRAIT_TEMPO

@@ -367,6 +367,11 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define BAIT_RCLICK_CD 20 SECONDS
 #define FEINT_RCLICK_CD 20 SECONDS
 
+#define BIND_HANDS 1
+#define BIND_FEET 2
+#define BIND_HEAD 3
+#define BIND_TORSO 4
+
 /* TEMPO DEFINES */
 #define TEMPO_CULL_DELAY 	12 SECONDS	//Interval for checking our tempo lists. Only relevant to player mobs with TRAIT_TEMPO
 #define TEMPO_DELAY_ONE 30 SECONDS	//How long the attacker will stay "in memory" before getting deleted, the more attackers the shorter the duration.

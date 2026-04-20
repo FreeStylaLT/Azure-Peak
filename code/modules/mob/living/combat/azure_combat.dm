@@ -460,6 +460,8 @@
 			else
 				return TRUE
 
+
+/// A defensive boon from matching subzones.
 /mob/living/carbon/human/proc/try_bind(obj/item/used_weapon, mob/living/user, vuln_exception = FALSE)	//user is the attacker in this context
 	if(!used_weapon)
 		return
@@ -469,9 +471,9 @@
 		return
 	if(has_status_effect(/datum/status_effect/debuff/bindcd))
 		return
-	if(check_bait_subzone(zone_selected) == check_bait_subzone(user.zone_selected))
+	if(check_bind(check_bind_subzone(zone_selected), user.zone_selected))
 		var/chance = 100	//Only here so chest vs chest has a smaller chance to trigger a bind.
-		if(zone_selected == user.zone_selected && zone_selected == BODY_ZONE_CHEST && !vuln_exception)
+		if(zone_selected == user.zone_selected && zone_selected == BODY_ZONE_CHEST)
 			chance = 3
 		if(prob(chance))
 			apply_status_effect(/datum/status_effect/buff/weapon_binded)
@@ -485,13 +487,12 @@
 
 			//This is mostly here for dramatic effect, though the clickcd is to prevent instant-baiting 
 			//and give both players a split second to decide if they want to swap zones
-			//(our zones are matching in this moment, after all!)
 			user.Immobilize(0.3 SECONDS)
-			user.apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
+			user.apply_status_effect(/datum/status_effect/debuff/clickcd, 0.5 SECONDS)
 
 			if(get_tempo_bonus(TEMPO_TAG_BINDABLE))
 				Immobilize(0.3 SECONDS)
-				apply_status_effect(/datum/status_effect/debuff/clickcd, 0.7 SECONDS)
+				apply_status_effect(/datum/status_effect/debuff/clickcd, 0.5 SECONDS)
 
 			var/obj/item/rogueweapon/RW = user.get_active_held_item()
 			if(RW)

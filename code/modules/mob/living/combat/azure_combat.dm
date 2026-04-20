@@ -480,19 +480,18 @@
 			//!change_feint(-FEINT_PERC_DECREASE_BASE, user)
 			user.apply_status_effect(/datum/status_effect/debuff/bindcd)
 
-			var/cd = 20 SECONDS
+			var/cd = BIND_CD
 			var/cd_mod = get_tempo_bonus(TEMPO_TAG_RCLICK_CD_BONUS)
-			cd = max((cd - cd_mod), 10 SECONDS)
+			cd = max((cd - cd_mod), 10.1 SECONDS)	// This is the duration of the bind itself + 1 tick, to prevent any screwiness.
 			apply_status_effect(/datum/status_effect/debuff/bindcd, cd)
 
-			//This is mostly here for dramatic effect, though the clickcd is to prevent instant-baiting 
-			//and give both players a split second to decide if they want to swap zones
+			// Immob. Mostly for dramatic flair. ClickCD is to prevent instant follow-up attacks.
 			user.Immobilize(0.3 SECONDS)
-			user.apply_status_effect(/datum/status_effect/debuff/clickcd, 0.5 SECONDS)
+			user.changeNext_move(CLICK_CD_CHARGED)
 
 			if(get_tempo_bonus(TEMPO_TAG_BINDABLE))
 				Immobilize(0.3 SECONDS)
-				apply_status_effect(/datum/status_effect/debuff/clickcd, 0.5 SECONDS)
+				changeNext_move(CLICK_CD_FAST)
 
 			var/obj/item/rogueweapon/RW = user.get_active_held_item()
 			if(RW)

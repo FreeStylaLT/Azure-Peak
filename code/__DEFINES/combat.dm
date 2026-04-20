@@ -365,6 +365,7 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define VULN_INTEG_MOD 1.3		//Multiplier for integrity damage if we hit a Vulnerable target.
 #define BASE_RCLICK_CD 30 SECONDS
 #define BAIT_RCLICK_CD 20 SECONDS
+#define BIND_CD 15 SECONDS
 #define FEINT_RCLICK_CD 20 SECONDS
 
 #define BIND_HANDS 1

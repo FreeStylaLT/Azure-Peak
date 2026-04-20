@@ -488,6 +488,7 @@
 			// Immob. Mostly for dramatic flair. ClickCD is to prevent instant follow-up attacks.
 			user.Immobilize(0.3 SECONDS)
 			user.changeNext_move(CLICK_CD_CHARGED)
+			user.changeNext_def(user.parrydelay)
 
 			if(get_tempo_bonus(TEMPO_TAG_BINDABLE))
 				Immobilize(0.3 SECONDS)

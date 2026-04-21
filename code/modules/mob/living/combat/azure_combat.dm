@@ -509,10 +509,8 @@
 
 			flash_fullscreen("whiteflash")
 			user.flash_fullscreen("whiteflash")
-			var/datum/effect_system/spark_spread/S = new()
-			var/turf/front = get_step(src,src.dir)
-			S.set_up(3, 1, front)
-			S.start()
+			var/turf/front = get_turf(src)
+			do_sparks(4, FALSE, front)
 
 			var/soundcategory = WBALANCE_NORMAL
 			var/sfx

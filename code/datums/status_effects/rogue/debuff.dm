@@ -1092,7 +1092,7 @@
 
 /datum/status_effect/debuff/weapon_binded
 	id = "wep_bind_debuff"
-	duration = 8 SECONDS
+	duration = 5 SECONDS
 	status_type = STATUS_EFFECT_REFRESH
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/weapon_bind_debuff
 

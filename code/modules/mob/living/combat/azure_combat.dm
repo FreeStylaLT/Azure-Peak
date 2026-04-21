@@ -478,7 +478,7 @@
 		if(prob(chance))
 			apply_status_effect(/datum/status_effect/buff/weapon_binded)
 			//!change_feint(-FEINT_PERC_DECREASE_BASE, user)
-			user.apply_status_effect(/datum/status_effect/debuff/bindcd)
+			//user.apply_status_effect(/datum/status_effect/debuff/bindcd)
 
 			var/cd = BIND_CD
 			var/cd_mod = get_tempo_bonus(TEMPO_TAG_RCLICK_CD_BONUS)

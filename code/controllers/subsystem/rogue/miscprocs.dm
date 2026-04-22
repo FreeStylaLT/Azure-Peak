@@ -238,3 +238,15 @@
 	else
 		ADD_TRAIT(src, TRAIT_COMBAT_AWARE, TRAIT_VIRTUE)
 	to_chat(src, "I will see [HAS_TRAIT(src, TRAIT_COMBAT_AWARE) ? "more" : "less"] combat information now.")
+
+
+/mob/living/carbon/human/proc/toggle_descriptors()
+	set name = "Toggle Anonimity"
+	set category = "Virtue"
+
+	show_descriptors = !show_descriptors
+	to_chat(src, "My identifying features are [show_descriptors ? "no longer " : ""]obscured.")
+	if(show_descriptors)
+		voicecolor_override = null
+	else
+		voicecolor_override = "#A0A0A0"

@@ -32,10 +32,11 @@
 			if(ishuman(src) && user.get_tempo_bonus(TEMPO_TAG_BINDABLE) && mind && user?.mind)
 				var/held = get_active_held_item()
 				if(istype(held, /obj/item/rogueweapon))
-					var/mob/living/carbon/human/HL = src
-					if(HL.try_bind(held, user, TRUE))
-						remove_status_effect(/datum/status_effect/debuff/vulnerable)
-						return TRUE
+					if(check_bait_subzone(zone_selected) == check_bait_subzone(user.zone_selected) && zone_selected != BODY_ZONE_CHEST)
+						var/mob/living/carbon/human/HL = src
+						if(HL.try_bind(held, user, TRUE))
+							remove_status_effect(/datum/status_effect/debuff/vulnerable)
+							return TRUE
 
 	switch(d_intent)
 		if(INTENT_PARRY)

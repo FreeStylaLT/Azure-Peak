@@ -372,6 +372,7 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define BIND_FEET 2
 #define BIND_HEAD 3
 #define BIND_TORSO 4
+#define BIND_NECK 5
 
 /* TEMPO DEFINES */
 #define TEMPO_CULL_DELAY 	12 SECONDS	//Interval for checking our tempo lists. Only relevant to player mobs with TRAIT_TEMPO

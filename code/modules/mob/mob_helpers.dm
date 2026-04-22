@@ -90,6 +90,8 @@
 			return BIND_FEET
 		if(BODY_ZONE_PRECISE_GROIN, BODY_ZONE_PRECISE_STOMACH, BODY_ZONE_CHEST)
 			return BIND_TORSO
+		if(BODY_ZONE_PRECISE_NECK)
+			return BIND_NECK
 	return FALSE
 
 /proc/check_bind(bindzone, attzone)
@@ -110,6 +112,9 @@
 			switch(attzone)
 				if(BODY_ZONE_PRECISE_STOMACH, BODY_ZONE_PRECISE_GROIN)
 					return TRUE
+		if(BIND_NECK)
+			if(attzone == BODY_ZONE_PRECISE_NECK)
+				return TRUE
 	return FALSE
 
 /// Returns the targeting zone equivalent of a given bodypart. Kudos to you if you find a use for this.

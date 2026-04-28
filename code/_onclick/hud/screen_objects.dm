@@ -1968,15 +1968,6 @@
 					to_chat(M, "[ddesc]")
 			already_printed = list()
 			to_chat(M, "*--------*")
-		if(modifiers["right"])
-			if(M.get_triumphs() <= 0)
-				to_chat(M, span_warning("I haven't TRIUMPHED."))
-				return
-			if(alert("Do you want to remember a TRIUMPH?", "", "Yes (-3 TRI)", "No") == "Yes (-3 TRI)")
-				if(!M.has_stress_event(/datum/stressevent/triumph))
-					M.add_stress(/datum/stressevent/triumph)
-					M.adjust_triumphs(-3)
-					M.playsound_local(M, 'sound/misc/notice (2).ogg', 100, FALSE)
 
 
 /atom/movable/screen/rmbintent

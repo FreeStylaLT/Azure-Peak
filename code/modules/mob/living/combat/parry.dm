@@ -132,8 +132,10 @@
 		prob2defend += unarmed_defense
 		weapon_parry = FALSE
 
+	var/att_swift_capable = U.check_dodge_skill(check_trait = FALSE)
+
 	// We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
-	if(mainhand && !offhand)
+	if(mainhand && !offhand && att_swift_capable)
 		if(used_weapon.wbalance == WBALANCE_SWIFT)
 			prob2defend += 10
 
@@ -144,7 +146,7 @@
 			intenty.masteritem.remove_bintegrity(intenty.sharpness_penalty)
 
 		prob2defend -= (attacker_skill * 20)
-		if(!HAS_TRAIT(user, TRAIT_FENCERDEXTERITY))	// Yet another Frei related clamp
+		if(!HAS_TRAIT(user, TRAIT_FENCERDEXTERITY) && att_swift_capable)	// Yet another Frei related clamp
 			if(!has_status_effect(/datum/status_effect/buff/weapon_binded))
 				if((intenty.masteritem.wbalance == WBALANCE_SWIFT) && (user.STASPD > src.STASPD)) //enemy weapon is quick, so get a bonus based on spddiff
 					var/spdmod = ((user.STASPD - src.STASPD) * 10)
@@ -157,6 +159,11 @@
 							spdmod -= intmod
 					var/finalmod = spdmod
 					if(mind)
+						var/ceilclamp = 10
+						if(user.zone_selected != check_zone(user.zone_selected))	// We are targeting a precise zone
+							ceilclamp = 45
+						else if((check_zone(user.zone_selected) == user.zone_selected) && user.zone_selected != BODY_ZONE_CHEST)
+							ceilclamp = 25
 						finalmod = clamp(spdmod, 0, 45)
 					prob2defend -= finalmod
 	else

@@ -164,7 +164,7 @@
 							ceilclamp = 45
 						else if((check_zone(user.zone_selected) == user.zone_selected) && user.zone_selected != BODY_ZONE_CHEST)
 							ceilclamp = 25
-						finalmod = clamp(spdmod, 0, 45)
+						finalmod = clamp(spdmod, 0, ceilclamp)
 					prob2defend -= finalmod
 	else
 		attacker_skill = U.get_skill_level(/datum/skill/combat/unarmed)

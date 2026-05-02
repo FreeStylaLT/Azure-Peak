@@ -131,13 +131,20 @@
 		weapon_parry = FALSE
 
 	var/att_swift_capable = U.check_dodge_skill(check_trait = FALSE)
-
+	var/def_swift_capable = H.check_dodge_skill(check_trait = FALSE)
 	
 	if(used_weapon.wbalance == WBALANCE_SWIFT)
-		if(mainhand && !offhand && att_swift_capable) // We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
+		if(mainhand && !offhand && def_swift_capable) // We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
 			prob2defend += 10
-		if(!att_swift_capable)	// We're using swift as someone who is encumbered by heavier armor. Def penalty.
-			prob2defend -= 20
+		if(!def_swift_capable)	// We're using swift as someone who is encumbered by heavier armor. Def penalty.
+			if(ishuman(src))
+				var/mob/living/carbon/human/HSRC = src
+				var/ac = HSRC.highest_ac_worn()
+				switch(ac)
+					if(ARMOR_CLASS_HEAVY)
+						prob2defend -= 20
+					if(ARMOR_CLASS_MEDIUM)
+						prob2defend -= 10
 
 	if(intenty.masteritem)
 		attacker_skill = U.get_skill_level(intenty.masteritem.associated_skill)
@@ -146,7 +153,7 @@
 			intenty.masteritem.remove_bintegrity(intenty.sharpness_penalty)
 
 		prob2defend -= (attacker_skill * 20)
-		if(!HAS_TRAIT(user, TRAIT_FENCERDEXTERITY) && att_swift_capable)	// Yet another Frei related clamp
+		if(att_swift_capable)
 			if(!has_status_effect(/datum/status_effect/buff/weapon_binded))
 				if((intenty.masteritem.wbalance == WBALANCE_SWIFT) && (user.STASPD > src.STASPD)) //enemy weapon is quick, so get a bonus based on spddiff
 					var/spdmod = ((user.STASPD - src.STASPD) * 10)

@@ -772,7 +772,7 @@
 					return FALSE
 	return TRUE
 
-/mob/living/proc/check_dodge_skill()
+/mob/living/proc/check_dodge_skill(check_trait = TRUE)
 	return TRUE
 
 /mob/living/carbon/human/check_dodge_skill(check_trait = TRUE)

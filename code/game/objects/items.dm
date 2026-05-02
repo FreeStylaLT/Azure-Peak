@@ -514,7 +514,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		Targeting large limbs such as arms, head or legs has a defense reduction cap of 25%. \n\
 		Targeting the chest only has a cap of 10% parry reduction. \n\
 		Swift Balance does not work if the attacker is wearing Medium or Heavy AC equipment on their outerwear, innerwear or pants slots. \n\
-		If the defender has higher perception however, the penalty is reduced by 10% per point of difference, down to none.\n\
+		If the defender has higher perception however, the penalty is reduced by 5% per point of difference, down to none.\n\
 		Intelligence also reduces the penalty by 3% per point of difference, down to none.")
 		if(!usr.client.prefs.no_examine_blocks)
 			output = examine_block(output)

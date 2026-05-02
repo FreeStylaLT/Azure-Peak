@@ -135,7 +135,7 @@
 	var/att_swift_capable = U.check_dodge_skill(check_trait = FALSE)
 
 	// We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
-	if(mainhand && !offhand && att_swift_capable)
+	if(mainhand && !offhand)
 		if(used_weapon.wbalance == WBALANCE_SWIFT)
 			prob2defend += 10
 
@@ -152,18 +152,20 @@
 					var/spdmod = ((user.STASPD - src.STASPD) * 10)
 					var/permod = ((src.STAPER - user.STAPER) * 5)
 					var/intmod = ((src.STAINT - user.STAINT) * 3)
-					if(mind)
-						if(permod > 0)
-							spdmod -= permod
-						if(intmod > 0)
-							spdmod -= intmod
 					var/finalmod = spdmod
 					if(mind)
-						var/ceilclamp = 10
-						if(user.zone_selected != check_zone(user.zone_selected))	// We are targeting a precise zone
-							ceilclamp = 45
+						var/ceilclamp = SWIFTCAP_CHEST
+						if(user.zone_selected == BODY_ZONE_CHEST)	// Attacker is targeting chest. Worst boons! INT and PER are subtracted.
+							if(permod > 0)
+								spdmod -= permod
+							if(intmod > 0)
+								spdmod -= intmod
+						else if(user.zone_selected != check_zone(user.zone_selected))	// They are targeting a precise zone. Best boons! No INT/ PER influence.
+							ceilclamp = SWIFTCAP_PRECISE
 						else if((check_zone(user.zone_selected) == user.zone_selected) && user.zone_selected != BODY_ZONE_CHEST)
-							ceilclamp = 25
+							ceilclamp = SWIFTCAP_LIMBS
+							if(permod > 0)
+								spdmod -= permod
 						finalmod = clamp(spdmod, 0, ceilclamp)
 					prob2defend -= finalmod
 	else

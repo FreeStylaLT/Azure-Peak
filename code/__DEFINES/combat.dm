@@ -369,11 +369,18 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define BIND_CD 15 SECONDS
 #define FEINT_RCLICK_CD 20 SECONDS
 
+/* BIND DEFINES */
+
 #define BIND_HANDS 1
 #define BIND_FEET 2
 #define BIND_HEAD 3
 #define BIND_TORSO 4
 #define BIND_NECK 5
+
+/* SWIFT BALANCE DEFINES */
+#define SWIFTCAP_CHEST 10
+#define SWIFTCAP_LIMBS 25
+#define SWIFTCAP_PRECISE 45
 
 /* TEMPO DEFINES */
 #define TEMPO_CULL_DELAY 	12 SECONDS	//Interval for checking our tempo lists. Only relevant to player mobs with TRAIT_TEMPO

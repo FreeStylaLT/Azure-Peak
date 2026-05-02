@@ -509,7 +509,11 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 	if(href_list["explainbalance"])
 		var/output = span_info("A heavy weapon is easier to dodge, and inflicts 2 stamina damage per level of strength difference on a parrying defender. \n\
-		A swift balance weapon reduces the enemy's parry chance by 10% per level of speed difference, by up to 30%. \n\
+		A swift balance weapon reduces the enemy's parry chance depending on SPD difference. \n\
+		Targeting harder to hit zones such as hands, feet, stomach or face zones has a defense reduction cap at 45%. \n\
+		Targeting large limbs such as arms, head or legs has a defense reduction cap of 25%. \n\
+		Targeting the chest only has a cap of 10% parry reduction. \n\
+		Swift Balance does not work if the attacker is wearing Medium or Heavy AC equipment on their outerwear, innerwear or pants slots. \n\
 		If the defender has higher perception however, the penalty is reduced by 10% per point of difference, down to none.\n\
 		Intelligence also reduces the penalty by 3% per point of difference, down to none.")
 		if(!usr.client.prefs.no_examine_blocks)

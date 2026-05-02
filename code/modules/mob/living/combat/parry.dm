@@ -134,10 +134,12 @@
 
 	var/att_swift_capable = U.check_dodge_skill(check_trait = FALSE)
 
-	// We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
-	if(mainhand && !offhand)
-		if(used_weapon.wbalance == WBALANCE_SWIFT)
+	
+	if(used_weapon.wbalance == WBALANCE_SWIFT)
+		if(mainhand && !offhand && att_swift_capable) // We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
 			prob2defend += 10
+		if(!att_swift_capable)	// We're using swift as someone who is encumbered by heavier armor. Def penalty.
+			prob2defend -= 20
 
 	if(intenty.masteritem)
 		attacker_skill = U.get_skill_level(intenty.masteritem.associated_skill)

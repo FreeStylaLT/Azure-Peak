@@ -371,11 +371,13 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 
 /* BIND DEFINES */
 
-#define BIND_HANDS 1
-#define BIND_FEET 2
-#define BIND_HEAD 3
-#define BIND_TORSO 4
-#define BIND_NECK 5
+#define BIND_HAND_L 1
+#define BIND_HAND_R 2
+#define BIND_FOOT_L 3
+#define BIND_FOOT_R 4
+#define BIND_HEAD 5
+#define BIND_TORSO 6
+#define BIND_NECK 7
 
 /* SWIFT BALANCE DEFINES */
 #define SWIFTCAP_CHEST 10

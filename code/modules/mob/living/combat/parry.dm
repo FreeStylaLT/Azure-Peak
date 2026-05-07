@@ -137,15 +137,6 @@
 		if(used_weapon.wbalance == WBALANCE_SWIFT)
 			if(mainhand && !offhand && def_swift_capable) // We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
 				prob2defend += 10
-			if(!def_swift_capable)	// We're using swift as someone who is encumbered by heavier armor. Def penalty.
-				if(ishuman(src))
-					var/mob/living/carbon/human/HSRC = src
-					var/ac = HSRC.highest_ac_worn()
-					switch(ac)
-						if(ARMOR_CLASS_HEAVY)
-							prob2defend -= 20
-						if(ARMOR_CLASS_MEDIUM)
-							prob2defend -= 10
 
 	if(intenty.masteritem)
 		attacker_skill = U.get_skill_level(intenty.masteritem.associated_skill)

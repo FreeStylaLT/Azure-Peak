@@ -65,7 +65,7 @@
 	attack_verb = list("thrusts")
 	animname = "stab"
 	icon_state = "instab"
-	reach = 2
+	reach = 1
 	clickcd = CLICK_CD_CHARGED
 	recovery = 30
 	warnie = "mobwarning"

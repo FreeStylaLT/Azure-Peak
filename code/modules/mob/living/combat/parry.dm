@@ -156,7 +156,7 @@
 				prob2defend -= 5
 			if(intenty.masteritem.wlength == WLENGTH_SHORT)
 				prob2defend -= 10
-			if(intenty.masteritem.wbalance == WBALANCE_HEAVY)
+			if(used_weapon.wbalance == WBALANCE_HEAVY)
 				prob2defend -= 10
 			if(intenty.masteritem.wbalance == WBALANCE_SWIFT)	// We are trying to guard against a swiftoid up close with a polearm
 				prob2defend -= 5

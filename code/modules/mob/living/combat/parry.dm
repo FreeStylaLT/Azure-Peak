@@ -138,6 +138,30 @@
 			if(mainhand && !offhand && def_swift_capable) // We're one-handing a swift-balanced weapon (rapiers, sabers, etc). Small parry boost (1 wdef equiv.)
 				prob2defend += 10
 
+		if(intenty && intenty.reach > 1)
+			if(get_dist(H, U) < intenty.reach)
+				if(intenty.masteritem.wbalance == WBALANCE_HEAVY)	// We are inside a polearm's ineffective range, and it's heavy
+					prob2defend += 10
+				if(used_weapon.wlength <= WLENGTH_NORMAL)	// We are using a shorter-end weapon (most are long nowadays)
+					prob2defend += 10
+		
+		var/using_reach = FALSE
+		for(var/datum/intent/int in H.possible_a_intents)
+			if(int.reach > 1)
+				using_reach = TRUE	// Our active defensive weapon has reach
+				break
+		
+		if(using_reach && intenty.masteritem && get_dist(H, U) < 2)
+			if(intenty.masteritem.wlength < WLENGTH_NORMAL)	// We are trying to guard against someone who has gotten close to us
+				prob2defend -= 5
+			if(intenty.masteritem.wlength == WLENGTH_SHORT)
+				prob2defend -= 10
+			if(intenty.masteritem.wbalance == WBALANCE_HEAVY)
+				prob2defend -= 10
+			if(intenty.masteritem.wbalance == WBALANCE_SWIFT)	// We are trying to guard against a swiftoid up close with a polearm
+				prob2defend -= 5
+
+
 	if(intenty.masteritem)
 		attacker_skill = U.get_skill_level(intenty.masteritem.associated_skill)
 

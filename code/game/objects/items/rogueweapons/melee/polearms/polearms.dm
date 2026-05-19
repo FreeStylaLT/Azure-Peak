@@ -955,8 +955,8 @@
 	icon_state = "glaive"
 	anvilrepair = /datum/skill/craft/weaponsmithing
 	smeltresult = /obj/item/ingot/steel
-	max_blade_int = 160
-	wdefense = 9
+	max_blade_int = 200
+	wdefense = 7
 
 /obj/item/rogueweapon/halberd/glaive/getonmobprop(tag)
 	. = ..()

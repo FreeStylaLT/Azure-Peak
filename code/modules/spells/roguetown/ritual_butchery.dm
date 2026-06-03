@@ -25,6 +25,10 @@
 		to_chat(user, "<span class='warning'>The weakling still pulses with life! Graggar demands you finish them properly first!</span>")
 		return FALSE
 
+	if(!target.HasSpell(/obj/effect/proc_holder/spell/invoked/extract_heart))
+		to_chat(user, span_warning("They are not Graggar's Chosen!"))
+		return FALSE
+
 	// Calculate actual time based on butchery skill
 	var/skill_modifier = 1 - (user.get_skill_level(/datum/skill/labor/butchering) * 0.1) // 10% reduction per skill level
 	var/actual_time = max(extraction_time * skill_modifier, 7.5 SECONDS) // Minimum 7.5 seconds

@@ -37,8 +37,7 @@
 	var/next_sate = 0
 	var/sated = TRUE
 	var/time = 5 MINUTES
-//	var/debuff = /datum/status_effect/debuff/addiction
-	var/debuff //so heroin junkies can have big problems
+	var/debuff = /datum/status_effect/debuff/addiction
 	var/needsate_text
 	var/sated_text = "That's much better..."
 	var/unsate_time
@@ -93,6 +92,17 @@
 	time = 40 MINUTES
 	needsate_text = "Time for a drink."
 	voyeur_descriptor = "quite the drinker"
+	debuff = /datum/status_effect/debuff/addiction/alcoholic
+
+/datum/status_effect/debuff/addiction/alcoholic
+	id = "addiction_alcoholic"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/alcoholic
+	effectedstats = list(STATKEY_INT = -1, STATKEY_WIL = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/alcoholic
+	name = "Alcohol Withdrawal"
+	desc = "I've started to feel hungover. The best way to chase a hangover is another drink."
+	icon_state = "alcoholic"
 
 
 /// KLEPTOMANIAC
@@ -113,6 +123,17 @@
 	time = 40 MINUTES
 	needsate_text = "Time to get really high."
 	voyeur_descriptor = "eager for a high"
+	debuff = /datum/status_effect/debuff/addiction/junkie
+
+/datum/status_effect/debuff/addiction/junkie
+	id = "addiction_junkie"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/junkie
+	effectedstats = list(STATKEY_STR = -1, STATKEY_CON = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/junkie
+	name = "Drug Withdrawal"
+	desc = "It's been too long since my last bump. I need a hit of something strong."
+	icon_state = "junkie"
 
 /// Smoker
 
@@ -122,6 +143,17 @@
 	time = 40 MINUTES
 	needsate_text = "Time for a flavorful smoke."
 	voyeur_descriptor = "eager for a smoke"
+	debuff = /datum/status_effect/debuff/addiction/smoker
+
+/datum/status_effect/debuff/addiction/smoker
+	id = "addiction_smoker"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/smoker
+	effectedstats = list(STATKEY_STR = -1, STATKEY_CON = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/smoker
+	name = "Blacklung"
+	desc = "I need a smoke. Gotta take the edge off."
+	icon_state = "smoker"
 
 /// CAFFIEND
 
@@ -131,6 +163,17 @@
 	time = 40 MINUTES
 	needsate_text = "I need a hot brew."
 	voyeur_descriptor = "in need of a brew"
+	debuff = /datum/status_effect/debuff/addiction/caffiend
+
+/datum/status_effect/debuff/addiction/caffiend
+	id = "addiction_caffiend"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/smoker
+	effectedstats = list(STATKEY_WIL = -1, STATKEY_INT = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/caffiend
+	name = "The Ticks"
+	desc = "Where's my cup? I feel all wrong without it."
+	icon_state = "caffiend"
 
 /// GOD-FEARING
 
@@ -140,6 +183,17 @@
 	time = 40 MINUTES
 	needsate_text = "Time to pray to my Patron."
 	voyeur_descriptor = "quite devout"
+	debuff = /datum/status_effect/debuff/addiction/godfearing
+
+/datum/status_effect/debuff/addiction/godfearing
+	id = "addiction_godfearing"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/godfearing
+	effectedstats = list(STATKEY_WIL = -2)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/godfearing
+	name = "Godfearing"
+	desc = "It's been too long since my last prayer. My patron is going to turn their gaze away from me."
+	icon_state = "godfearing"
 
 /// SADIST
 
@@ -149,6 +203,17 @@
 	time = 40 MINUTES
 	needsate_text = "I need to hear someone whimper."
 	voyeur_descriptor = "looking to hurt"
+	debuff = /datum/status_effect/debuff/addiction/sadist
+
+/datum/status_effect/debuff/addiction/sadist
+	id = "addiction_sadist"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/sadist
+	effectedstats = list(STATKEY_WIL = -1, STATKEY_LCK = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/sadist
+	name = "Sadist"
+	desc = "I need to hear someone whimper. Only the cries of another will make me feel better."
+	icon_state = "sadist"
 
 /// MASOCHIST
 
@@ -158,6 +223,17 @@
 	time = 40 MINUTES
 	needsate_text = "I need someone to HURT me."
 	voyeur_descriptor = "looking to be hurt"
+	debuff = /datum/status_effect/debuff/addiction/masochist
+
+/datum/status_effect/debuff/addiction/masochist
+	id = "addiction_masochist"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/masochist
+	effectedstats = list(STATKEY_CON = -1, STATKEY_WIL = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/masochist
+	name = "Masochist"
+	desc = "I deserve to suffer. No, I NEED to suffer."
+	icon_state = "masochist"
 
 /datum/charflaw/addiction/masochist/on_mob_creation(mob/living/living)
 	living.pain_threshold += 10
@@ -170,6 +246,17 @@
 	time = 90 MINUTES
 	needsate_text = "I'm feeling randy."
 	voyeur_descriptor = "looking lovesick"
+	debuff = /datum/status_effect/debuff/addiction/nympho
+
+/datum/status_effect/debuff/addiction/nympho
+	id = "addiction_nympho"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/nympho
+	effectedstats = list(STATKEY_WIL = -1, STATKEY_LCK = -1)
+
+/atom/movable/screen/alert/status_effect/debuff/addiction/nympho
+	name = "Nymphomania"
+	desc = "I must make love. My loins burn with unsated desire."
+	icon_state = "nymphomaniac"
 
 /datum/charflaw/addiction/thrillseeker
 	name = "Thrillseeker"

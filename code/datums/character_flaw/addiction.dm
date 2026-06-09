@@ -14,6 +14,8 @@
 	if(!mob_vice)
 		return
 	if(mob_vice.sated)
+		mob_vice.time = initial(mob_vice.time) //reset roundstart sate offset to standard
+		mob_vice.next_sate = world.time + max(mo(b_vice.time / 2), 1) // Half the regular timer since we're pre-empting it
 		return
 
 	to_chat(src, span_blue(mob_vice.sated_text))

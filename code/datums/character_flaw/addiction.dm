@@ -15,7 +15,8 @@
 		return
 	if(mob_vice.sated)
 		mob_vice.time = initial(mob_vice.time) //reset roundstart sate offset to standard
-		mob_vice.next_sate = world.time + max(mo(b_vice.time / 2), 1) // Half the regular timer since we're pre-empting it
+		to_chat(src, span_blue("<i>This will do, for now...</i>"))
+		mob_vice.next_sate = world.time + max((mob_vice.time / 2), 1) // Half the regular timer since we're pre-empting it
 		return
 
 	to_chat(src, span_blue(mob_vice.sated_text))
@@ -44,11 +45,12 @@
 	var/sated_text = "That's much better..."
 	var/unsate_time
 
-
-/datum/charflaw/addiction/New()
-	..()
-	time = rand(6 MINUTES, 30 MINUTES)
-	next_sate = world.time + time
+/datum/charflaw/addiction/on_mob_creation(mob/user)
+	. = ..()
+	if(time)
+		next_sate = world.time + rand(time - 10 MINUTES, time + 10 MINUTES)
+	else
+		next_sate = world.time + rand(30 MINUTES, 40 MINUTES)
 
 /datum/charflaw/addiction/flaw_on_life(mob/user)
 	if(!ishuman(user))

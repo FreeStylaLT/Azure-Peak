@@ -1,6 +1,12 @@
 /datum/status_effect/buff
 	status_type = STATUS_EFFECT_REFRESH
+	/// Whether this buff is bad to stack with others with the same bool.
+	var/bad_to_stack = FALSE
 
+
+/datum/status_effect/buff/on_apply()
+	. = ..()
+	
 
 /datum/status_effect/buff/drunk
 	id = "drunk"
@@ -33,6 +39,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/drunkmurk
 	effectedstats = list(STATKEY_INT = 5)
 	duration = 2 MINUTES
+	bad_to_stack = TRUE
 
 /datum/status_effect/buff/murkwine/on_creation(mob/living/new_owner)
 	if(HAS_TRAIT(new_owner, TRAIT_NOHUNGER))
@@ -44,6 +51,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/drunknoc
 	effectedstats = list(STATKEY_STR = 1, STATKEY_WIL = 1)
 	duration = 2 MINUTES
+	bad_to_stack = TRUE
 
 /datum/status_effect/buff/nocshine/on_creation(mob/living/new_owner)
 	if(HAS_TRAIT(new_owner, TRAIT_NOHUNGER))
@@ -81,6 +89,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/greatsnackbuff
 	effectedstats = list(STATKEY_CON = 1,STATKEY_WIL = 1)
 	duration = 10 MINUTES
+	bad_to_stack = TRUE
 
 /datum/status_effect/buff/greatsnackbuff/on_creation(mob/living/new_owner)
 	. = ..()
@@ -131,6 +140,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/greatmealbuff
 	effectedstats = list(STATKEY_CON = 1, STATKEY_WIL = 1)
 	duration = 30 MINUTES
+	bad_to_stack = TRUE
 
 /atom/movable/screen/alert/status_effect/buff/greatmealbuff
 	name = "Great Meal!"
@@ -367,6 +377,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/vitae
 	effectedstats = list(STATKEY_LCK = 2)
 	duration = 1 MINUTES
+	bad_to_stack = TRUE
 
 /datum/status_effect/buff/vitae/on_apply()
 	. = ..()
@@ -1411,6 +1422,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/vigorized
 	duration = 10 MINUTES
 	effectedstats = list(STATKEY_SPD = 1, STATKEY_INT = 1)
+	bad_to_stack = TRUE
 
 /atom/movable/screen/alert/status_effect/vigorized
 	name = "Vigorized"
@@ -1931,7 +1943,7 @@
 /datum/status_effect/buff/nocblessing
 	id = "nocblessing"
 	alert_type = /atom/movable/screen/alert/status_effect/buff/nocblessing
-	effectedstats = list("intelligence" = 1)
+	effectedstats = list(STATKEY_INT = 1)
 	duration = 30 MINUTES
 
 /atom/movable/screen/alert/status_effect/buff/nocblessing

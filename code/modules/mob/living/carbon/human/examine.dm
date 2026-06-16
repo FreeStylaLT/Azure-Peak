@@ -222,11 +222,14 @@
 			if(H.marriedto == name)
 				. += span_love("It's my spouse.")
 
+
 		if(name in GLOB.excommunicated_players)
-			. += span_userdanger("HERETIC! SHAME!")
+			if(!obscure_name)	// We are NOT masked. This prevents this stuff from being shown through masks w/ masked examine on.
+				. += span_userdanger("HERETIC! SHAME!")
 
 		if(HAS_TRAIT(src, TRAIT_EXCOMMUNICATED))
-			. += span_userdanger("EXCOMMUNICATED! SHAME!")//Temporary, probably going to get rid of the trait since it doesn't fit for us.
+			if(!obscure_name)
+				. += span_userdanger("EXCOMMUNICATED! SHAME!")//Temporary, probably going to get rid of the trait since it doesn't fit for us.
 /*
 		if(name in GLOB.excommunicated_players)
 			var/mob/living/carbon/human/H = src
@@ -239,18 +242,21 @@
 					. += span_userdanger("HEATHEN! SHAME!")
 */
 		if(name in GLOB.outlawed_players)
-			. += span_userdanger("OUTLAW!")
+			if(!obscure_name)
+				. += span_userdanger("OUTLAW!")
 
 		if(HAS_TRAIT(user, TRAIT_JUSTICARSIGHT) && !HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS))
-			for(var/datum/bounty/b in GLOB.head_bounties) //I hate this.
-				if(b.target == real_name)
-					. += span_syndradio("[m3] a bounty on [m2] head of [b.amount] mammon for [b.reason], issued by [b.employer].")
-					break
+			if(!obscure_name)
+				for(var/datum/bounty/b in GLOB.head_bounties) //I hate this.
+					if(b.target == real_name)
+						. += span_syndradio("[m3] a bounty on [m2] head of [b.amount] mammon for [b.reason], issued by [b.employer].")
+						break
 
 		if(name in GLOB.court_agents)
-			var/datum/job/J = SSjob.GetJob(user.mind?.assigned_role)
-			if(J?.department_flag & GARRISON || J?.department_flag & NOBLEMEN || J?.department_flag & COURTIERS || J?.department_flag & RETINUE)
-				. += span_greentext("<b>[m1] an agent of the court!</b>")
+			if(!obscure_name)
+				var/datum/job/J = SSjob.GetJob(user.mind?.assigned_role)
+				if(J?.department_flag & GARRISON || J?.department_flag & NOBLEMEN || J?.department_flag & COURTIERS || J?.department_flag & RETINUE)
+					. += span_greentext("<b>[m1] an agent of the court!</b>")
 
 		if(user != src && !HAS_TRAIT(src, TRAIT_DECEIVING_MEEKNESS))
 			if(has_flaw(/datum/charflaw/addiction/lovefiend) && user.has_flaw(/datum/charflaw/addiction/lovefiend))

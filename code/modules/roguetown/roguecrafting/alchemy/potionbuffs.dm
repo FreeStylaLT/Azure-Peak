@@ -1,3 +1,6 @@
+/datum/status_effect/buff/alch
+	stack_flag = STACK_ALL
+
 /atom/movable/screen/alert/status_effect/buff/alch
 	desc = "Power rushes through your veins."
 	icon_state = "buff"

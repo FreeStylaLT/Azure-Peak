@@ -505,3 +505,8 @@ GLOBAL_LIST_INIT(pda_styles, sortList(list(MONO, VT, ORBITRON, SHARE)))
 // Zombie infection defines
 #define ZOMBIE_INFECTION_PROBABILITY 20 	/// Zombie infection probability for bites on a wound
 #define ZOMBIE_INFECTION_TIME 2 MINUTES	/// Time taken until zombie infection kicks in (unit wakes up as a zombie)
+
+#define STACK_FOOD (1 << 0)	// Major Food buffs, we generally don't want more than 1 at a time
+#define STACK_POT (1 << 1) // Potion / Drink buffs, currently unused.
+#define STACK_ALL (1 << 2) // Non-stackable with anything / everything. Atm reserved to stat pots.
+#define STACK_MINOR (1 << 3) // You can have more than one of these before all the effects kick in. Generally reserved to single-stat buffs. IE, eating a sweet (+1 FOR).

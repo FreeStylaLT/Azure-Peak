@@ -1,12 +1,28 @@
 /datum/status_effect/buff
 	status_type = STATUS_EFFECT_REFRESH
 	/// Whether this buff is bad to stack with others with the same bool.
-	var/bad_to_stack = FALSE
+	var/stack_flag = FALSE
 
 
 /datum/status_effect/buff/on_apply()
 	. = ..()
-	
+	if(stack_flag)
+		var/stackweight = 0
+		for(var/datum/status_effect/buff/status in owner.status_effects)
+			if(istype(status, /datum/status_effect/buff) && status.stack_flag)
+				if(status.stack_flag & STACK_FOOD || status.stack_flag & STACK_POT || status.stack_flag & STACK_ALL)
+					stackweight += 1
+				if(status.stack_flag & STACK_MINOR)
+					stackweight += 0.5
+		switch(stackweight)
+			if(0 to 0.99)
+				return
+			if(1 to 1.99)
+				// apply 'stuffed' warning effect
+			if(2 to 2.99)
+				// apply first bad tier
+			if(3 to 99)
+				// apply second chungus tier
 
 /datum/status_effect/buff/drunk
 	id = "drunk"
@@ -39,7 +55,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/drunkmurk
 	effectedstats = list(STATKEY_INT = 5)
 	duration = 2 MINUTES
-	bad_to_stack = TRUE
+	stack_flag = STACK_FOOD
 
 /datum/status_effect/buff/murkwine/on_creation(mob/living/new_owner)
 	if(HAS_TRAIT(new_owner, TRAIT_NOHUNGER))
@@ -51,7 +67,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/drunknoc
 	effectedstats = list(STATKEY_STR = 1, STATKEY_WIL = 1)
 	duration = 2 MINUTES
-	bad_to_stack = TRUE
+	stack_flag = STACK_FOOD
 
 /datum/status_effect/buff/nocshine/on_creation(mob/living/new_owner)
 	if(HAS_TRAIT(new_owner, TRAIT_NOHUNGER))
@@ -89,7 +105,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/greatsnackbuff
 	effectedstats = list(STATKEY_CON = 1,STATKEY_WIL = 1)
 	duration = 10 MINUTES
-	bad_to_stack = TRUE
+	stack_flag = STACK_FOOD
 
 /datum/status_effect/buff/greatsnackbuff/on_creation(mob/living/new_owner)
 	. = ..()
@@ -140,7 +156,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/greatmealbuff
 	effectedstats = list(STATKEY_CON = 1, STATKEY_WIL = 1)
 	duration = 30 MINUTES
-	bad_to_stack = TRUE
+	stack_flag = STACK_FOOD
 
 /atom/movable/screen/alert/status_effect/buff/greatmealbuff
 	name = "Great Meal!"
@@ -377,7 +393,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/buff/vitae
 	effectedstats = list(STATKEY_LCK = 2)
 	duration = 1 MINUTES
-	bad_to_stack = TRUE
+	stack_flag = STACK_FOOD
 
 /datum/status_effect/buff/vitae/on_apply()
 	. = ..()
@@ -1422,7 +1438,7 @@
 	alert_type = /atom/movable/screen/alert/status_effect/vigorized
 	duration = 10 MINUTES
 	effectedstats = list(STATKEY_SPD = 1, STATKEY_INT = 1)
-	bad_to_stack = TRUE
+	stack_flag = STACK_FOOD
 
 /atom/movable/screen/alert/status_effect/vigorized
 	name = "Vigorized"

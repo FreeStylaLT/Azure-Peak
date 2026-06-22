@@ -1308,4 +1308,9 @@
 /datum/status_effect/debuff/stuffed_three/on_creation(mob/living/new_owner, newdur, arg_stackpwr)
 	if(newdur)
 		duration = newdur
+	ADD_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, TRAIT_FATASS)
 	. = ..()
+
+/datum/status_effect/debuff/stuffed_three/on_remove()
+	. = ..()
+	REMOVE_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, TRAIT_FATASS)

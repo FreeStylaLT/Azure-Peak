@@ -824,6 +824,7 @@ Remember to update _globalvars/traits.dm if you're adding/removing/renaming trai
 #define TRAIT_STATUS_EFFECT	"status_effect"
 #define TRAIT_VIRTUE "virtue"
 #define TRAIT_MIRACLE "miracle"
+#define TRAIT_FATFUCK "fat"
 #define TRAIT_RITUAL "ritual"
 #define TRAIT_GAZE "gaze"
 #define TRAIT_NECRACON "necracon"

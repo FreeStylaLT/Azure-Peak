@@ -1320,8 +1320,10 @@
 	if(newdur)
 		duration = newdur
 	ADD_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, TRAIT_FATASS)
+	ADD_TRAIT(owner, TRAIT_ARMOR_BREAK, TRAIT_FATASS)
 	. = ..()
 
 /datum/status_effect/debuff/stuffed_three/on_remove()
 	. = ..()
 	REMOVE_TRAIT(owner, TRAIT_CRITICAL_WEAKNESS, TRAIT_FATASS)
+	REMOVE_TRAIT(owner, TRAIT_ARMOR_BREAK, TRAIT_FATASS)

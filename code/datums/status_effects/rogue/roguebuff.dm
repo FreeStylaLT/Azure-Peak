@@ -3,26 +3,40 @@
 	/// Whether this buff is bad to stack with others with the same bool.
 	var/stack_flag = FALSE
 
-
-/datum/status_effect/buff/on_apply()
-	. = ..()
+/datum/status_effect/buff/proc/process_buffstacks()
 	if(stack_flag)
 		var/stackweight = 0
+		var/longest_dur = 0
+		var/new_dur = 0
 		for(var/datum/status_effect/buff/status in owner.status_effects)
 			if(istype(status, /datum/status_effect/buff) && status.stack_flag)
+				// The intended potential of these flags is to have one weight per flag, but atm it just stacks with everything evenly.
+				// Feel free to granularize the stacking if needed, though I hope to Psydon it won't be. Chemplay is awful -- don't enable those freeks.
 				if(status.stack_flag & STACK_FOOD || status.stack_flag & STACK_POT || status.stack_flag & STACK_ALL)
 					stackweight += 1
 				if(status.stack_flag & STACK_MINOR)
 					stackweight += 0.5
+				if(status.duration > longest_dur)
+					longest_dur = status.duration
+		if(longest_dur && longest_dur > world.time)
+			new_dur = longest_dur - world.time
 		switch(stackweight)
-			if(0 to 0.99)
+			if(0 to 0.99)	// Switch comparisons are inclusive
 				return
 			if(1 to 1.99)
-				// apply 'stuffed' warning effect
+				owner.apply_status_effect(/datum/status_effect/debuff/stuffed_one, new_dur, stackweight)
 			if(2 to 2.99)
-				// apply first bad tier
+				owner.apply_status_effect(/datum/status_effect/debuff/stuffed_two, new_dur, stackweight)
 			if(3 to 99)
-				// apply second chungus tier
+				owner.apply_status_effect(/datum/status_effect/debuff/stuffed_three, new_dur, stackweight)
+
+/datum/status_effect/buff/on_apply()
+	. = ..()
+	process_buffstacks()
+
+/datum/status_effect/buff/on_remove()
+	. = ..()
+	process_buffstacks()
 
 /datum/status_effect/buff/drunk
 	id = "drunk"
@@ -565,6 +579,11 @@
 	return ..()
 
 /datum/status_effect/buff/healing/on_apply()
+	if(owner.has_status_effect(/datum/status_effect/debuff/stuffed_three))
+		owner.visible_message(span_warningbig("The gods see fit to purge [owner]'s bulging stomach!"))
+		var/mob/living/carbon/C = owner
+		C.vomit()
+		return FALSE
 	SEND_SIGNAL(owner, COMSIG_LIVING_MIRACLE_HEAL_APPLY, healing_on_tick, src)
 	var/filter = owner.get_filter(MIRACLE_HEALING_FILTER)
 	if (!filter)
@@ -578,10 +597,10 @@
 		return
 	var/obj/effect/temp_visual/heal/H = new /obj/effect/temp_visual/heal_rogue(get_turf(owner))
 	H.color = "#FF0000"
-	if(owner.blood_volume < BLOOD_VOLUME_NORMAL)
+	if(owner.blood_volume < BLOOD_VOLUME_BAD)
 		owner.blood_volume = min(owner.blood_volume+healing_on_tick, BLOOD_VOLUME_NORMAL)
 	var/list/wCount = owner.get_wounds()
-	if(length(wCount))
+	if(length(wCount) && !owner.has_status_effect(/datum/status_effect/debuff/stuffed_two))
 		owner.heal_wounds(healing_on_tick)
 		owner.update_damage_overlays()
 	owner.adjustBruteLoss(-healing_on_tick, 0)
@@ -621,7 +640,7 @@
 	var/obj/effect/temp_visual/heal/H = new /obj/effect/temp_visual/psyheal_rogue(get_turf(owner))
 	H.color = "#ffda95"
 
-	if(owner.blood_volume < BLOOD_VOLUME_NORMAL)
+	if(owner.blood_volume < BLOOD_VOLUME_OKAY)
 		owner.blood_volume = min(owner.blood_volume + (BLOOD_VOLUME_NORMAL * 0.02), BLOOD_VOLUME_NORMAL)
 
 	// Rewind the most damaged limb.
@@ -718,7 +737,7 @@
 	if(owner.blood_volume < BLOOD_VOLUME_OKAY)
 		owner.blood_volume = min(owner.blood_volume+healing_on_tick, BLOOD_VOLUME_OKAY)
 	var/list/wCount = owner.get_wounds()
-	if(length(wCount))
+	if(length(wCount) && !owner.has_status_effect(/datum/status_effect/debuff/stuffed_two))
 		owner.heal_wounds(healing_on_tick, list(/datum/wound/slash, /datum/wound/puncture, /datum/wound/bite, /datum/wound/bruise, /datum/wound/dynamic, /datum/wound/dislocation))
 		owner.update_damage_overlays()
 	owner.adjustBruteLoss(-healing_on_tick, 0)

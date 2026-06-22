@@ -696,6 +696,23 @@
 		T = get_step(T, dir)
 		if (is_blocked_turf(T))
 			break
+			
+	for(var/datum/status_effect/buff/statbuff in status_effects)
+		if(statbuff.stack_flag && (statbuff.duration - world.time > 3 MINUTES))
+			statbuff.duration -= 3 MINUTES
+		var/datum/status_effect/debuff/stuffed_two/chungus = has_status_effect(/datum/status_effect/debuff/stuffed_two)
+		var/datum/status_effect/debuff/stuffed_three/big_chungus = has_status_effect(/datum/status_effect/debuff/stuffed_three)
+		if(chungus)
+			if((chungus.duration - world.time) > 5 MINUTES)
+				chungus.duration -= 5 MINUTES
+			else
+				remove_status_effect(chungus.type)
+		if(big_chungus)
+			if((big_chungus.duration - world.time) > 5 MINUTES)
+				big_chungus.duration -= 5 MINUTES
+			else
+				remove_status_effect(big_chungus.type)
+
 	return TRUE
 
 /mob/living/carbon/proc/spew_organ(power = 5, amt = 1)

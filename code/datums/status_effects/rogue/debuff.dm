@@ -1201,3 +1201,111 @@
 
 /atom/movable/screen/alert/status_effect/debuff/knockout
 	name = "Drowsy"
+
+
+/datum/status_effect/debuff/stuffed_one
+	id = "stuffed_tier1"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/stuffed_t1
+	duration = 10 MINUTES
+	tick_interval = 5 SECONDS	// We do some annoying checks, but they don't need to be done every second.
+	var/reag_mult = 2
+
+/atom/movable/screen/alert/status_effect/debuff/stuffed_t1
+	name = "Stuffed"
+	desc = "I'm so full... I'm not sure I should eat or drink anything else..."
+	icon = 'icons/mob/screen_alert_misc.dmi'
+	icon_state = "fatchud"
+
+/datum/status_effect/debuff/stuffed_one/on_creation(mob/living/new_owner, newdur, arg_stackpwr)
+	if(newdur)
+		duration = newdur
+	if(arg_stackpwr > 1)	// We have more than just one thing in us.
+		reag_mult = 3
+	. = ..()
+
+// Why isn't this in on_apply, checked once? Because SS13 chemplayers would absolutely figure out they can get stuffed first, -then- drink the potion.
+// Never presume you've outsmarted them. While we have reagents, they're winning, and consequently ruining the game.
+/datum/status_effect/debuff/stuffed_one/process()
+	. = ..()
+	// We kind of have to do this because these reagents themselves handle their effects.
+	var/datum/reagents/reag = owner.reagents
+	if(reag)
+		var/datum/reagent/medicine/stampot/stpot = reag.has_reagent(/datum/reagent/medicine/stampot)
+		var/datum/reagent/medicine/strongstam/stpotstrong = reag.has_reagent(/datum/reagent/medicine/strongstam)
+		var/datum/reagent/medicine/manapot/mppot = reag.has_reagent(/datum/reagent/medicine/manapot)
+		var/datum/reagent/medicine/strongmana/strmppot = reag.has_reagent(/datum/reagent/medicine/strongmana)
+		if(stpot)
+			stpot.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+		if(stpotstrong)
+			stpotstrong.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+		if(mppot)
+			mppot.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+		if(strmppot)
+			strmppot.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+
+/datum/status_effect/debuff/stuffed_two	
+	id = "stuffed_tier2"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/stuffed_t2
+	duration = 10 MINUTES
+	effectedstats = list(STATKEY_SPD = -2)
+	tick_interval = 5 SECONDS	// We do some annoying checks, but they don't need to be done every second.
+	var/reag_mult = 20
+
+/datum/status_effect/debuff/stuffed_two/on_apply()
+	. = ..()
+	//  They have overlapping effects, so we'd better purge them.
+	owner.remove_status_effect(/datum/status_effect/debuff/stuffed_one)
+
+/atom/movable/screen/alert/status_effect/debuff/stuffed_t2
+	name = "Overstuffed"
+	desc = "Oughh.. I can hear myself slosh as I move. I can't fit anything else in there!"
+	icon = 'icons/mob/screen_alert_misc.dmi'
+	icon_state = "fatchud_cholesterol"
+
+/datum/status_effect/debuff/stuffed_two/on_creation(mob/living/new_owner, newdur, arg_stackpwr)
+	if(newdur)
+		duration = newdur
+	. = ..()
+
+/datum/status_effect/debuff/stuffed_two/process()
+	. = ..()
+	// We kind of have to do this because these reagents themselves handle their effects.
+	var/datum/reagents/reag = owner.reagents
+	if(reag)
+		var/datum/reagent/medicine/stampot/stpot = reag.has_reagent(/datum/reagent/medicine/stampot)
+		var/datum/reagent/medicine/strongstam/stpotstrong = reag.has_reagent(/datum/reagent/medicine/strongstam)
+		var/datum/reagent/medicine/manapot/mppot = reag.has_reagent(/datum/reagent/medicine/manapot)
+		var/datum/reagent/medicine/strongmana/strmppot = reag.has_reagent(/datum/reagent/medicine/strongmana)
+		var/datum/reagent/medicine/healthpot/hppot = reag.has_reagent(/datum/reagent/medicine/healthpot)
+		var/datum/reagent/medicine/stronghealth/strhppot = reag.has_reagent(/datum/reagent/medicine/stronghealth)
+		if(stpot)
+			stpot.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+		if(stpotstrong)
+			stpotstrong.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+		if(mppot)
+			mppot.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+		if(strmppot)
+			strmppot.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+		if(hppot)
+			hppot.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+		if(strhppot)
+			strhppot.metabolization_rate = reag_mult * REAGENTS_METABOLISM
+
+
+/datum/status_effect/debuff/stuffed_three	
+	id = "stuffed_tier3"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/stuffed_t3
+	duration = 10 MINUTES
+	effectedstats = list(STATKEY_SPD = -6, STATKEY_CON = -8)
+	var/reag_mult = 20
+
+/atom/movable/screen/alert/status_effect/debuff/stuffed_t3
+	name = "Bursting at the seams"
+	desc = "OUuuhgghgh my Psydonnn... Why..."
+	icon = 'icons/mob/screen_alert_misc.dmi'
+	icon_state = "fatchud_chungus"
+
+/datum/status_effect/debuff/stuffed_three/on_creation(mob/living/new_owner, newdur, arg_stackpwr)
+	if(newdur)
+		duration = newdur
+	. = ..()

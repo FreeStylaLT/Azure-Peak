@@ -475,7 +475,7 @@ Medical defines
 #define PROB_ATTACK_EMOTE_NPC 10
 
 #define MAX_DODGE_CEIL 5
-#define MAX_DODGE_START -5	// We start at (presumed) 85%
+#define MAX_DODGE_START -10	// We start at (presumed) 80%
 #define MAX_DODGE_FLOOR -15
 
 // How long we can't use stealth & other misc. things for

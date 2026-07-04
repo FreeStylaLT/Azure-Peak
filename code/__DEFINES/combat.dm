@@ -477,6 +477,7 @@ Medical defines
 #define MAX_DODGE_CEIL 5
 #define MAX_DODGE_START 0	// We start at (presumed) 90%
 #define MAX_DODGE_FLOOR -15
+#define MAX_DODGE_CLAMP -5 // at 85%. Base is 90%.
 
 // How long we can't use stealth & other misc. things for
 #define IN_COMBAT_DELAY 10 SECONDS

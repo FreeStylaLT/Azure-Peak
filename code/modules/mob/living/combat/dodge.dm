@@ -180,7 +180,6 @@
 
 		if(HAS_TRAIT(U, TRAIT_GUIDANCE))
 			prob2defend -= FULL_GUIDANCE_CHANCE
-			ignore_DE_bonus = TRUE
 		else if(HAS_TRAIT(U, TRAIT_LESSER_GUIDANCE))
 			prob2defend -= LESSER_GUIDANCE_CHANCE
 

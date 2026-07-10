@@ -231,7 +231,6 @@
 	WRITE_FILE(json_file, json_encode(json))
 
 	//add the pq, only on the first commend
-	var/cur_pq = get_playerquality(ckey(key))
 	if(curcomm != 1)
 		adjust_playerquality(0.05, ckey(key))
 	else if(curcomm == 1)

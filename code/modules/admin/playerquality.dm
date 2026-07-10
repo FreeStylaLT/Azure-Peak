@@ -232,9 +232,8 @@
 
 	//add the pq, only on the first commend
 	var/cur_pq = get_playerquality(ckey(key))
-	if(cur_pq >= 100)
-		if(curcomm != 1)
-			adjust_playerquality(0.05, ckey(key))
+	if(curcomm != 1)
+		adjust_playerquality(0.05, ckey(key))
 	else if(curcomm == 1)
 		adjust_playerquality(1, ckey(key))
 

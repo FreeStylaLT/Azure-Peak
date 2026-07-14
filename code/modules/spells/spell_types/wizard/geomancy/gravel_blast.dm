@@ -6,7 +6,7 @@
 	name = "Gravel Blast"
 	desc = "Spray a volley of stones at a target. Stones ricochet off walls. Subsequent hits on the same target deal reduced damage. \
 	Stones are particularly effective at degrading armor. Deals 2x damage to structures. \
-	Toggle arc mode (Ctrl+G) to lob over obstacles at reduced damage."
+	Toggle arc mode (Shift+G) to lob over obstacles at reduced damage."
 	button_icon_state = "gravel_blast"
 	sound = 'sound/combat/hits/onstone/wallhit.ogg'
 	spell_color = GLOW_COLOR_EARTHEN
@@ -26,10 +26,11 @@
 	charge_required = TRUE
 	weapon_cast_penalized = TRUE
 	charge_time = CHARGETIME_POKE
-	charge_drain = 1
-	charge_slowdown = CHARGING_SLOWDOWN_NONE
+	charge_swingdelay_type = SWINGDELAY_PENALTY
+	hold_drain = 1
+	charge_slowdown = CHARGING_SLOWDOWN_SMALL
 	charge_sound = 'sound/magic/charging_fire.ogg'
-	cooldown_time = 5.5 SECONDS
+	cooldown_time = 6 SECONDS
 	attunement_school = ASPECT_NAME_GEOMANCY
 	var/spread_step = 8
 
@@ -80,6 +81,17 @@
 	damage = 20
 	arcshot = TRUE
 
+/obj/projectile/magic/gravel_blast/prehit(atom/target)
+	if(ismob(target))
+		var/mob/living/M = target
+		if(M == firer)
+			damage = round(damage / 2)
+		else if(M.mob_timers[MT_ROCKSHOT] && world.time < M.mob_timers[MT_ROCKSHOT] + ROCKSHOT_DR_DURATION)
+			damage = reduced_damage
+		else
+			M.mob_timers[MT_ROCKSHOT] = world.time
+	return ..()
+
 /obj/projectile/magic/gravel_blast/on_hit(target)
 	if(ismob(target))
 		var/mob/living/M = target
@@ -88,12 +100,6 @@
 			playsound(get_turf(target), 'sound/magic/magic_nulled.ogg', 100)
 			qdel(src)
 			return BULLET_ACT_BLOCK
-		if(M == firer)
-			damage = round(damage / 2)
-		else if(M.mob_timers[MT_ROCKSHOT] && world.time < M.mob_timers[MT_ROCKSHOT] + ROCKSHOT_DR_DURATION)
-			damage = reduced_damage
-		else
-			M.mob_timers[MT_ROCKSHOT] = world.time
 	. = ..()
 
 // --- Lesser Gravel Blast: 3-projectile variant for poke option picks ---
@@ -102,7 +108,7 @@
 	name = "Lesser Gravel Blast"
 	desc = "Spray a trio of stones at a target. Stones ricochet off walls. Subsequent hits on the same target deal reduced damage. \
 	Stones are particularly effective at degrading armor. Deals 2x damage to structures. \
-	Toggle arc mode (Ctrl+G) to lob over obstacles at reduced damage."
+	Toggle arc mode (Shift+G) to lob over obstacles at reduced damage."
 	button_icon_state = "gravel_blast"
 	projectiles_per_fire = 3
 	attunement_school = null

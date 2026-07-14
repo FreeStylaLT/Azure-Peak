@@ -17,13 +17,14 @@
 	show_in_credits = TRUE 
 	give_bank_account = FALSE
 	hidden_job = TRUE
-	vice_restrictions = list(/datum/charflaw/hunted)
+	vice_restrictions = list(/datum/charflaw/hunted, /datum/charflaw/targeted)
 
 /datum/outfit/job/roguetown/greater_skeleton/pre_equip(mob/living/carbon/human/H)
 	..()
 
 	ADD_TRAIT(H, TRAIT_OUTLAW, TRAIT_GENERIC) //No miesters for skeletons, you're an undead, bloodless skeletal abomination.
 	ADD_TRAIT(H, TRAIT_SHATTER_KILL, TRAIT_GENERIC) //Softer version of crit weakness that only kills with paralysis/rib fractures and nothing else.
+	ADD_TRAIT(H, TRAIT_NO_VOICEPACK_OVERRIDE, TRAIT_GENERIC) //In case we get edge-cases I.E siege skeletons. Otherwise its on the skeleton race too.
 
 	H.set_patron(/datum/patron/inhumen/zizo)
 
@@ -64,7 +65,7 @@ NECRO SKELETONS
 	backl = /obj/item/storage/backpack/rogue/satchel
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/iron
 
-// Melee fighter with a shield/spear. Holds the line.
+// Melee fighter with a shield/spear. Holds the line. All-rounder
 /datum/advclass/greater_skeleton/necro/legionnaire
 	name = "Decrepit Legionnaire"
 	tutorial = "Legions rise and you answer. Stand proud with your line; for you serve the architect. You know death. Memento mori. You just can't understand it."
@@ -73,6 +74,8 @@ NECRO SKELETONS
 	category_tags = list(CTAG_NSKELETON)
 	subclass_skills = list(
 		/datum/skill/combat/swords = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/combat/whipsflails = SKILL_LEVEL_JOURNEYMAN,
+		/datum/skill/combat/maces = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/polearms = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/axes = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/shields = SKILL_LEVEL_JOURNEYMAN,
@@ -126,7 +129,7 @@ NECRO SKELETONS
 			cloak = /obj/item/clothing/cloak/half/lich
 		if("Black Toga")
 			cloak = /obj/item/clothing/cloak/tabard/toga/lich
-	var/weapon_choice = input(H, "Choose your weapon.", "RISE AGAINST THE LYVING.") as anything in list("Sword + Shield", "Spear", "Mace + Shield", "Axe + Shield")
+	var/weapon_choice = input(H, "Choose your weapon.", "RISE AGAINST THE LYVING.") as anything in list("Sword + Shield", "Spear", "Mace + Shield", "Axe + Shield", "Flail + Shield")
 	H.set_blindness(0)
 	switch(weapon_choice)
 		if("Sword + Shield")
@@ -137,6 +140,9 @@ NECRO SKELETONS
 		if("Mace + Shield")
 			backr = /obj/item/rogueweapon/shield/wood
 			beltr = /obj/item/rogueweapon/mace
+		if("Flail + Shield")
+			backr = /obj/item/rogueweapon/shield/wood
+			beltr = /obj/item/rogueweapon/flail
 		if("Axe + Shield")
 			backr = /obj/item/rogueweapon/shield/wood
 			beltr = /obj/item/rogueweapon/stoneaxe/woodcut
@@ -240,7 +246,7 @@ NECRO SKELETONS
 	H.STAINT = 1
 
 	gloves = /obj/item/clothing/gloves/roguetown/plate/iron
-	wrists = /obj/item/clothing/wrists/roguetown/bracers/iron
+	wrists = /obj/item/clothing/wrists/roguetown/bracers/iron/chain
 	pants = /obj/item/clothing/under/roguetown/chainlegs/iron/kilt
 	armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/iron/heavy
 	shirt = prob(50) ? /obj/item/clothing/suit/roguetown/shirt/undershirt/vagrant : /obj/item/clothing/suit/roguetown/shirt/undershirt/vagrant/l
@@ -279,7 +285,7 @@ NECRO SKELETONS
 			H.adjust_skillrank_up_to(/datum/skill/combat/polearms, SKILL_LEVEL_JOURNEYMAN, TRUE)
 			r_hand = /obj/item/rogueweapon/spear
 		if("Great Flail")
-			H.adjust_skillrank_up_to(/datum/skill/combat/polearms, SKILL_LEVEL_JOURNEYMAN, TRUE)
+			H.adjust_skillrank_up_to(/datum/skill/combat/whipsflails, SKILL_LEVEL_JOURNEYMAN, TRUE)
 			r_hand = /obj/item/rogueweapon/flail/peasantwarflail/iron
 		if("Warhammer + Shield")
 			H.adjust_skillrank_up_to(/datum/skill/combat/maces, SKILL_LEVEL_JOURNEYMAN, TRUE)

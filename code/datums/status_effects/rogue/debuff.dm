@@ -258,6 +258,17 @@
 	desc = "My muscles need some sleep to recover."
 	icon_state = "muscles"
 
+/datum/status_effect/debuff/sunder_stacks
+	id = "sundered"
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/sunder_stacks
+	effectedstats = list(STATKEY_STR = -1, STATKEY_WIL = -1, STATKEY_CON = -1, STATKEY_SPD = -1, STATKEY_LCK = -1)	//Slightly punishing.
+	duration = 10 SECONDS	//Punishing and tied to the duration of your sundering stacks.
+
+/atom/movable/screen/alert/status_effect/debuff/sunder_stacks
+	name = "Sundered!"
+	desc = "Something has been taken from me, and it will take time to recover."
+	icon_state = "luxstrain"
+
 /datum/status_effect/debuff/devitalised
 	id = "devitalised"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/devitalised
@@ -1127,7 +1138,7 @@
 	var/mob/living/carbon/human/H = owner
 	var/datum/physiology/phy = H.physiology 
 	var/pain_mod = phy.pain_mod
-	phy.pain_mod = pain_mod * 1.25 // this then gets reduced by wil, among other things. change as needed.
+	phy.pain_mod = pain_mod * 1.15 // this then gets reduced by wil, among other things. change as needed.
 	H.visible_message(span_warning("[owner] looks to be in great pain, their wounds BLACKENING!"), span_danger("EVERYTHING HURTS!! MY WOUNDS PAIN HAS INCREASED!!"))
 
 /datum/status_effect/debuff/sensitive_nerves/on_remove()
@@ -1137,7 +1148,7 @@
 	var/mob/living/carbon/human/H = owner
 	var/datum/physiology/phy = H.physiology 
 	var/pain_mod = phy.pain_mod
-	phy.pain_mod = pain_mod / 1.25 // this should be a define fuuuck
+	phy.pain_mod = pain_mod / 1.15 // this should be a define fuuuck
 	H.visible_message(span_warning("[owner]'s wounds suddenly return to normal!"), span_warning("My magickally induced pain subsides!"))
 
 

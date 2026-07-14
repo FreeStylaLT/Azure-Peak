@@ -93,7 +93,7 @@
 /datum/status_effect/debuff/addiction
 	id = "addiction"
 	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction
-	effectedstats = list(STATKEY_WIL = -1,STATKEY_LCK = -1)
+	effectedstats = list(STAT_FORTUNE = -1)
 	duration = 100
 
 
@@ -109,7 +109,7 @@
 /datum/charflaw/addiction/alcoholic
 	name = "Alcoholic"
 	desc = "Drinking alcohol is my favorite thing."
-	time = 40 MINUTES
+	time = 90 MINUTES
 	needsate_text = "Time for a drink."
 	voyeur_descriptor = "quite the drinker"
 	debuff = /datum/status_effect/debuff/addiction/alcoholic
@@ -140,7 +140,7 @@
 /datum/charflaw/addiction/junkie
 	name = "Junkie"
 	desc = "I need a REAL high to take the pain of this rotten world away."
-	time = 40 MINUTES
+	time = 90 MINUTES
 	needsate_text = "Time to get really high."
 	voyeur_descriptor = "eager for a high"
 	debuff = /datum/status_effect/debuff/addiction/junkie
@@ -160,7 +160,7 @@
 /datum/charflaw/addiction/smoker
 	name = "Smoker"
 	desc = "I need to smoke something to take the edge off."
-	time = 40 MINUTES
+	time = 90 MINUTES
 	needsate_text = "Time for a flavorful smoke."
 	voyeur_descriptor = "eager for a smoke"
 	debuff = /datum/status_effect/debuff/addiction/smoker
@@ -180,7 +180,7 @@
 /datum/charflaw/addiction/caffiend
 	name = "Caffiend"
 	desc = "I can't start my day without a cup of tea or coffee."
-	time = 40 MINUTES
+	time = 90 MINUTES
 	needsate_text = "I need a hot brew."
 	voyeur_descriptor = "in need of a brew"
 	debuff = /datum/status_effect/debuff/addiction/caffiend
@@ -200,7 +200,7 @@
 /datum/charflaw/addiction/godfearing
 	name = "Devout Follower"
 	desc = "I need to pray to my Patron in their realm, it will make me and my prayers stronger."
-	time = 40 MINUTES
+	time = 90 MINUTES
 	needsate_text = "Time to pray to my Patron."
 	voyeur_descriptor = "quite devout"
 	debuff = /datum/status_effect/debuff/addiction/godfearing
@@ -220,7 +220,7 @@
 /datum/charflaw/addiction/sadist
 	name = "Sadist"
 	desc = "There is no greater pleasure than the suffering of another."
-	time = 40 MINUTES
+	time = 90 MINUTES
 	needsate_text = "I need to hear someone whimper."
 	voyeur_descriptor = "looking to hurt"
 	debuff = /datum/status_effect/debuff/addiction/sadist
@@ -240,7 +240,7 @@
 /datum/charflaw/addiction/masochist
 	name = "Masochist"
 	desc = "I love the feeling of pain, so much I can't get enough of it."
-	time = 40 MINUTES
+	time = 90 MINUTES
 	needsate_text = "I need someone to HURT me."
 	voyeur_descriptor = "looking to be hurt"
 	debuff = /datum/status_effect/debuff/addiction/masochist
@@ -282,7 +282,7 @@
 /datum/charflaw/addiction/thrillseeker
 	name = "Thrillseeker"
 	desc = "Only fighting brings me pleasure."
-	time = 40 MINUTES
+	time = 60 MINUTES
 	needsate_text = "I need a FIGHT!"
 	voyeur_descriptor = "eager for a fight"
 
@@ -297,7 +297,7 @@
 /datum/charflaw/addiction/paranoid
 	name = "Paranoid"
 	desc = "I only feel comfortable around one of my own kind."
-	time = 20 MINUTES
+	time = 60 MINUTES
 	needsate_text = "Am I the only one of my kind left?"
 	voyeur_descriptor = "comforted by their own"
 	partial_sating = FALSE

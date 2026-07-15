@@ -187,7 +187,7 @@
 
 /datum/status_effect/debuff/addiction/caffiend
 	id = "addiction_caffiend"
-	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/smoker
+	alert_type = /atom/movable/screen/alert/status_effect/debuff/addiction/caffiend
 	effectedstats = list(STATKEY_WIL = -1, STATKEY_INT = -1)
 
 /atom/movable/screen/alert/status_effect/debuff/addiction/caffiend
@@ -326,7 +326,7 @@
 /datum/charflaw/addiction/voyeur
 	name = "Voyeur"
 	desc = "Seeing others be happy... it makes me happy, too."
-	time = 30 MINUTES
+	time = 60 MINUTES
 	needsate_text = "I must please someone."
 	voyeur_descriptor = "pleased by others"
 	partial_sating = FALSE

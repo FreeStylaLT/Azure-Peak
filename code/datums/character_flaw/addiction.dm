@@ -289,9 +289,10 @@
 /datum/charflaw/addiction/clamorous
 	name = "Clamorous"
 	desc = "The noise of people and fights drowns out my misery."
-	time = 40 MINUTES
+	time = 30 MINUTES
 	needsate_text = "It's too quiet. Where's the yelling? The fighting?"
 	voyeur_descriptor = "soothed by noise"
+	debuff = null
 	partial_sating = FALSE
 
 /datum/charflaw/addiction/paranoid

@@ -1,4 +1,6 @@
 #define ADDICT_TIME_STANDARD 70 MINUTES
+#define ADDICT_TIME_OFTEN 50 MINUTES
+#define ADDICT_TIME_FREQUENT 30 MINUTES
 
 /mob/proc/sate_addiction()
 	return
@@ -132,7 +134,7 @@
 /datum/charflaw/addiction/kleptomaniac
 	name = "Thief-born"
 	desc = "As a child I had to rely on theft to survive. Whether that changed or not, I just can't get over it."
-	time = 60 MINUTES
+	time = ADDICT_TIME_OFTEN
 	needsate_text = "I need to STEAL something! I'll die if I don't!"
 	voyeur_descriptor = "quick-fingered"
 
@@ -284,7 +286,7 @@
 /datum/charflaw/addiction/thrillseeker
 	name = "Thrillseeker"
 	desc = "Only fighting brings me pleasure."
-	time = 60 MINUTES
+	time = ADDICT_TIME_OFTEN
 	debuff = null
 	needsate_text = "I need a FIGHT!"
 	voyeur_descriptor = "eager for a fight"
@@ -292,7 +294,7 @@
 /datum/charflaw/addiction/clamorous
 	name = "Clamorous"
 	desc = "The noise of people and fights drowns out my misery."
-	time = 30 MINUTES
+	time = ADDICT_TIME_FREQUENT
 	needsate_text = "It's too quiet. Where's the yelling? The fighting?"
 	voyeur_descriptor = "soothed by noise"
 	debuff = null
@@ -301,7 +303,7 @@
 /datum/charflaw/addiction/paranoid
 	name = "Paranoid"
 	desc = "I only feel comfortable around one of my own kind."
-	time = 60 MINUTES
+	time = ADDICT_TIME_OFTEN
 	needsate_text = "Am I the only one of my kind left?"
 	voyeur_descriptor = "comforted by their own"
 	partial_sating = FALSE
@@ -330,7 +332,11 @@
 /datum/charflaw/addiction/voyeur
 	name = "Voyeur"
 	desc = "Seeing others be happy... it makes me happy, too."
-	time = 60 MINUTES
+	time = ADDICT_TIME_OFTEN
 	needsate_text = "I must please someone."
 	voyeur_descriptor = "pleased by others"
 	partial_sating = FALSE
+
+#undef ADDICT_TIME_STANDARD
+#undef ADDICT_TIME_OFTEN
+#undef ADDICT_TIME_FREQUENT

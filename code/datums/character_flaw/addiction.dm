@@ -283,6 +283,7 @@
 	name = "Thrillseeker"
 	desc = "Only fighting brings me pleasure."
 	time = 60 MINUTES
+	debuff = null
 	needsate_text = "I need a FIGHT!"
 	voyeur_descriptor = "eager for a fight"
 

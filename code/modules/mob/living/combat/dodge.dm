@@ -198,10 +198,13 @@
 			ignore_DE_bonus = TRUE
 
 		if(I && IL)	//Skilldiff applies extra stamloss, tentative
-			drained += (UH.get_skill_level(I.associated_skill) - H.get_skill_level(IL.associated_skill))
+			drained += (UH.get_skill_level(I.associated_skill) - H.get_skill_level(IL.associated_skill)) * 2
 
 			if(istype(U.rmb_intent, /datum/rmb_intent/swift) && I.wbalance != WBALANCE_HEAVY)
-				drained += 3	//We drain extra stam if we're being attacked by swift stance
+				// We drain extra stam if we're being attacked by swift stance, inversely based on our dodgetime
+				// This is quite tentative and the numbers can be whatever, but this is meant to make Swift a good option
+				// Without allowing "just spam them down" to work all that well.
+				drained += (abs(round((CLICK_CD_HEAVY - dodgetime) / 2)))
 
 		if(has_trait && H.mind && !ignore_DE_bonus && H.STASPD > 10)
 			prob2defend = 90	//We cap it out if we have Dodge Expert as a Player.

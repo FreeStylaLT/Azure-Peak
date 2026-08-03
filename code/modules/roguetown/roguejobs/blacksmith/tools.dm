@@ -119,6 +119,9 @@
 	if(repair_busy)
 		return
 	repair_busy = TRUE
+	var/user_skill = user.get_skill_level(attacked_item.anvilrepair)
+	var/no_decay = (HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
+	var/stage_count = min(user_skill, 4)
 
 	do
 		var/repair_percent = get_repair_percent(attacked_item)
@@ -197,7 +200,7 @@
 			playsound(user.loc, 'sound/items/bsmith4.ogg', 100, FALSE)
 			if(prob(30))
 				M.emote("whimper") // robbit aboose
-			return	
+			return
 		else
 			if(M.has_status_effect(/datum/status_effect/debuff/integrity_rig))
 				if(M == user)
@@ -309,7 +312,7 @@
 			to_chat(user, span_warning("These injuries are too severe to repair with just a hammer! Either Tongs or a Wrench on your free hand are needed."))
 			return
 
-		var/used_time = 90 
+		var/used_time = 90
 
 		if(user.mind)
 			used_time -= (user.get_skill_level(/datum/skill/craft/engineering) * 7)
@@ -557,7 +560,7 @@
 			hingot = null
 			hott = FALSE
 			update_icon()
-			
+
 /obj/item/rogueweapon/tongs/dropped(mob/user)
 	. = ..()
 	if(!hingot)

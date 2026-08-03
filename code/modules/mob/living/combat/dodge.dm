@@ -207,7 +207,7 @@
 			prob2defend = 90	//We cap it out if we have Dodge Expert as a Player.
 
 		if(H.STASPD < UH.STASPD && IL && IL.wbalance != WBALANCE_HEAVY)
-			drained += (UH.STASPD - H.STASPD) * 2
+			drained += (UH.STASPD - H.STASPD)
 
 		if(dodgetime <= CLICK_CD_DODGE && !ignore_DE_bonus && has_trait && H.mind)
 			if(istype(mainh, /obj/item/rogueweapon/shield) || istype(offh, /obj/item/rogueweapon/shield))	//why do I have to pre-empt the worst of you

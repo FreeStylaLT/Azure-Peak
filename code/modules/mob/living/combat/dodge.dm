@@ -201,7 +201,8 @@
 				// We drain extra stam if we're being attacked by swift stance, inversely based on our dodgetime
 				// This is quite tentative and the numbers can be whatever, but this is meant to make Swift a good option
 				// Without allowing "just spam them down" to work all that well.
-				drained += (abs(round((CLICK_CD_HEAVY - dodgetime) / 2)))
+				if(dodgetime < CLICK_CD_FAST)
+					drained += (abs(round((CLICK_CD_HEAVY - dodgetime) / 2)))
 
 		if(has_trait && H.mind && !ignore_DE_bonus && H.STASPD > 10)
 			prob2defend = 90	//We cap it out if we have Dodge Expert as a Player.

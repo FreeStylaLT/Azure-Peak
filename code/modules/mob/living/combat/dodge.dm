@@ -143,10 +143,7 @@
 	if(src.client)
 		log_combat(src, user, "dodged against")
 	if(L)
-		if(has_trait && is_in_cone)
-			prob2defend = prob2defend + (L.STASPD * 15)
-		else
-			prob2defend = prob2defend + (L.STASPD * 10)
+		prob2defend = prob2defend + (L.STASPD * 10)
 	if(U)
 		prob2defend = prob2defend - (U.STASPD * 10)
 	if(I)
@@ -208,6 +205,9 @@
 
 		if(has_trait && H.mind && !ignore_DE_bonus && H.STASPD > 10)
 			prob2defend = 90	//We cap it out if we have Dodge Expert as a Player.
+
+		if(H.STASPD < UH.STASPD && IL && IL.wbalance != WBALANCE_HEAVY)
+			drained += (UH.STASPD - H.STASPD) * 2
 
 		if(dodgetime <= CLICK_CD_DODGE && !ignore_DE_bonus && has_trait && H.mind)
 			if(istype(mainh, /obj/item/rogueweapon/shield) || istype(offh, /obj/item/rogueweapon/shield))	//why do I have to pre-empt the worst of you

@@ -70,16 +70,6 @@
 			skel_outfit = /datum/outfit/job/roguetown/skeleton/npc/archer
 	..()
 
-// For Tomb of Matthios/Tomb of Alothesos Supreme Difficulty:TM: encounters.
-/mob/living/carbon/human/species/skeleton/npc/special/vile_doctor
-	skel_outfit = /datum/outfit/job/roguetown/skeleton/npc/vile_doctor
-	dodgetime = 15 //Moves a lot
-	d_intent = INTENT_DODGE //Expert in this
-
-/mob/living/carbon/human/species/skeleton/npc/special/disgraced_noble
-	skel_outfit = /datum/outfit/job/roguetown/skeleton/npc/disgraced_noble
-	dodgetime = 15 //Moves a lot
-
 /datum/outfit/job/roguetown/skeleton/npc/supereasy/pre_equip(mob/living/carbon/human/H)
 	..()
 	H.STASTR = 10
@@ -201,16 +191,19 @@
 	H.STASPD = 8
 	H.STACON = 3
 	H.STAWIL = 6
-	H.STAINT = 1
 	name = "Skeleton Pirate"
 	head =  /obj/item/clothing/head/roguetown/helmet/tricorn
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/sailor
-	wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
 	shirt = /obj/item/clothing/suit/roguetown/armor/chainmail/aalloy
 	pants = /obj/item/clothing/under/roguetown/tights/sailor
 	shoes = /obj/item/clothing/shoes/roguetown/sandals/aalloy
-	if(prob(10))
-		var/amulet_choice = rand(1, 4)
+	gloves = /obj/item/clothing/gloves/roguetown/knuckles/decrepit
+	if(prob(20))
+		wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy/chain //DO WHAT YOU WANT BECAUSE A PIRATE IS FREE
+	else
+		wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
+	if(prob(30))
+		var/amulet_choice = rand(1, 6)
 		switch(amulet_choice)
 			if(1)
 				id = /obj/item/clothing/neck/roguetown/psicross/inhumen/aalloy //ZIZO. ZIZO. ZIZO.
@@ -218,18 +211,23 @@
 				id = /obj/item/clothing/neck/roguetown/psicross/aalloy
 			if(3)
 				id = /obj/item/clothing/neck/roguetown/psicross/noc/aalloy
-			if(4)
+			if(4 to 6)
 				id = /obj/item/clothing/neck/roguetown/psicross/abyssor
 	if(prob(50))
 		r_hand = /obj/item/rogueweapon/huntingknife/idagger/adagger
+		l_hand = /obj/item/rogueweapon/huntingknife/idagger/adagger
+		ADD_TRAIT(H, TRAIT_DUALWIELDER, TRAIT_GENERIC) //Rapid knives build
+		H.STAINT = 1
 	else
-		gloves = /obj/item/clothing/gloves/roguetown/knuckles/decrepit
+		r_hand = /obj/item/rogueweapon/sword/sabre/alloy //Its the closet thing to an ancient cutlass, matie
+		H.STAINT = 5 //Not able to do specials, but slightly harder to fient
+
 	H.adjust_skillrank(/datum/skill/combat/polearms, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/maces, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/axes, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/swords, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/knives, 2, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/shields, 2, TRUE)
+	//Uniquely, no shield skill
 	H.adjust_skillrank(/datum/skill/combat/unarmed, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/combat/wrestling, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/swimming, 4, TRUE) //YARR
@@ -246,15 +244,19 @@
 	head = /obj/item/clothing/head/roguetown/helmet/heavy/aalloy
 	armor = /obj/item/clothing/suit/roguetown/armor/plate/cuirass/aalloy
 	shirt = /obj/item/clothing/suit/roguetown/armor/chainmail/aalloy
-	wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
 	pants = /obj/item/clothing/under/roguetown/chainlegs/kilt/aalloy
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/iron/aalloy
 	gloves = /obj/item/clothing/gloves/roguetown/chain/aalloy
 	belt = /obj/item/storage/belt/rogue/leather/rope
 	if(prob(20)) //20% chance to have overpowered levels of aurafarming
 		mask = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/lich
+		wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy/chain
+	else
+		wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
 	if(prob(15))
 		beltl = /obj/item/repair_kit/bad
+	if(prob(10))
+		beltr = /obj/item/storage/belt/rogue/pouch/coins/aalloy
 	if(prob(10))
 		var/amulet_choice = rand(1, 3)
 		switch(amulet_choice)
@@ -310,6 +312,7 @@
 
 /datum/outfit/job/roguetown/skeleton/npc/hard/pre_equip(mob/living/carbon/human/H)
 	..()
+	ADD_TRAIT(H, TRAIT_NORUN, TRAIT_GENERIC) //I think the AI respects this, should stop them leaping or w/e which can cause them to lose their weapons.
 	H.STACON = 6
 	H.STAWIL = 10
 	H.STAINT = 1
@@ -321,10 +324,9 @@
 		H.STASTR = 12
 		ADD_TRAIT(H, TRAIT_DUALWIELDER, TRAIT_GENERIC) //Parity slightly with deadlier dreadknight + swift on heavy armor no longer being cracked
 		H.adjust_skillrank(/datum/skill/misc/swimming, 4, TRUE) //Needed at expert else we lose our duel blades by falling over in water cause heavy
-		cloak = /obj/item/clothing/cloak/hierophant
+		cloak = /obj/item/clothing/cloak/tabard/toga/lich
 		mask = /obj/item/clothing/mask/rogue/facemask/aalloy
 		head = /obj/item/clothing/head/roguetown/roguehood/shalal/hijab/lich
-		wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
 		pants = /obj/item/clothing/under/roguetown/platelegs/aalloy
 		shoes = /obj/item/clothing/shoes/roguetown/boots/aalloy
 		neck = /obj/item/clothing/neck/roguetown/gorget/aalloy
@@ -332,6 +334,10 @@
 		gloves = /obj/item/clothing/gloves/roguetown/chain/aalloy
 		r_hand = /obj/item/rogueweapon/sword/sabre/alloy
 		l_hand = /obj/item/rogueweapon/sword/sabre/alloy
+		if(prob(20))
+			beltl = /obj/item/repair_kit/bad
+		if(prob(15))
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/aalloy
 		var/amulet_choice = rand(1, 2) //Cultist look so, no Psydon choice
 		switch(amulet_choice)
 			if(1)
@@ -341,8 +347,10 @@
 		if(prob(60))
 			armor = /obj/item/clothing/suit/roguetown/armor/plate/cuirass/aalloy
 			shirt = /obj/item/clothing/suit/roguetown/armor/chainmail/aalloy
+			wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
 		else
 			armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/aalloy/heavy
+			wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy/chain
 			shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/light
 	else // Withered Dreadknight
 		H.STASPD = 8
@@ -354,6 +362,10 @@
 		neck = /obj/item/clothing/neck/roguetown/gorget/aalloy
 		gloves = /obj/item/clothing/gloves/roguetown/plate/aalloy
 		belt = /obj/item/storage/belt/rogue/leather
+		if(prob(20))
+			beltl = /obj/item/repair_kit/bad
+		if(prob(15))
+			beltr = /obj/item/storage/belt/rogue/pouch/coins/aalloy
 		if(prob(60))
 			head = /obj/item/clothing/head/roguetown/helmet/heavy/guard/aalloy
 		else
@@ -361,8 +373,10 @@
 		if(prob(60))
 			armor = /obj/item/clothing/suit/roguetown/armor/plate/aalloy
 			shirt = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/aalloy
+			wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
 		else
 			armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/aalloy/heavy
+			wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy/chain
 			shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/light
 		if(prob(15))
 			beltl = /obj/item/repair_kit/metal/bad
@@ -400,9 +414,9 @@
 	..()
 	H.STASTR = 8
 	H.STASPD = 10
-	H.STACON = 5
-	H.STAWIL = 8
-	H.STAPER = 13
+	H.STACON = 4
+	H.STAWIL = 7
+	H.STAPER = 11
 	H.STAINT = 1
 	name = "Skeleton Archer"
 	head = /obj/item/clothing/head/roguetown/helmet/kettle/aalloy
@@ -444,83 +458,4 @@
 	H.adjust_skillrank(/datum/skill/combat/wrestling, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/swimming, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/climbing, 2, TRUE)
-
-/datum/outfit/job/roguetown/skeleton/npc/vile_doctor/pre_equip(mob/living/carbon/human/H)
-	..()
-	H.STASTR = 12
-	H.STACON = 5 //Fragile to mages/sunders
-	H.STAWIL = 10
-	H.STASPD = 14 // that dagger WILL get thru ur parry.
-	H.STAINT = 10 //Miniboss, lets them do fients + specials
-	ADD_TRAIT(H, TRAIT_DODGEEXPERT, TRAIT_GENERIC) //Unique fighting style
-	name = "Vile Doctor"
-	belt = /obj/item/storage/belt/rogue/leather/black
-	mask = /obj/item/clothing/mask/rogue/physician/plaguebearer //Tougher face armor only otherwise on wretches, also unique loot for defeating them
-	head = /obj/item/clothing/head/roguetown/physician
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson
-	armor = /obj/item/clothing/suit/roguetown/shirt/robe/physician
-	pants = /obj/item/clothing/under/roguetown/trou/leather/courtphysician
-	shoes = /obj/item/clothing/shoes/roguetown/boots/leather
-	wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
-	gloves = /obj/item/clothing/gloves/roguetown/leather/black
-	neck = /obj/item/clothing/neck/roguetown/coif/padded
-	r_hand = /obj/item/rogueweapon/huntingknife/idagger/steel/rondel
-	H.adjust_skillrank(/datum/skill/combat/polearms, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/maces, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/axes, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/swords, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/knives, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/shields, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/unarmed, 3, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/wrestling, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/swimming, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/climbing, 4, TRUE)
-
-/datum/outfit/job/roguetown/skeleton/npc/disgraced_noble/pre_equip(mob/living/carbon/human/H)
-	..()
-	H.STASTR = 12 // stabs quick, stabs strong.
-	H.STACON = 8
-	H.STAWIL = 10
-	H.STASPD = 12 //Lets them keep the pace a bit against dodgers.
-	H.STAINT = 12 //Miniboss, lets them do fients + specials, better than doctor at fients/resisting them
-	name = "Disgraced Ancient Noble"
-	var/skeletonclass = rand(0,2) // lets shake it up a little :3
-	belt = /obj/item/storage/belt/rogue/leather/black
-	shoes = /obj/item/clothing/shoes/roguetown/boots/nobleboot
-	l_hand = /obj/item/rogueweapon/sword/rapier/dec
-	pants = /obj/item/clothing/under/roguetown/platelegs/aalloy
-	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson
-	armor = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/aalloy/heavy
-	wrists = /obj/item/clothing/wrists/roguetown/bracers/aalloy
-	neck = /obj/item/clothing/neck/roguetown/coif/padded //Tougher
-	head = /obj/item/clothing/head/roguetown/chaperon/noble/evil
-
-	if(skeletonclass == 0) // "standard"
-		id = /obj/item/clothing/ring/onyxa
-		mask = /obj/item/clothing/mask/rogue/sack
-		gloves = /obj/item/clothing/gloves/roguetown/chain/aalloy
-		cloak = /obj/item/clothing/cloak/half/red
-	if(skeletonclass == 1)
-		id = /obj/item/clothing/ring/gold// slightly better
-		r_hand = /obj/item/rogueweapon/shield/tower/metal/alloy // and a shield to go with it
-		mask = /obj/item/clothing/mask/rogue/sack
-		gloves = /obj/item/clothing/gloves/roguetown/plate/aalloy
-		cloak = /obj/item/clothing/cloak/half/orange
-	if(skeletonclass == 2)
-		id = /obj/item/clothing/ring/coral // +30 value compared to onyx btw
-		H.adjust_skillrank(H.adjust_skillrank(/datum/skill/combat/swords, 1, TRUE)) // hardest, probably
-		mask = /obj/item/clothing/mask/rogue/facemask // nose crits not as easy
-		gloves = /obj/item/clothing/gloves/roguetown/chain/aalloy
-		cloak = /obj/item/clothing/cloak/cape/purple
-	
-	H.adjust_skillrank(/datum/skill/combat/polearms, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/maces, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/axes, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/swords, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/knives, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/shields, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/unarmed, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/combat/wrestling, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/swimming, 4, TRUE)
-	H.adjust_skillrank(/datum/skill/misc/climbing, 4, TRUE)
 

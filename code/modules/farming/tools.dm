@@ -67,7 +67,6 @@
 	icon_state = "athresh"
 	smeltresult = /obj/item/ingot/aalloy
 	color = "#bb9696"
-	sellprice = 15
 
 /obj/item/rogueweapon/thresher/bronze
 	name = "bronze thresher"
@@ -77,6 +76,15 @@
 	icon_state = "bronzethresh"
 	smeltresult = /obj/item/ingot/bronze
 	max_integrity = 300
+
+/obj/item/rogueweapon/thresher/blacksteel
+	name = "blacksteel thresher"
+	desc = "Hard work is only 'hard work' if you don't have the right tool for the job."
+	force = 20
+	force_wielded = 25
+	icon_state = "blacksteelthresh"
+	smeltresult = /obj/item/ingot/blacksteel
+	max_integrity = 500
 
 /obj/item/rogueweapon/sickle
 	force = 10
@@ -112,7 +120,6 @@
 	desc = "Her thought was simple; to seperate the wheat from the chaff. By removing the limitations set upon one's spirit by lyfe, only then could divinity be obtained. She was correct - yet Her ascension had gone terribly awry, all-the-same."
 	icon_state = "asickle"
 	color = "#bb9696"
-	sellprice = 15
 	smeltresult = /obj/item/ingot/aaslag
 
 /obj/item/rogueweapon/sickle/bronze
@@ -127,6 +134,15 @@
 	name = "copper sickle"
 	icon_state = "csickle"
 	smeltresult = /obj/item/ingot/copper
+
+/obj/item/rogueweapon/sickle/blacksteel
+	name = "blacksteel sickle"
+	desc = "The burden of a dae's farmstead, accomplished in mere seconds. Why don't they make more of these?"
+	force = 20
+	icon_state = "blacksteelsickle"
+	smeltresult = /obj/item/ingot/blacksteel
+	max_integrity = 450
+	max_blade_int = 450
 
 /obj/item/rogueweapon/hoe
 	force = 10
@@ -156,7 +172,6 @@
 	icon_state = "ahoe"
 	smeltresult = /obj/item/ingot/aalloy
 	color = "#bb9696"
-	sellprice = 15
 
 /obj/item/rogueweapon/hoe/copper
 	name = "copper hoe"
@@ -171,6 +186,15 @@
 	icon_state = "bronzehoe"
 	smeltresult = /obj/item/ingot/bronze
 	max_integrity = 300
+
+/obj/item/rogueweapon/hoe/blacksteel
+	force = 20
+	force_wielded = 25
+	name = "blacksteel hoe"
+	desc = "Wasting such valuable alloys on a dirty hoe? Shame, shame, shame! At least it can till the soil like a dagger-through-butter."
+	icon_state = "blacksteelhoe"
+	smeltresult = /obj/item/ingot/blacksteel
+	max_integrity = 500
 
 /obj/item/rogueweapon/hoe/stone
 	force = 7
@@ -358,7 +382,6 @@
 	icon_state = "apitchfork"
 	smeltresult = /obj/item/ingot/aalloy
 	color = "#bb9696"
-	sellprice = 15
 
 /obj/item/rogueweapon/pitchfork/bronze
 	force = 15
@@ -368,6 +391,15 @@
 	icon_state = "bronzepitchfork"
 	smeltresult = /obj/item/ingot/bronze
 	max_integrity = 300
+
+/obj/item/rogueweapon/pitchfork/blacksteel
+	force = 20
+	force_wielded = 25
+	name = "blacksteel pitchfork"
+	desc = "You're either the richest peasant in all of Psydonia, or the poorest noble."
+	icon_state = "blacksteelpitchfork"
+	smeltresult = /obj/item/ingot/blacksteel
+	max_integrity = 500
 
 /obj/item/rogueweapon/pitchfork/copper
 	name = "copper pitchfork"

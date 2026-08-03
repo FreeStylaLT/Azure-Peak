@@ -167,6 +167,7 @@
 	damage = 15
 	damage_type = BRUTE
 	nodamage = FALSE
+	expose_caster_on_deflect = TRUE
 	armor_penetration = PEN_BSTEEL
 	range = SPELL_RANGE_PROJECTILE
 	speed = MAGE_PROJ_FAST
@@ -189,6 +190,9 @@
 		return BULLET_ACT_BLOCK
 
 	if(out_of_effective_range())
+		return
+	if(blocked >= 100)
+		qdel(src)
 		return
 	try_embed_target(L)
 	qdel(src)
@@ -227,7 +231,7 @@
 	charge_required = TRUE
 	weapon_cast_penalized = TRUE
 	charge_time = 2 SECONDS
-	charge_drain = 1
+	hold_drain = 1
 	charge_slowdown = CHARGING_SLOWDOWN_SMALL
 	charge_sound = 'sound/magic/chargingold.ogg'
 	cooldown_time = 30 SECONDS

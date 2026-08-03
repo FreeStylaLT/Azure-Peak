@@ -116,6 +116,9 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 
 			if(ready != tready)
 				ready = tready
+				if(tready != PLAYER_READY_TO_PLAY && SSvote.mode)
+					SSvote.remove_vote_for_ckey(ckey)
+					SSvote.show_vote(client)
 		//if it's post initialisation and they're trying to observe we do the needful
 		if(!SSticker.current_state < GAME_STATE_PREGAME && tready == PLAYER_READY_TO_OBSERVE)
 			ready = tready
@@ -353,6 +356,8 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 				break
 		if(has_restricted_virtue || has_restricted_vice)
 			return JOB_UNAVAILABLE_VIRTUESVICE
+	if(job.prefs_all_subclasses_restricted(client))
+		return JOB_UNAVAILABLE_VIRTUESVICE
 //	if(job.title == "Adventurer" && latejoin)
 //		for(var/datum/job/J in SSjob.occupations)
 //			if(J && J.total_positions && J.current_positions < 1 && J.title != job.title && (IsJobUnavailable(J.title))
@@ -455,6 +460,7 @@ GLOBAL_LIST_INIT(roleplay_readme, world.file2list("strings/rt/rp_prompt.txt"))
 		var/fakekey = character.ckey
 		if(character.ckey in GLOB.anonymize)
 			fakekey = get_fake_key(character.ckey)
+		GLOB.dominant_faith_tracker.handle_addition(humanc)
 		GLOB.character_list[character.mobid] = "[fakekey] was [character.real_name] ([rank])<BR>"
 		GLOB.character_ckey_list[character.real_name] = character.ckey
 		log_character("[character.ckey] ([fakekey]) - [character.real_name] - [rank]")

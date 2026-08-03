@@ -2,7 +2,7 @@
 	name = "Unholy Blast"
 	desc = "Channel unholy power and sunder the unbelievers. Deals additional damage to wretched conformists and Psydonites! \n\
 	Damage is increased by 100% versus simple-minded creechurs.\n\
-	Toggle arc mode (Ctrl+G) while the spell is active to fire it over intervening mobs. Arced attacks deal 25% less damage."
+	Toggle arc mode (Shift+G) while the spell is active to fire it over intervening mobs. Arced attacks deal 25% less damage."
 	clothes_req = FALSE
 	range = 12
 	overlay_state = "unholy_blast"
@@ -32,6 +32,8 @@
 /obj/projectile/energy/unholyblast
 	name = "Unholy Blast"
 	icon_state = "unholy_blast"
+	guard_deflectable = TRUE
+	expose_caster_on_deflect = TRUE
 	damage = 20 // wont do much to a heretical worshipper
 	woundclass = BCLASS_CUT // I REALLY wanted to do cut
 	nodamage = FALSE
@@ -49,7 +51,9 @@
 	. = ..()
 
 
-/obj/projectile/energy/unholyblast/on_hit(target)
+/obj/projectile/energy/unholyblast/on_hit(target, blocked = FALSE)
+	if(blocked >= 100)
+		return
 	if(isliving(target))
 		var/mob/living/H = target
 		if(out_of_effective_range())

@@ -1,6 +1,6 @@
 /datum/action/cooldown/spell/form_blade
 	name = "Form Blade"
-	desc = "Conjure an arcyne weapon shaped by your will and mana alone. Cycle the form with Ctrl+G. Only one conjured form may exist at a time."
+	desc = "Conjure an arcyne weapon shaped by your will and mana alone. Cycle the form with Shift+G. Only one conjured form may exist at a time."
 	button_icon = 'icons/mob/actions/mage_ferramancy.dmi'
 	button_icon_state = "form_blade"
 	spell_color = GLOW_COLOR_METAL
@@ -30,7 +30,7 @@
 	var/obj/item/conjured_weapon
 	/// Index into forms of the currently-selected weapon.
 	var/form_index = 1
-	/// Selectable forms, cycled with Ctrl+G. Each: label, weapon path, invocation.
+	/// Selectable forms, cycled with Shift+G. Each: label, weapon path, invocation.
 	var/list/forms = list(
 		list("label" = "Khopesh", "weapon" = /obj/item/rogueweapon/sword/sabre/ferramancy, "say" = "Forma Falx!"),
 		list("label" = "Rapier", "weapon" = /obj/item/rogueweapon/sword/rapier/ferramancy, "say" = "Forma Acus!"),
@@ -38,6 +38,7 @@
 		list("label" = "Greataxe", "weapon" = /obj/item/rogueweapon/greataxe/steel/doublehead/ferramancy, "say" = "Forma Bipennis!"),
 		list("label" = "Halberd", "weapon" = /obj/item/rogueweapon/halberd/ferramancy, "say" = "Forma Hasta!"),
 		list("label" = "Greatbow", "weapon" = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/greatbow, "say" = "Forma Arcus!"),
+		list("label" = "Crossbow", "weapon" = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow/ferramancy, "say" = "Forma Balista!"),
 	)
 
 /datum/action/cooldown/spell/form_blade/cast(atom/cast_on)
@@ -56,7 +57,8 @@
 		to_chat(H, span_warning("I need a free hand to shape it into this form."))
 		return FALSE
 
-	invocations = list(f["say"])
+	if(f["say"])
+		invocations = list(f["say"])
 	var/obj/item/W = new weapon_type(H.drop_location())
 	if(W.max_integrity)
 		W.max_integrity = round(W.max_integrity * 0.5)

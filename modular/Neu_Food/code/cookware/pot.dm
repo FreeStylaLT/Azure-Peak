@@ -51,7 +51,8 @@
 		playsound(user, pick('sound/foley/waterwash (1).ogg','sound/foley/waterwash (2).ogg'), 70, FALSE)
 		if(do_after(user,2 SECONDS, target = src))
 			reagents.trans_to(I, reagents.total_volume)
-	return TRUE
+		return TRUE
+	. = ..()
 
 /obj/item/reagent_containers/glass/bucket/pot/aalloy
 	name = "decrepit pot"
@@ -84,6 +85,11 @@
 	name = "bronze pot"
 	desc = "A cauldron of bronze, aching to churn water and chopmealings into a champion's broth. It can hold a lot of liquid."
 	icon_state = "bronzepot"
+
+/obj/item/reagent_containers/glass/bucket/pot/porcelain
+	name = "porcelain pot"
+	desc = "A cauldron of porcelain, aching to churn water and chopmealings into a champion's broth. It can hold a lot of liquid."
+	icon_state = "pot_porcelain"
 
 /obj/item/reagent_containers/glass/bucket/pot/teapot
 	name = "teapot"

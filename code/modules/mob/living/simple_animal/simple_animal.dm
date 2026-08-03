@@ -166,6 +166,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/tame = FALSE
 	///What the mob eats, typically used for taming or animal husbandry.
 	var/list/food_type
+	///A typecache used for faster lookups of food_type.
+	var/list/food_typecache
 	///Starting success chance for taming.
 	var/tame_chance
 	///Added success chance after every failed tame attempt.
@@ -197,6 +199,8 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 	var/botched_butcher_results
 	var/perfect_butcher_results
+	/// Length of the initial butchery list. Used to check if butchery results have been removed e.g whether or not a corpse is partially butchered or not.
+	var/initial_butcher_count = 0
 	/// Path of head to drop upon butchering. Guaranteed but value scales with butchering skill.
 	var/head_butcher
 	var/list/inherent_spells = list()
@@ -237,11 +241,14 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	update_simplemob_varspeed()
 	our_cells = new(interesting_dist, interesting_dist, 1)
 	set_new_cells()
+	if(length(food_type))
+		food_typecache = typecacheof(food_type)
 //	if(dextrous)
 //		AddComponent(/datum/component/personal_crafting)
 	for(var/spell in inherent_spells)
 		var/obj/effect/proc_holder/spell/newspell = new spell()
 		AddSpell(newspell)
+	initial_butcher_count = length(butcher_results)
 
 /mob/living/simple_animal/Destroy()
 	for(var/list/SA_list in GLOB.simple_animals)
@@ -283,7 +290,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		. += span_notice("This animal is wearing a bard: ([bbarding.name]).")
 
 /mob/living/simple_animal/attackby(obj/item/O, mob/user, params)
-	if(!is_type_in_list(O, food_type))
+	if(!food_typecache?[O.type])
 		..()
 		return
 	else
@@ -692,6 +699,47 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 			user.mind.add_sleep_experience(/datum/skill/labor/butchering, user.STAINT * BUTCHERING_EXP_FINISH)
 		gib()
 
+/mob/living/simple_animal/proc/gib_with_novice_butchery()
+	var/atom/Tsec = drop_location()
+
+	var/botch_chance = 50
+	var/rotstuff = FALSE
+	var/datum/component/rot/simple/CR = GetComponent(/datum/component/rot/simple)
+	if(CR && CR.amount >= 10 MINUTES)
+		rotstuff = TRUE
+
+	for(var/path in butcher_results)
+		var/amount = butcher_results[path]
+
+		if(prob(botch_chance))
+			if(length(botched_butcher_results) && (path in botched_butcher_results))
+				amount = botched_butcher_results[path]
+			else
+				amount = 0
+
+		butcher_results -= path
+
+		for(var/j in 1 to amount)
+			var/obj/item/I = new path(Tsec)
+			I.add_mob_blood(src)
+			if(istype(I, /obj/item/reagent_containers/food/snacks))
+				I.item_flags |= FRESH_FOOD_ITEM
+				if(rotstuff)
+					var/obj/item/reagent_containers/food/snacks/F = I
+					F.become_rotten()
+
+	if(head_butcher)
+		var/head_path = head_butcher
+		head_butcher = null
+		var/obj/item/natural/head/head = new head_path(Tsec)
+		var/head_quality = 0
+		if(rotstuff)
+			head_quality = -1
+		head.scale_butchering_quality(head_quality)
+		if(no_head_bounty)
+			head.sellprice = 0
+	gib()
+
 /mob/living/simple_animal/mark_contract_spawned()
 	. = ..()
 	head_butcher = null
@@ -837,7 +885,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		to_chat(src, span_warning("I can't do that right now!"))
 		return FALSE
 	if(be_close && !in_range(M, src))
-		to_chat(src, span_warning("I are too far away!"))
+		to_chat(src, span_warning("I am too far away!"))
 		return FALSE
 	if(!(no_dexterity || dextrous))
 		to_chat(src, span_warning("I don't have the dexterity to do this!"))
@@ -1229,7 +1277,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 /mob/living/simple_animal/proc/eat_plants()
 
 	var/obj/item/reagent_containers/food/I = locate(/obj/item/reagent_containers/food) in loc
-	if(is_type_in_list(I, food_type))
+	if(I && food_typecache?[I.type])
 		qdel(I)
 		food = max(food + 30, 100)
 

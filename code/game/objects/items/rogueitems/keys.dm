@@ -455,12 +455,6 @@
 // BURGHERS //
 //////////////
 
-/obj/item/roguekey/crier
-	name = "crier's key"
-	desc = "This key should open and close the crier's office."
-	icon_state = "cheesekey"
-	lockid = "crier"
-
 /obj/item/roguekey/crafterguild
 	name = "guild's key"
 	desc = "The key to the Crafter's Guild."
@@ -965,7 +959,7 @@
 
 /obj/item/roguekey/custom/attackby(obj/item/I, mob/user, params)
 	if(istype(I, /obj/item/rogueweapon/hammer))
-		var/input = (input(user, "What would you name this key?", "", "") as text)
+		var/input = sanitize(input(user, "What would you name this key?", "", "") as text)
 		if(input)
 			name = input + " key"
 			to_chat(user, span_notice("You rename the key to [name]."))

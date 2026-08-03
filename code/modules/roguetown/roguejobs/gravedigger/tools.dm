@@ -341,7 +341,6 @@
 	icon_state = "ashovel"
 	smeltresult = /obj/item/ingot/aaslag
 	color = "#bb9696"
-	sellprice = 15
 
 /obj/item/rogueweapon/shovel/bronze
 	force = 23
@@ -381,6 +380,15 @@
 		added_int = 50,\
 		added_def = 2,\
 	)
+
+/obj/item/rogueweapon/shovel/blacksteel
+	force = 27
+	name = "blacksteel shovel"
+	desc = "So much for being served on a silver platter."
+	icon_state = "blacksteelshovel"
+	smeltresult = /obj/item/ingot/blacksteel
+	max_blade_int = 450
+	max_integrity = 450
 
 /obj/item/rogueweapon/shovel/zoe_silence
 	name = "Silence"

@@ -29,7 +29,7 @@
 		usr.client.prefs.ShowChoices(usr, 4)
 
 /client/verb/toggle_fullscreen()
-	set name = "ToggleFullscreen"
+	set name = "Toggle Fullscreen"
 	set category = "Preferences.Options"
 	set desc = ""
 	if(prefs)
@@ -798,6 +798,20 @@ GLOBAL_LIST_INIT(ghost_orbits, list(GHOST_ORBIT_CIRCLE,GHOST_ORBIT_TRIANGLE,GHOS
 		to_chat(src, span_notice("I will now hear all LOOC chatter."))
 	else
 		to_chat(src, span_info("I will now only hear LOOC chatter around me."))
+
+/client/proc/hearsubtleLOOC()
+	set category = "Admin.Preferences"
+	set name = "Show/Hide Subtle LOOC"
+	if(!holder)
+		return
+	if(!prefs)
+		return
+	prefs.admin_chat_toggles ^= CHAT_ADMIN_SLOOC
+	prefs.save_preferences()
+	if(prefs.admin_chat_toggles & CHAT_ADMIN_SLOOC)
+		to_chat(src, span_notice("I will now hear subtle LOOC (SLOOC) chatter I am not part of."))
+	else
+		to_chat(src, span_info("I will no longer hear subtle LOOC (SLOOC) chatter I am not part of."))
 
 /client/proc/togglespawnmessages()
 	set category = "Admin.Preferences"

@@ -12,7 +12,7 @@
 	tutorial = "You are a seasoned weapon specialist, clad in maille, with years of experience in warfare and battle under your belt, more than any mortal could ever claim."
 	allowed_sexes = list(MALE, FEMALE)
 	outfit = /datum/outfit/job/roguetown/other/vampguardsman
-	traits_applied = list(TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR)
+	traits_applied = list(TRAIT_STEELHEARTED, TRAIT_MEDIUMARMOR, TRAIT_UNCONVERTIBLE)
 	category_tags = list(CTAG_VAMPGUARD)
 	subclass_stats = list(
 		STATKEY_STR = 2,
@@ -206,7 +206,10 @@
 	name = "Vampiric Duelist"
 	tutorial = "You are an professional swordsman and warrior who foregoes armor in exchange for a more nimble fighting style than most mortals could claim. Your lord's will be done."
 	outfit = /datum/outfit/job/roguetown/other/vampduelist
-	traits_applied = list(TRAIT_STEELHEARTED, TRAIT_DODGEEXPERT, TRAIT_DECEIVING_MEEKNESS)
+	traits_applied = list(TRAIT_STEELHEARTED, TRAIT_DODGEEXPERT)
+	subclass_virtues = list(
+		/datum/virtue/combat/guarded
+	)
 	category_tags = list(CTAG_VAMPGUARD)
 	subclass_stats = list(
 		STATKEY_INT = 1,
@@ -466,13 +469,13 @@
 	H.dna.species.soundpack_m = GLOB.voice_packs[/datum/voicepack/male/wizard] //Every wizzard gotta have the evyl laugh, I don't make the rules, sire.
 	add_verb(H, /mob/proc/haltyell_exhausting) //Halting the charred corpse is too funny, we're keeping it. sovl.
 
-	//UNIQUELY relies on WARDS off-the-bat, vs wretches/advs/mercenaries. Has NO chest armor, or head armor, save for neck. Legs/Feet remain decently armored by intent. Go for their arms instead.
+	//UNIQUELY relies on WARDS off-the-bat, vs wretches/advs/mercenaries. Has NO armor, save for neck/feet, this is intended so you can't speedrun decapitate them on swift intent.
 	cloak = /obj/item/clothing/cloak/tabard/stabard/hoodvamp
 	head = /obj/item/clothing/head/roguetown/witchhat/vamp //EVERY PALLY IN THE KINGDOM ON MA TAIL
 	mask = /obj/item/clothing/mask/rogue/ragmask/black
 	shirt = /obj/item/clothing/suit/roguetown/shirt/tunic/white
 	armor = /obj/item/clothing/cloak/tabard/stabard/vamp
-	pants = /obj/item/clothing/under/roguetown/heavy_leather_pants
+	pants = /obj/item/clothing/under/roguetown/skirt/vamp
 	neck = /obj/item/clothing/neck/roguetown/gorget/paalloy //No head armor but good anti-decap armor, intended.
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather/reinforced
 	belt = /obj/item/storage/belt/rogue/leather/battleskirt
@@ -516,3 +519,8 @@
 
 /obj/item/clothing/head/roguetown/roguehood/studded/vamp
 	color = CLOTHING_RED
+
+/obj/item/clothing/under/roguetown/skirt/vamp
+	name = "silken magos kilt"
+	desc = "A lightly-enchanted fashionable Kilt-like skirting designed to slide under a tabard. Despite seeming impractical as if it would get caught on something, it weaves around it as the fabric moves like it has a lyfe of its own and never gets caught."
+	color = CLOTHING_WHITE

@@ -1,11 +1,17 @@
 /datum/outfit/job/roguetown/orc/npc/archer/pre_equip(mob/living/carbon/human/H)
 	..()
 	backr = /obj/item/gun/ballistic/revolver/grenadelauncher/bow
-	backl = /obj/item/quiver/arrows
+	backl = /obj/item/quiver/npc
 	l_hand = /obj/item/rogueweapon/stoneaxe/boneaxe
 	r_hand = null
+	armor = /obj/item/clothing/suit/roguetown/shirt/rags
+	head = null
+	mask = null
+	neck = null
 	H.STASTR -= 2
-	H.STAPER += 3
+	H.STAPER = 6
+	H.STACON -= 1
+	H.STAWIL -= 1
 	H.adjust_skillrank(/datum/skill/combat/bows, 3, TRUE)
 	H.upgrade_ai_controller(/datum/ai_controller/human_npc/archer)
 
@@ -15,15 +21,15 @@
 	orc_outfit = /datum/outfit/job/roguetown/orc/npc/footsoldier
 
 /mob/living/carbon/human/species/orc/npc/marauder
-	threat_point = THREAT_TOUGH
+	threat_point = THREAT_DANGEROUS
 	orc_outfit = /datum/outfit/job/roguetown/orc/npc/marauder
 
 /mob/living/carbon/human/species/orc/npc/berserker
-	threat_point = THREAT_TOUGH
+	threat_point = THREAT_DANGEROUS
 	orc_outfit = /datum/outfit/job/roguetown/orc/npc/berserker
 
 /mob/living/carbon/human/species/orc/npc/warlord
-	threat_point = THREAT_DANGEROUS
+	threat_point = THREAT_DEADLY
 	orc_outfit = /datum/outfit/job/roguetown/orc/npc/warlord
 
 // Underarmored orc with incomplete protection, bone axe / spear, and slow speed
@@ -193,7 +199,6 @@
 	H.adjust_skillrank(/datum/skill/misc/climbing, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/swimming, 2, TRUE)
 	ADD_TRAIT(H, TRAIT_NOPAINSTUN, TRAIT_GENERIC)
-	ADD_TRAIT(H, TRAIT_NOBURN_RESIST, TRAIT_GENERIC)
 	ADD_TRAIT(H, TRAIT_CRITICAL_RESISTANCE, INNATE_TRAIT)
 	ADD_TRAIT(H, TRAIT_DUALWIELDER, TRAIT_GENERIC)
 
@@ -260,3 +265,46 @@
 	H.adjust_skillrank(/datum/skill/misc/climbing, 2, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/swimming, 2, TRUE)
 	ADD_TRAIT(H, TRAIT_HEAVYARMOR, TRAIT_GENERIC)
+
+
+/mob/living/carbon/human/species/orc/npc/juggernaut
+	threat_point = THREAT_ELITE
+	ambush_faction = "orcs"
+	orc_outfit = /datum/outfit/job/roguetown/orc/npc/warlord/juggernaut
+
+/mob/living/carbon/human/species/orc/npc/juggernaut/after_creation()
+	..()
+	job = "Orc Juggernaut"
+	ADD_TRAIT(src, TRAIT_BADTRAINER, TRAIT_GENERIC)
+	var/obj/item/bodypart/head/jug_head = get_bodypart(BODY_ZONE_HEAD)
+	if(jug_head)
+		jug_head.sellprice = HEAD_BOUNTY_BIG_GUY
+	for(var/obj/item/gear in get_equipped_items() + held_items)
+		lock_gear_piece(gear, "orc_juggernaut_gear")
+
+/mob/living/carbon/human/species/orc/npc/juggernaut/death(gibbed, nocutscene = FALSE)
+	. = ..()
+	for(var/obj/item/gear in get_equipped_items() + held_items)
+		REMOVE_TRAIT(gear, TRAIT_NODROP, "orc_juggernaut_gear")
+
+/datum/outfit/job/roguetown/orc/npc/warlord/juggernaut/pre_equip(mob/living/carbon/human/H)
+	..()
+	name = "Orc Juggernaut"
+	armor = /obj/item/clothing/suit/roguetown/armor/plate/full/iron
+	shirt = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/iron
+	head = /obj/item/clothing/head/roguetown/helmet/heavy/knight/iron
+	neck = /obj/item/clothing/neck/roguetown/chaincoif/iron
+	gloves = /obj/item/clothing/gloves/roguetown/plate/iron
+	wrists = /obj/item/clothing/wrists/roguetown/bracers/iron
+	pants = /obj/item/clothing/under/roguetown/chainlegs/iron
+	shoes = /obj/item/clothing/shoes/roguetown/boots/armor/iron
+	H.STASTR = 16
+	H.STASPD = 8
+	H.STACON = 13
+	H.STAWIL = 13
+	H.STAINT = 8
+	H.adjust_skillrank(/datum/skill/combat/polearms, 5, TRUE)
+	H.adjust_skillrank(/datum/skill/combat/swords, 5, TRUE)
+	H.adjust_skillrank(/datum/skill/combat/axes, 5, TRUE)
+	H.adjust_skillrank(/datum/skill/combat/maces, 5, TRUE)
+	H.adjust_skillrank(/datum/skill/combat/wrestling, 5, TRUE)

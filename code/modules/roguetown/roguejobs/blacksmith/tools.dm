@@ -17,6 +17,7 @@
 	grid_height = 64
 	var/quality = 1
 	is_tool = TRUE
+	var/repair_busy = FALSE
 
 /obj/item/rogueweapon/hammer/get_mechanics_examine(mob/user)
 	. = ..()
@@ -70,6 +71,9 @@
 	if(attacked_prosthetic.obj_integrity >= attacked_prosthetic.max_integrity && attacked_prosthetic.brute_dam == 0 && attacked_prosthetic.burn_dam == 0 && attacked_prosthetic.wounds == null && attacked_prosthetic.disabled == BODYPART_NOT_DISABLED)
 		to_chat(user, span_warning("There is nothing to further repair on [attacked_prosthetic]."))
 		return
+	if(repair_busy)
+		return
+	repair_busy = TRUE
 
 	do
 		var/repair_percent = get_repair_percent(attacked_prosthetic)
@@ -102,6 +106,7 @@
 			break
 
 	while(do_after(user, CLICK_CD_MELEE, target = attacked_prosthetic))
+	repair_busy = FALSE
 
 /obj/item/rogueweapon/hammer/proc/repair_item(obj/item/attacked_item, mob/living/user)
 	if(!attacked_item.anvilrepair || (attacked_item.obj_integrity >= attacked_item.max_integrity) || !isturf(attacked_item.loc))
@@ -110,6 +115,10 @@
 	if(!attacked_item.ontable())
 		to_chat(user, span_warning("I should put this on a table or an anvil first."))
 		return
+
+	if(repair_busy)
+		return
+	repair_busy = TRUE
 
 	do
 		var/repair_percent = get_repair_percent(attacked_item)
@@ -148,7 +157,8 @@
 		if(attacked_item.obj_integrity >= attacked_item.max_integrity)
 			break
 
-	while(do_after(user, CLICK_CD_MELEE, target = attacked_item))
+	while(do_after(user, CLICK_CD_FAST, target = attacked_item))
+	repair_busy = FALSE
 
 /obj/item/rogueweapon/hammer/proc/repair_structure(obj/structure/attacked_structure, mob/living/user)
 	if(!attacked_structure.hammer_repair || !attacked_structure.max_integrity)
@@ -156,6 +166,9 @@
 	if(user.get_skill_level(attacked_structure.hammer_repair) <= 0)
 		to_chat(user, span_warning("I don't know how to repair this.."))
 		return
+	if(repair_busy)
+		return
+	repair_busy = TRUE
 
 	do
 		var/repair_percent = get_repair_percent(attacked_structure)
@@ -170,6 +183,7 @@
 			break
 
 	while(do_after(user, CLICK_CD_MELEE, target = attacked_structure))
+	repair_busy = FALSE
 
 /obj/item/rogueweapon/hammer/attack(mob/living/M, mob/user)
 
@@ -184,7 +198,20 @@
 			if(prob(30))
 				M.emote("whimper") // robbit aboose
 			return	
-		else		
+		else
+			if(M.has_status_effect(/datum/status_effect/debuff/integrity_rig))
+				if(M == user)
+					to_chat(user, span_warning("I can't get the right angle to fix this, I need help from someone else!"))
+					return
+				user.visible_message(span_warning("[user] begins lining up a decisive strike onto the Jury Rig!"))
+				if(!do_after(user, 4 SECONDS))
+					return
+				M.remove_status_effect(/datum/status_effect/debuff/integrity_rig)
+				playsound(M.loc, 'sound/misc/bonk.ogg', 100, FALSE, -1) // satisfying
+				for(var/datum/wound/W in wCount)
+					if(W.severity >= WOUND_SEVERITY_CRITICAL)
+						qdel(W)
+						break
 			hammerheal(M, user)
 	else
 		. = ..() //normal hit
@@ -398,7 +425,6 @@
 	max_integrity = 10
 	smeltresult = /obj/item/ingot/aaslag
 	color = "#bb9696"
-	sellprice = 15
 
 /obj/item/rogueweapon/hammer/bronze
 	name = "bronze hammer"
@@ -583,7 +609,6 @@
 	smeltresult = null
 	max_integrity = 10
 	color = "#bb9696"
-	sellprice = 5
 	auto_collect = FALSE
 
 /obj/item/rogueweapon/tongs/aalloy/update_icon()
@@ -636,7 +661,7 @@
 
 /obj/item/rogueweapon/tongs/blacksteel
 	name = "blacksteel tongs"
-	desc = "A pair of blacksteel jaws almost certainly used as a sign of prestige."
+	desc = "A pair of blacksteel jaws, almost certainly used as a sign of prestige."
 	icon_state = "bs_tongs"
 	wdefense = 6
 	icon = 'icons/roguetown/weapons/tools.dmi'

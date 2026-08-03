@@ -132,7 +132,7 @@
 				H.mind.AddSpell(new /datum/action/cooldown/spell/caedo)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/air_strike)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/leyline_anchor)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/blade_storm)
+				H.mind.AddSpell(new /datum/action/cooldown/spell/blade_storm)
 			if("phalangite")
 				H.mind.AddSpell(new /datum/action/cooldown/spell/azurean_phalanx)
 				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/azurean_pilum)
@@ -188,6 +188,7 @@
 			switch(spear_choice)
 				if("Spear")
 					r_hand = /obj/item/rogueweapon/spear
+					backr = /obj/item/rogueweapon/scabbard/gwstrap
 				if("Dory")
 					r_hand = /obj/item/rogueweapon/spear/spellblade
 				if("Naginata")
@@ -209,11 +210,13 @@
 					r_hand = /obj/item/rogueweapon/mace/warhammer
 				if("Goedendag")
 					r_hand = /obj/item/rogueweapon/mace/goden
+					backr = /obj/item/rogueweapon/scabbard/gwstrap
 				if("Iron Axe")
 					r_hand = /obj/item/rogueweapon/stoneaxe/woodcut
 					picked_axe = TRUE
 				if("Greataxe")
 					r_hand = /obj/item/rogueweapon/greataxe
+					backr = /obj/item/rogueweapon/scabbard/gwstrap
 					picked_axe = TRUE
 			if(picked_axe)
 				H.adjust_skillrank_up_to(/datum/skill/combat/axes, SKILL_LEVEL_JOURNEYMAN, TRUE)
@@ -291,7 +294,7 @@
 	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 4, ward = TRUE)
 	subclass_skills = list(
 		/datum/skill/combat/wrestling = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/combat/unarmed = SKILL_LEVEL_EXPERT,
+		/datum/skill/combat/unarmed = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/swimming = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/climbing = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/athletics = SKILL_LEVEL_JOURNEYMAN,
@@ -400,18 +403,31 @@
 /datum/outfit/job/roguetown/adventurer/spellthief/pre_equip(mob/living/carbon/human/H)
 	..()
 	to_chat(H, span_warning("You are an Arcyne Trickster, a thief and hooligan gifted in the arcyne arts."))
-	head = /obj/item/clothing/head/roguetown/witchhat/mageblue
 	pants = /obj/item/clothing/under/roguetown/trou/leather
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson
-	cloak = /obj/item/clothing/cloak/raincloak/mageblue
 	backl = /obj/item/storage/backpack/rogue/satchel
 	belt = /obj/item/storage/belt/rogue/leather
 	shoes = /obj/item/clothing/shoes/roguetown/boots
 	neck = /obj/item/storage/belt/rogue/pouch/coins/poor
-	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
 	beltl = /obj/item/rogueweapon/scabbard/sheath
 	beltr = /obj/item/rogueweapon/huntingknife/idagger/steel
 	backpack_contents = list(/obj/item/flashlight/flare/torch = 1, /obj/item/chalk = 1, /obj/item/rogueweapon/spellbook = 1)
+
+	// This just changes your starting cantrips and if you wear snazzy blue or edgy black.
+	var/origin = input(H, "Arcyne Thief or a Magos Hooligan?", "ORIGIN") as anything in list("Arcyne Thief (Aetherknife)", "Magos Hooligan (Magician's Brick)")
+	if(origin == "Arcyne Thief (Aetherknife)")
+		head = /obj/item/clothing/head/roguetown/headband/monk/barbarian
+		wrists = /obj/item/clothing/wrists/roguetown/bracers/cloth/gladiator
+		cloak = /obj/item/clothing/cloak/raincloak/mortus
+		if(H.mind)
+			H.mind.AddSpell(new /datum/action/cooldown/spell/aetherknife)
+			H.mind.AddSpell(new /datum/action/cooldown/spell/lesser_knock)
+	else
+		head = /obj/item/clothing/head/roguetown/witchhat/mageblue
+		wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
+		cloak = /obj/item/clothing/cloak/raincloak/mageblue
+		if(H.mind)
+			H.mind.AddSpell(new /datum/action/cooldown/spell/magicians_brick)
+			H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/waterbolt)
 	if(H.mind)
-		H.mind.AddSpell(new /datum/action/cooldown/spell/lesser_knock)
-		H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/waterbolt)
+		H.mind.AddSpell(new /datum/action/cooldown/spell/blink)

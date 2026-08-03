@@ -83,11 +83,8 @@ GLOBAL_DATUM_INIT(openspace_backdrop_one_for_all, /atom/movable/openspace_backdr
 	if(HAS_TRAIT(A, TRAIT_I_AM_INVISIBLE_ON_A_BOAT))
 		return FALSE
 	if(direction == DOWN)
-
-		for(var/obj/O in contents)
-			if(O.obj_flags & BLOCK_Z_OUT_DOWN)
-
-				return FALSE
+		if(platform_atom_count > 0)
+			return FALSE
 		return TRUE
 	if(direction == UP)
 		for(var/obj/O in contents)
@@ -115,9 +112,6 @@ GLOBAL_DATUM_INIT(openspace_backdrop_one_for_all, /atom/movable/openspace_backdr
 /turf/open/transparent/openspace/proc/CanBuildHere()
 	return can_build_on
 
-/turf/open/transparent/openspace/attack_paw(mob/user)
-	return attack_hand(user)
-
 /turf/open/transparent/openspace/attack_hand(mob/user)
 	if(isliving(user))
 		var/mob/living/L = user
@@ -130,13 +124,14 @@ GLOBAL_DATUM_INIT(openspace_backdrop_one_for_all, /atom/movable/openspace_backdr
 		if(!user.can_zTravel(target, DOWN, src))
 			to_chat(user, span_warning("I can't climb here."))
 			return
+		if(!L.start_climb())
+			return
 		if(user.m_intent != MOVE_INTENT_SNEAK)
 			playsound(user, 'sound/foley/climb.ogg', 100, TRUE)
 		user.visible_message(span_warning("[user] starts to climb down."), span_warning("I start to climb down."))
 		var/climber2wall_dir = get_dir(src, L)
-		L.mid_climb = TRUE
-		var/climbed = do_after(L, (HAS_TRAIT(L, TRAIT_WOODWALKER) ? 15 : 30), target = src)
-		L.mid_climb = FALSE
+		var/climbed = do_after(L, (HAS_TRAIT(L, TRAIT_WOODWALKER) ? 15 : 30), target = src, extra_checks = L.climb_check_callback())
+		L.end_climb()
 		if(climbed)
 			if(user.m_intent != MOVE_INTENT_SNEAK)
 				playsound(user, 'sound/foley/climb.ogg', 100, TRUE)
@@ -233,9 +228,10 @@ GLOBAL_DATUM_INIT(openspace_backdrop_one_for_all, /atom/movable/openspace_backdr
 				var/baseline_stamina_cost = 15
 				if(climber.m_intent == MOVE_INTENT_SNEAK)
 					climb_along_delay = climb_along_delay * 1.5
-				climber.mid_climb = TRUE
-				var/climbed = do_after(climber, climb_along_delay, wall_for_message)
-				climber.mid_climb = FALSE
+				if(!climber.start_climb())
+					return
+				var/climbed = do_after(climber, climb_along_delay, wall_for_message, extra_checks = climber.climb_check_callback())
+				climber.end_climb()
 				if(climbed)
 					climber.visible_message(span_info("[climber] climbs along [wall_for_message]..."))
 					climber_armor_class = climber.highest_ac_worn()

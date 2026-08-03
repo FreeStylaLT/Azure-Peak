@@ -4,6 +4,7 @@
 	var/effect_type = null
 	var/cooldown_time
 	var/next_use = 0
+	var/hit_counter = 0
 
 /datum/component/dream_weapon/Initialize(effect_type, cooldown_time)
 	. = ..()
@@ -22,12 +23,18 @@
 	if(!effect_type)
 		return
 
+	hit_counter++
+	if(hit_counter < 3)
+		return
+
 	// Check cooldown
 	if(world.time < next_use)
 		return
 
 	if(!ishuman(target))
 		return
+
+	hit_counter = 0
 
 	var/mob/living/carbon/human/H = target
 
@@ -42,9 +49,12 @@
 			apply_frost_stack(H, 2)
 			target.visible_message(span_warning("[source] freezes [target] with scalding ice!"))
 		if("poison")
-			if(H.reagents)
-				H.reagents.add_reagent(/datum/reagent/berrypoison, 2)
-				target.visible_message(span_warning("[source] injects [target] with vile ooze!"))
+			var/datum/status_effect/black_rot/R = H.has_status_effect(/datum/status_effect/black_rot)
+			if(R)
+				R.add_stack(5)
+			else
+				H.apply_status_effect(/datum/status_effect/black_rot, 5)
+			target.visible_message(span_warning("[source] seeps black rot into [target]!"))
 
 	// Set cooldown
 	next_use = world.time + cooldown_time
@@ -290,11 +300,11 @@
 	unenchantable = TRUE //Please sire, it has self-repairing plus antag-durability. YOU DO NOT NEED MORE.
 	color = "#2ba6b2"
 
-/obj/item/clothing/wrists/roguetown/bracers/dreamwalker/dreamwalker/Initialize()
+/obj/item/clothing/wrists/roguetown/bracers/dreamwalker/Initialize()
 	. = ..()
 	AddComponent(/datum/component/dream_weapon, null, 20 SECONDS)
 
-/obj/item/clothing/wrists/roguetown/bracers/dreamwalker/dreamwalker/get_examine_highlight_status()
+/obj/item/clothing/wrists/roguetown/bracers/dreamwalker/get_examine_highlight_status()
 	return list(EXAMINEHIGHLIGHT_HERESYSEVERITY_ALARMING, HERESYDESC_DREAMWALKER_ARMOR)
 
 /obj/item/clothing/head/roguetown/helmet/bascinet/dreamwalker
@@ -406,7 +416,7 @@
 	// Create shard at Player's turf, tell it where to slide to
 	playsound(L, 'sound/combat/sharpness_loss1.ogg', 75, TRUE)
 	new shard_type(center, shard_duration, shard_amount, chosen_spawn)
-	
+
 	if(prob(40))
 		L.visible_message(span_boldnotice("[L.name] sheds a fragile looking shard of their armor. It seems to yearn to return to the whole."))
 
@@ -416,12 +426,12 @@
 
 	for(var/obj/O in T)
 		if(O.density)
-			return FALSE	
+			return FALSE
 	return TRUE
 
 /datum/component/dreamwalker_repair/proc/repair_from_shard(amount)
 	var/remaining_repair = amount
-	
+
 	// Continue repairing as long as we have juice and items to fix
 	while(remaining_repair > 0)
 		var/obj/item/most_broken = null
@@ -450,7 +460,7 @@
 
 		most_broken.update_icon()
 
-		if(needed > applied) 
+		if(needed > applied)
 			break // This item took all remaining repair but isn't full yet
 
 /datum/component/dreamwalker_repair/Destroy()
@@ -469,8 +479,8 @@
 	// Gotta be able to attack it!
 	mouse_opacity = 1
 	duration = 5 SECONDS
-	var/repair_value = 50
-	var/health = 25
+	var/repair_value = 40
+	var/health = 15
 	var/pickuppable = TRUE
 	var/dream_check = TRUE
 	var/effect_color = "#005180"
@@ -518,9 +528,13 @@
 	if(ishuman(AM))
 		var/mob/living/carbon/human/H = AM
 		if(HAS_TRAIT(H, TRAIT_DREAMWALKER) && dream_check)
-			consume_shard(H)
+			if(!consume_shard(H))
+				crush_shard(AM)
 		else if (!dream_check)
-			consume_shard(H)
+			if(!consume_shard(H))
+				crush_shard(AM)
+		else
+			crush_shard(AM)
 
 /obj/effect/temp_visual/dream_shard/proc/consume_shard(mob/living/carbon/human/H)
 	if(!pickuppable || QDELETED(src))
@@ -532,6 +546,9 @@
 		E.color = effect_color
 		playsound(H, 'sound/magic/magic_nulled.ogg', 70, TRUE)
 		qdel(src)
+		return TRUE
+	else
+		return FALSE
 
 /obj/effect/temp_visual/dream_shard/proc/move_to_dest(turf/target_turf)
 	if(src && target_turf)
@@ -539,3 +556,29 @@
 		pixel_x = 0
 		pixel_y = 0
 		pickuppable = TRUE
+
+/obj/effect/temp_visual/dream_shard/attack_hand(mob/living/carbon/human/user, list/modifiers)
+	. = ..()
+	if(.)
+		return
+
+	if(HAS_TRAIT(user, TRAIT_DREAMWALKER) && dream_check)
+		consume_shard(user)
+		return TRUE
+	else if (!dream_check)
+		if(consume_shard(user))
+			return TRUE
+
+	var/unarmed_damage = user.get_punch_dmg() || 5
+	health -= unarmed_damage
+	user.visible_message(span_danger("[user] smashes the [src] with their bare hands!"))
+	playsound(get_turf(src), 'sound/foley/breaksound.ogg', 80, TRUE)
+
+	if(health <= 0)
+		qdel(src)
+	return TRUE
+
+/obj/effect/temp_visual/dream_shard/proc/crush_shard(atom/movable/AM)
+	AM.visible_message(span_notice("[AM] crushes the [src] underfoot!"))
+	playsound(get_turf(src), 'sound/foley/breaksound.ogg', 80, TRUE)
+	qdel(src)

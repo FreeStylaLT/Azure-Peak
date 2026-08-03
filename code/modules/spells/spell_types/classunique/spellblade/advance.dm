@@ -1,4 +1,5 @@
 /datum/action/cooldown/spell/advance
+	source_aspect = /datum/magic_aspect/pseudo/spellblade
 	name = "Advance!"
 	desc = "Leap forward up to 4 tiles, passing through enemies, then stab ahead on landing. \
 		At 3+ momentum: consumes 3 to double damage. \
@@ -20,7 +21,7 @@
 	charge_required = TRUE
 	weapon_cast_penalized = FALSE
 	charge_time = CHARGETIME_POKE
-	charge_drain = 0
+	hold_drain = 0
 	charge_slowdown = CHARGING_SLOWDOWN_NONE
 	charge_sound = 'sound/magic/charging.ogg'
 	cooldown_time = 15 SECONDS

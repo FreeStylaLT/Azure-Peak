@@ -630,6 +630,12 @@
 	display_category = ITEM_CAT_TOOLS_COOKWARE
 	createditem_num = 3
 
+/datum/anvil_recipe/tools/gold/bowl
+	name = "Bowl, Gold"
+	req_bar = /obj/item/ingot/gold
+	created_item = /obj/item/reagent_containers/glass/bowl/gold
+	display_category = ITEM_CAT_TOOLS_COOKWARE
+
 /datum/anvil_recipe/tools/gold/fork
 	name = "Fork, Gold (x3)"
 	req_bar = /obj/item/ingot/gold
@@ -757,13 +763,8 @@
 	display_category = ITEM_CAT_TOOLS_SUNDRIES
 	craftdiff = SKILL_LEVEL_APPRENTICE
 	createditem_num = 3
-/datum/anvil_recipe/tools/bowl/aalloy
-	req_bar = /obj/item/ingot/aalloy
-	created_item = /obj/item/reagent_containers/glass/bowl/aalloy
-	display_category = ITEM_CAT_TOOLS_COOKWARE
 
-
-//black steel tools
+//Blacksteel.
 /datum/anvil_recipe/tools/blacksteel/hammer
 	name = "Blacksteel Hammer (+1 Stick)"
 	req_bar = /obj/item/ingot/blacksteel
@@ -783,3 +784,56 @@
 	req_bar = /obj/item/ingot/blacksteel
 	created_item = /obj/item/rogueweapon/tongs/blacksteel
 	display_category = ITEM_CAT_TOOLS_WORKSHOP
+
+/datum/anvil_recipe/tools/blacksteel/handsaw
+	name = "Handsaw, Blacksteel (+1 Stick)"
+	req_bar = /obj/item/ingot/blacksteel
+	additional_items = list(/obj/item/grown/log/tree/stick)
+	created_item = /obj/item/rogueweapon/handsaw/blacksteel
+	display_category = ITEM_CAT_TOOLS_WORKSHOP
+
+/datum/anvil_recipe/tools/blacksteel/chisel
+	name = "Chisel, Blacksteel"
+	req_bar = /obj/item/ingot/blacksteel
+	created_item = /obj/item/rogueweapon/chisel/blacksteel
+	display_category = ITEM_CAT_TOOLS_WORKSHOP
+
+/datum/anvil_recipe/tools/blacksteel/thresher
+	name = "Thresher, Blacksteel (+1 Stick)"
+	req_bar = /obj/item/ingot/blacksteel
+	additional_items = list(/obj/item/grown/log/tree/stick)
+	created_item = /obj/item/rogueweapon/thresher/blacksteel
+	display_category = ITEM_CAT_TOOLS_FIELD
+	i_type = "Tools"
+
+/datum/anvil_recipe/tools/blacksteel/hoe
+	name = "Hoe, Blacksteel (+2 Sticks)"
+	req_bar = /obj/item/ingot/blacksteel
+	additional_items = list(/obj/item/grown/log/tree/stick,/obj/item/grown/log/tree/stick)
+	created_item = /obj/item/rogueweapon/hoe/blacksteel
+	display_category = ITEM_CAT_TOOLS_FIELD
+	i_type = "Tools"
+
+/datum/anvil_recipe/tools/blacksteel/pitchfork
+	name = "Pitchfork, Blacksteel (+2 Sticks)"
+	req_bar = /obj/item/ingot/blacksteel
+	additional_items = list(/obj/item/grown/log/tree/stick,/obj/item/grown/log/tree/stick)
+	created_item = /obj/item/rogueweapon/pitchfork/blacksteel
+	display_category = ITEM_CAT_TOOLS_FIELD
+	i_type = "Tools"
+
+/datum/anvil_recipe/tools/blacksteel/sickle
+	name = "Sickle, Blacksteel (+1 Stick)"
+	req_bar = /obj/item/ingot/blacksteel
+	additional_items = list(/obj/item/grown/log/tree/stick)
+	created_item = /obj/item/rogueweapon/sickle/blacksteel
+	display_category = ITEM_CAT_TOOLS_FIELD
+	i_type = "Tools"
+
+/datum/anvil_recipe/tools/blacksteel/shovel
+	name = "Shovel, Blacksteel (+2 Sticks)"
+	req_bar = /obj/item/ingot/blacksteel
+	additional_items = list(/obj/item/grown/log/tree/stick, /obj/item/grown/log/tree/stick)
+	created_item = /obj/item/rogueweapon/shovel/blacksteel
+	display_category = ITEM_CAT_TOOLS_FIELD
+	i_type = "Tools"

@@ -26,7 +26,7 @@
 	var/maxrange = 4
 
 /datum/intent/mace/smash/spec_on_apply_effect(mob/living/H, mob/living/user, params)
-	var/chungus_khan_str = user.STASTR 
+	var/chungus_khan_str = user.STASTR
 	if(H.has_status_effect(/datum/status_effect/debuff/yeetcd))
 		return // Recently knocked back, cannot be knocked back again yet
 	if(chungus_khan_str < 10)
@@ -245,6 +245,17 @@
 	wdefense = 3
 	smelt_bar_num = 2
 
+/obj/item/rogueweapon/mace/blacksteel
+	force = 30
+	force_wielded = 35
+	max_integrity = 300
+	name = "blacksteel mace"
+	desc = "A magnificent mace of blacksteel. Tied around the handle is crimson silk, which was the style at the tyme."
+	icon_state = "bs_mace"
+	smeltresult = /obj/item/ingot/blacksteel
+	wdefense = 3
+	smelt_bar_num = 2
+
 /obj/item/rogueweapon/mace/steel/palloy
 	name = "ancient alloy mace"
 	desc = "Polished gilbranze, perched atop a reinforced shaft. Break the unenlightened into naught-but-giblets; like a potter's vessels, dashed against the rocks."
@@ -394,7 +405,7 @@
 	attack_verb = list("twamps", "thwacks", "wallops")
 	damfactor = 1.3		// High damage mod to give high chance of dislocation against unarmored targets.
 	intent_intdamage_factor = 0.4	// Purposefully bad at damaging armor. Specifically deals -60% integrity damage, irregardless of the previous intent's modifiers.
-	icon_state = "inbash"	// Wallop is too long for a button; placeholder.
+	icon_state = "inthresh"	// Wallop is too long for a button; placeholder.
 	desc = "A quick and sudden thwack that can cripple unarmored limbs with tremendous force. </br>Deals TWIST damage instead of BLUNT damage. Critical hits cause DISLOCATIONS, instead of FRACTURES. </br>DISLOCATED ARMS and HANDS cannot wield, grab, or use anything. </br>DISLOCATED LEGS and FEET prevent the target from standing."
 
 // (I'm evil. Slight swing delay.)
@@ -406,7 +417,7 @@
 	damfactor = 1.25
 	intent_intdamage_factor = 0.4 //Reduces integrity damage modifier from +60% to -60%.
 	swingdelay = 6 //Slower than a strike, quicker than a chop or old-school smash.
-	icon_state = "inthresh"	
+	icon_state = "inthresh"
 	desc = "A slow-swinging strike that can cripple unarmored limbs with tremendous force. </br>Deals TWIST damage instead of BLUNT damage. Critical hits cause DISLOCATIONS, instead of FRACTURES. </br>DISLOCATED ARMS and HANDS cannot wield, grab, or use anything. </br>DISLOCATED LEGS and FEET prevent the target from standing."
 
 /obj/item/rogueweapon/mace/cudgel/flanged
@@ -534,7 +545,7 @@
 	force = 25
 	force_wielded = 30
 	minstr = 7
-	wdefense = 5 
+	wdefense = 5
 	wbalance = WBALANCE_SWIFT
 	resistance_flags = FIRE_PROOF
 	icon_state = "psycudgel"
@@ -843,6 +854,17 @@
 	icon_state = "awarhammer"
 	smeltresult = /obj/item/ingot/aaslag
 
+/obj/item/rogueweapon/mace/warhammer/blacksteel
+	name = "blacksteel warhammer"
+	desc = "A magnificent warhammer of blacksteel. Ornamental, resplendant, and - above all else - lethal; the ideal sidearm for a knight in the sixteenth century."
+	icon_state = "bs_hammer"
+	force = 30
+	minstr = 10
+	max_integrity = 350
+	smeltresult = /obj/item/ingot/blacksteel
+	possible_item_intents = list(/datum/intent/mace/strike, /datum/intent/mace/smash, /datum/intent/mace/warhammer/pick, /datum/intent/mace/warhammer/stab)
+	special = /datum/special_intent/ground_smash
+
 /obj/item/rogueweapon/mace/warhammer/steel/silver
 	name = "silver warhammer"
 	desc = "A heavy warhammer, forged from pure silver. It follows the Otavan design of a 'lucerene'; a shortened polehammer with a pronounced spike, rebalanced for one-handed usage. Resplendent in presentation, righteous in purpose."
@@ -906,12 +928,11 @@
 	damfactor = 0.9
 	item_d_type = "stab"
 
-//Mauls. Woe. Most characters will not be able to engage with this, beyond hobbling.
-//Why? The unique strength lockout. The minimum strength is not a suggestion.
+//Mauls. Woe.
 /obj/item/rogueweapon/mace/maul
 	force = 12 //Don't one-hand this.
 	force_wielded = 32 //-3 compared to grand mace(steel goden). Better intents.
-	possible_item_intents = list(/datum/intent/mace/strike, /datum/intent/mace/bash/ranged) 
+	possible_item_intents = list(/datum/intent/mace/strike, /datum/intent/mace/bash/ranged)
 	gripped_intents = list(/datum/intent/mace/smash/crush, /datum/intent/mace/strike/grand, /datum/intent/mace/sweep, /datum/intent/effect/hobble)
 	name = "maul"
 	desc = "Who would need something this large? It looks like it was made for tearing down walls, rather than men."
@@ -921,7 +942,7 @@
 	swingsound = BLUNTWOOSH_HUGE
 	slot_flags = null//No.
 	smelt_bar_num = 2
-	minstr = 14
+	minstr = 11
 	wdefense = 3
 	pixel_y = -16
 	pixel_x = -16
@@ -930,7 +951,6 @@
 	//dropshrink = 0.6
 	bigboy = TRUE
 	gripsprite = TRUE
-	minstr_req = TRUE //You MUST have the required strength. No exceptions.
 
 /obj/item/rogueweapon/mace/maul/getonmobprop(tag)
 	. = ..()
@@ -948,7 +968,6 @@
 	icon_state = "cross"
 	force_wielded = 34 // -1 compared to grand mace.
 	smeltresult = /obj/item/ingot/steel
-	minstr = 15
 	wdefense_wbonus = 4 // from 6
 	smelt_bar_num = 3
 
@@ -1171,7 +1190,7 @@
 		var/obj/effect/temp_visual/spore/old_spores = locate(/obj/effect/temp_visual/spore) in cloud_turf
 		if(old_spores)
 			qdel(old_spores)
-		new /obj/effect/temp_visual/spore(cloud_turf) 
+		new /obj/effect/temp_visual/spore(cloud_turf)
 
 /datum/component/mushroom_mace/proc/mushroom_boom(mob/living/target, mob/living/user)
 	var/turf/T = get_turf(target)

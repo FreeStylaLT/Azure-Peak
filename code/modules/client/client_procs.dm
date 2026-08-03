@@ -79,7 +79,7 @@ GLOBAL_LIST_EMPTY(respawncounts)
 			return
 
 	var/stl = CONFIG_GET(number/second_topic_limit)
-	if (!holder && stl)
+	if (!holder && stl && href_list["window_id"] != "statbrowser")
 		var/second = round(world.time, 10)
 		if (!topiclimiter)
 			topiclimiter = new(LIMITER_SIZE)
@@ -146,7 +146,7 @@ GLOBAL_LIST_EMPTY(respawncounts)
 	if(href_list["schizohelp"])
 		answer_schizohelp(locate(href_list["schizohelp"]))
 		return
-	
+
 	if(href_list["viewchronicle"])
 		var/tab = href_list["chronicletab"] || "The Realm"
 		show_chronicle(tab)
@@ -155,6 +155,11 @@ GLOBAL_LIST_EMPTY(respawncounts)
 	if(href_list["vieweconomics"])
 		var/datum/economic_chronicle/chronicle = get_economic_chronicle()
 		chronicle.ui_interact(mob)
+		return
+
+	if(href_list["open_encyclopedia"])
+		var/datum/recipe_wiki/wiki = get_recipe_wiki()
+		wiki.show_library(mob)
 		return
 
 	if(href_list["commandbar_typing"])
@@ -293,6 +298,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	stat_panel = new(src, "statbrowser")
 	stat_panel.subscribe(src, PROC_REF(on_stat_panel_message))
 
+	winset(src, null, "browser-options=find,refresh")
 	initialize_commandbar_spy()
 
 	GLOB.ahelp_tickets.ClientLogin(src)
@@ -1211,9 +1217,6 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 /client/New()
 	..()
 	fullscreen()
-	if(byond_version >= 516) // Enable 516 compat browser storage mechanisms
-		winset(src, null, "browser-options=find,byondstorage")
-	// byondstorage,devtools <- other options
 
 /client/proc/give_award(achievement_type, mob/user)
 	return	player_details.achievements.unlock(achievement_type, mob/user)
@@ -1313,7 +1316,7 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 #undef ADMINSWARNED_AT
 
 /client/proc/check_panel_loaded()
-	if(stat_panel.is_ready())
+	if(stat_panel.is_ready() && !stat_panel.fatally_errored)
 		return
 	to_chat(src, span_userdanger("Statpanel failed to load, click <a href='byond://?src=[REF(src)];reload_statbrowser=1'>here</a> to reload the panel "))
 

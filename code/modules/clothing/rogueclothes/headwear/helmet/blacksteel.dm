@@ -41,13 +41,13 @@
 /obj/item/clothing/head/roguetown/helmet/blacksteel/modern/update_icon()
 	cut_overlays()
 	if(get_detail_tag())
-		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
+		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[get_detail_state(icon_state)][detail_tag]"))
 		pic.appearance_flags = RESET_COLOR
 		if(get_detail_color())
 			pic.color = get_detail_color()
 		add_overlay(pic)
 	if(get_altdetail_tag())
-		var/mutable_appearance/pic2 = mutable_appearance(icon(icon, "[icon_state][altdetail_tag]"))
+		var/mutable_appearance/pic2 = mutable_appearance(icon(icon, "[get_detail_state(icon_state)][altdetail_tag]"))
 		pic2.appearance_flags = RESET_COLOR
 		if(get_altdetail_color())
 			pic2.color = get_altdetail_color()
@@ -140,3 +140,19 @@
 	flags_cover = null
 	flags_inv = null
 	smeltresult = /obj/item/ingot/bsslag
+
+/obj/item/clothing/neck/roguetown/bevor/blacksteel
+	name = "ancient blacksteel neckguard"
+	desc = "An antiquated bevor of blacksteel, unfettered in both pristineness and protection. What good comes from creation, if you never \
+	stop to savor it? </br>‎  </br>A lyfe with labor has meaning; a lyfe dedicated to labor, none."
+	icon_state = "bsneckguardclassic"
+	smeltresult = /obj/item/ingot/blacksteel
+	armor = ARMOR_PLATE_BSTEEL
+	max_integrity = ARMOR_INT_SIDE_BLACKSTEEL
+	anvilrepair = /datum/skill/craft/armorsmithing
+
+/obj/item/clothing/neck/roguetown/bevor/blacksteel/modern
+	name = "blacksteel neckguard"
+	desc = "A magnificent gorget of blacksteel, unfettered in both pristineness and protection. The alloyed plates covering the jawline are beheld \
+	to an ornate mechanism, allowing them to be easily retracted back into the gorget without issue."
+	icon_state = "bsneckguard"

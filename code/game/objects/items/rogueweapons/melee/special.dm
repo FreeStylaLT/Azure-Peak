@@ -472,6 +472,48 @@
 /obj/item/rogueweapon/handclaw/steel/graggarblunt/get_examine_highlight_status()
 	return list(EXAMINEHIGHLIGHT_HERESYSEVERITY_ALARMING, HERESYDESC_GRAGGAR_WEAPON)
 
+// non evyl version of unarmed weapons, nerfed to be more balanced for general use, alternatives to steel & bronze claws, but not as good as the gronn special claws
+
+/obj/item/rogueweapon/handclaw/ironclaw
+	slot_flags = ITEM_SLOT_HIP
+	name = "iron fighting claws"
+	desc = "A pair of heavily curved claws, styled after beasts and used in combat by some of the more uncivilized warriors who try to mimic the fighting styles of the wild, or by anyone who thinks they can actually do that."
+	icon_state = "ironclaw"
+	icon = 'icons/roguetown/weapons/unarmed32.dmi'
+	wdefense = 3 // this is not a katar?
+	force = 20
+	possible_item_intents = list(/datum/intent/claw/cut/iron, /datum/intent/claw/lunge/iron, /datum/intent/claw/rend)
+	wbalance = WBALANCE_NORMAL
+	max_blade_int = 180 //nerfed compared to the gronn special claws
+	max_integrity = 180
+	sharpness_mod = 2
+	gripsprite = FALSE
+	parrysound = list('sound/combat/parry/bladed/bladedthin (1).ogg', 'sound/combat/parry/bladed/bladedthin (2).ogg', 'sound/combat/parry/bladed/bladedthin (3).ogg')
+	swingsound = list('sound/combat/wooshes/bladed/wooshmed (1).ogg','sound/combat/wooshes/bladed/wooshmed (2).ogg','sound/combat/wooshes/bladed/wooshmed (3).ogg')
+	swingsound = BLADEWOOSH_SMALL
+	wlength = WLENGTH_NORMAL
+	w_class = WEIGHT_CLASS_NORMAL
+	associated_skill = /datum/skill/combat/unarmed
+	pickup_sound = 'sound/foley/equip/swordsmall2.ogg'
+	throwforce = 12
+	thrown_bclass = BCLASS_CUT
+	anvilrepair = /datum/skill/craft/weaponsmithing
+	smeltresult = /obj/item/ingot/iron
+	grid_height = 96
+	grid_width = 32
+
+/obj/item/rogueweapon/handclaw/ironclaw/blunt
+	name = "iron grip club"
+	desc = "A sturdy handle of iron with a solid spiked bludgeon on the end. It is a simple weapon, alternative to a cudgel or mace for those who prefer to fight with a different grip."
+	icon_state = "ironblunt"
+	icon = 'icons/roguetown/weapons/unarmed32.dmi'
+	wdefense = 3
+	force = 20
+	possible_item_intents = list(/datum/intent/mace/strike, /datum/intent/mace/smash/lesser, /datum/intent/mace/rangedthrust/short)
+	wbalance = WBALANCE_NORMAL
+	swingsound = BLUNTWOOSH_MED
+
+
 ///Peasantry / Militia Weapon Pack///
 
 /obj/item/rogueweapon/woodstaff/militia
@@ -631,7 +673,7 @@
 	use_light = FALSE
 	spread_flame = FALSE
 	icon_state_ignited = "sci_firetongue_on"
-	
+
 /datum/component/ignitable/fluff/sci_sand
 	use_light = FALSE
 	spread_flame = FALSE
@@ -640,7 +682,7 @@
 /datum/component/ignitable/Initialize(...)
 	if(!isitem(parent))
 		return COMPONENT_INCOMPATIBLE
-	
+
 	RegisterSignal(parent, COMSIG_STRUCTURE_ATTACKBY, PROC_REF(item_afterattack))
 	RegisterSignal(parent, COMSIG_ITEM_AFTERATTACK, PROC_REF(item_afterattack))
 	RegisterSignal(parent, COMSIG_PARENT_EXAMINE, PROC_REF(on_examine))
@@ -701,8 +743,7 @@
 					ignited = TRUE
 			if(isliving(target))
 				var/mob/living/M = target
-				M.adjust_fire_stacks(5)
-				M.ignite_mob()
+				apply_scorch_stack(M, 4, BODY_ZONE_CHEST)
 				ignited = TRUE
 			if(ignited && single_use)
 				is_active = FALSE
@@ -840,9 +881,9 @@
 	desc = "A hardy repurposed dwarven mining warpick. Made to handle the dwellers above and below, both clad in rock and forged rock."
 	icon_state = "dwarpick"
 	possible_item_intents = list(/datum/intent/pick/heavy, /datum/intent/mace/strike)
-	gripped_intents = list(/datum/intent/pick/heavy, /datum/intent/mace/strike, /datum/intent/stab/militia)	
+	gripped_intents = list(/datum/intent/pick/heavy, /datum/intent/mace/strike, /datum/intent/stab/militia)
 	max_blade_int = 200 //10% increase over the steel pick
-	max_integrity = 660 
+	max_integrity = 660
 
 /obj/item/rogueweapon/sword/falchion/militia
 	name = "maciejowski"
@@ -875,7 +916,7 @@
 
 /obj/item/rogueweapon/handclaw
 	slot_flags = ITEM_SLOT_HIP
-	name = "Iron Hound Claws"
+	name = "iron hound claws"
 	desc = "A pair of heavily curved claws, styled after beasts of the wilds for rending bare flesh, \
 			A show of the continual worship and veneration of beasts of strength in Gronn."
 	icon_state = "ironclaws"
@@ -902,8 +943,8 @@
 	grid_width = 32
 
 /obj/item/rogueweapon/handclaw/steel
-	name = "Steel Mantis Claws"
-	desc = "A pair of steel claws, An uncommon sight in Gronn as they do not forge their own steel, \
+	name = "steel mantis claws"
+	desc = "A pair of steel claws. An uncommon sight in Gronn as they do not forge their own steel, \
 			Their longer blades offer a superior defence option but their added weight slows them down."
 	icon_state = "steelclaws"
 	icon = 'icons/roguetown/weapons/unarmed32.dmi'
@@ -917,10 +958,10 @@
 	sharpness_mod = 2
 
 /obj/item/rogueweapon/handclaw/gronn
-	name = "Gronn Beast Claws"
+	name = "gronn beast claws"
 	desc = "A pair of uniquely reinforced iron claws forged with the addition of bone by the Iskarn shamans of the Northern Empty. \
 			Their unique design aids them in slipping between the plates in armor and their light weight supports rapid aggressive slashes. \
-			'To see the claws of the four, Is to see the true danger of the north. Not man, Not land but beast. We are all prey in their eyes.'"
+			</br>'To see the claws of the four, Is to see the true danger of the north. Not man, Not land but beast. We are all prey in their eyes.'"
 	icon_state = "gronnclaws"
 	icon = 'icons/roguetown/weapons/unarmed32.dmi'
 	wdefense = 3
@@ -931,11 +972,11 @@
 	max_integrity = 200
 
 /obj/item/rogueweapon/handclaw/gronn/silver
-	name = "Silver Ravager Claws"
+	name = "silver ravager claws"
 	desc = "A trinity of silver claws, forged in defiant reverence of the Old Ways that still permeate throughout the Northern Empty. \
 			The psicruciformic edge shreds through the hide of thralls; resurrected corpses from Fjallic antiquity, said to've been born through faithlessness and despair. \
 			Few shamen hold the strength to wield it, and fewer will speak of what they, alone, know - the true fate of the Weeping Father. \
-			'Here we stand, to turn and face the odds; sacrifice yourself, or bow to lesser gods!'"
+			</br>'Here we stand, to turn and face the odds; sacrifice yourself, or bow to lesser gods!'"
 	smeltresult = /obj/item/ingot/silver
 	icon_state = "silverclaws"
 	wdefense = 5
@@ -954,6 +995,22 @@
 		added_def = 2,\
 	)
 
+/obj/item/rogueweapon/handclaw/blacksteel
+	name = "blacksteel eagle claws"
+	desc = "A magnificent pair of blacksteel claws. While the Northern Empty is unfamiliar with blacksteel, they are familiar with an alloy of \
+			startingly similar repute; blacker-than-black, impossibly strong, and purported to've been the remains of divine matter. Such were wielded by \
+			a legendary champion of the Fjall - one whose valor, though forgotten by tyme, still echoes throughout the world they saved. \
+			</br>'Here in the wake, I know when the noose was set, but the truth is that I regret what I have left!'"
+	icon_state = "bskatarclaw"
+	icon = 'icons/roguetown/weapons/unarmed32.dmi'
+	wdefense = 1
+	force = 35
+	possible_item_intents = list(/datum/intent/claw/cut/gronn, /datum/intent/claw/lunge/gronn, /datum/intent/claw/rend)
+	wbalance = WBALANCE_HEAVY
+	max_blade_int = 350
+	smeltresult = /obj/item/ingot/blacksteel
+	sharpness_mod = 2
+
 /obj/item/rogueweapon/handclaw/getonmobprop(tag)
 	. = ..()
 	if(tag)
@@ -971,6 +1028,7 @@
 	blade_class = BCLASS_STAB
 	hitsound = list('sound/combat/hits/bladed/genstab (1).ogg', 'sound/combat/hits/bladed/genstab (2).ogg', 'sound/combat/hits/bladed/genstab (3).ogg')
 	item_d_type = "stab"
+
 /datum/intent/claw/lunge/iron
 	damfactor = 1.2
 	swingdelay = 8
@@ -1081,7 +1139,6 @@
 /obj/item/rogueweapon/knuckledusters/get_mechanics_examine(mob/user)
 	. = ..()
 	. += span_notice("Knuckledusters, similar to Katars, can still parry oncoming blows. Note that their fragility makes this a bit more of a daunting process, however, for unskilled swingers.")
-	//. += span_notice("Activate - while held in your current hand - to turn these into knuckles, which can be worn as gloves to greatly improve your unarmed damage and parrying chances.")
 
 /obj/item/rogueweapon/knuckledusters/silver
 	name = "silver knuckledusters"
@@ -1094,7 +1151,7 @@
 /obj/item/rogueweapon/knuckledusters/silver/ComponentInitialize()
 	AddComponent(\
 		/datum/component/silverbless,\
-		pre_blessed = BLESSING_TENNITE,\
+		pre_blessed = BLESSING_NONE,\
 		silver_type = SILVER_TENNITE,\
 		added_force = 0,\
 		added_blade_int = 0,\
@@ -1126,7 +1183,7 @@
 /obj/item/rogueweapon/knuckledusters/psy/ComponentInitialize()
 	AddComponent(\
 		/datum/component/silverbless,\
-		pre_blessed = BLESSING_PSYDONIAN,\
+		pre_blessed = BLESSING_NONE,\
 		silver_type = SILVER_PSYDONIAN,\
 		added_force = 0,\
 		added_blade_int = 0,\
@@ -1158,7 +1215,7 @@
 
 /obj/item/rogueweapon/knuckledusters/enduring/attack_self(mob/living/user)
 	. = ..()
-	user.visible_message(span_warning("[user] starts adjusting their grip on[src]."))
+	user.visible_message(span_warning("[user] starts adjusting their grip on [src]."))
 	if(do_after(user, 3 SECONDS))
 		var/obj/item/rogueweapon/knuckledusters/enduring/P = new /obj/item/clothing/gloves/roguetown/knuckles/psydon/old(get_turf(src.loc))
 		if(user.is_holding(src))
@@ -1284,16 +1341,16 @@
 				user.adjust_triumphs(1)
 				init_profane_soul(target, user) //If they are still in their body, send them to the dagger!
 
-/obj/item/rogueweapon/huntingknife/idagger/steel/profane/proc/init_profane_soul(mob/living/carbon/human/target, mob/user)
+/obj/item/rogueweapon/huntingknife/idagger/steel/profane/proc/init_profane_soul(mob/living/carbon/human/target, mob/user, mob/soul)
 	record_featured_stat(FEATURED_STATS_CRIMINALS, user)
 	record_round_statistic(STATS_ASSASSINATIONS)
 	var/mob/dead/observer/profane/S = new /mob/dead/observer/profane(src)
-	S.AddComponent(/datum/component/profaned, src)
+	S.forceMove(src)
 	S.name = "soul of [target.real_name]"
 	S.real_name = "soul of [target.real_name]"
 	S.deadchat_name = target.real_name
-	S.ManualFollow(src)
-	S.key = target.key
+	var/mob/keysource = soul || target
+	S.key = keysource.key
 	S.language_holder = target.language_holder.copy(S)
 	target.visible_message("<span class='danger'>[target]'s soul is pulled from their body and sucked into the profane dagger!</span>", "<span class='danger'>My soul is trapped within the profane dagger. Damnation!</span>")
 	playsound(src, 'sound/magic/soulsteal.ogg', 100, extrarange = 5)
@@ -1311,32 +1368,21 @@
 	if(!chosen_ghost || !chosen_ghost.client) // If there is no valid ghost or if that ghost has no active player
 		return FALSE
 	user.adjust_triumphs(1)
-	init_profane_soul(target, user) // If we got the soul, store them in the dagger.
-	qdel(target) // Get rid of that ghost!
+	init_profane_soul(target, user, chosen_ghost)
+	qdel(chosen_ghost)
 	return TRUE
 
 /obj/item/rogueweapon/huntingknife/idagger/steel/profane/proc/release_profane_souls(mob/user) // For ways to release the souls trapped within a profane dagger, such as a Necrite burial rite. Returns the number of freed souls.
 	var/freed_souls = 0
 	for(var/mob/dead/observer/profane/A in src) // for every trapped soul in the dagger, whether they have left the game or not
 		to_chat(A, "<b>I have been freed from my vile prison, I await Necra's cold grasp. Salvation!</b>")
+		A.trapped = FALSE
 		A.returntolobby() //Send the trapped soul back to the lobby
 		user.visible_message("<span class='warning'>The [A.name] flows out from the profane dagger, finally free of its grasp.</span>")
 		freed_souls += 1
 	user.visible_message("<span class='warning'>The profane dagger shatters into putrid smoke!</span>")
 	qdel(src) // Delete the dagger. Forevermore.
 	return freed_souls
-
-/datum/component/profaned
-	var/atom/movable/container
-
-/datum/component/profaned/Initialize(atom/movable/container)
-	if(!istype(parent, /mob/dead/observer/profane))
-		return COMPONENT_INCOMPATIBLE
-	var/mob/dead/observer/profane/S = parent
-
-	src.container = container
-
-	S.forceMove(container)
 
 // Standard of the keep.
 // Big ol' flag that they keep to give bonuses, used by the manorguard standard bearer.
@@ -1396,13 +1442,7 @@
 
 //Shameless copy of how clothes handle it.
 /obj/item/rogueweapon/spear/keep_standard/update_icon()
-	cut_overlays()
-	if(get_detail_tag())
-		var/mutable_appearance/pic = mutable_appearance(icon(icon, "[icon_state][detail_tag]"))
-		pic.appearance_flags = RESET_COLOR
-		if(get_detail_color())
-			pic.color = get_detail_color()
-		add_overlay(pic)
+	refresh_detail_overlay()
 
 /obj/item/rogueweapon/spear/keep_standard/Initialize()
 	. = ..()

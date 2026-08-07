@@ -187,7 +187,7 @@
 
 	// We spawn the bling if we keep max integ, for the dopamine.
 	if(keep_max_integ && stage_count < REPAIR_STAGE_FINAL)
-		attacked_item.perform_repair_effect(user, REPAIR_STAGE_FINAL)
+		attacked_item.perform_repair_effect(user, REPAIR_STAGE_FINAL, REPAIR_TYPE_HAMMER)
 
 	if(repair_percent && cycle_complete)
 		repair_percent *= attacked_item.max_integrity

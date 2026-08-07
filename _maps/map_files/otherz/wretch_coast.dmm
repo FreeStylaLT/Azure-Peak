@@ -521,6 +521,10 @@
 /area/rogue/outdoors/woods/vampire_lair)
 "bY" = (
 /obj/structure/table/wood/poor,
+/obj/item/repair_kit,
+/obj/item/repair_kit{
+	pixel_y = 11
+	},
 /turf/open/floor/rogue/dirt/road,
 /area/rogue/outdoors/woods/wretch_lair)
 "bZ" = (
@@ -9128,7 +9132,11 @@
 /turf/open/floor/rogue/churchbrick,
 /area/rogue/under/cave/inhumen)
 "Mi" = (
-/obj/machinery/ameliorate,
+/obj/structure/table/wood/poor,
+/obj/item/repair_kit/metal,
+/obj/item/repair_kit/metal{
+	pixel_y = 8
+	},
 /turf/open/floor/rogue/twig,
 /area/rogue/under/cave/inhumen)
 "Mj" = (

@@ -10,11 +10,11 @@
 	throwforce = 0
 	resistance_flags = FLAMMABLE
 	slot_flags = ITEM_SLOT_HIP
-	max_integrity = 700
+	max_integrity = 5
 	experimental_inhand = FALSE
-	var/can_repair = TRUE
-	var/table_need = FALSE
+	var/table_need = TRUE
 	var/repair_type = 0 //0 - cloth; 1 - metal
+	var/in_use = FALSE
 	dropshrink = 0.7
 	grid_width = 64
 	grid_height = 32
@@ -40,7 +40,7 @@
 	qdel(src)
 
 /obj/item/repair_kit/attack_obj(obj/O, mob/living/user)
-	if(!isitem(O))
+	if(!isitem(O) || in_use)
 		return
 	var/obj/item/I = O
 	if(src.obj_integrity <= 0)
@@ -50,44 +50,31 @@
 			playsound(loc,'sound/items/bsmithfail.ogg', 100, TRUE, -2)
 		self_del()
 		return
-	if(can_repair)
-		if(I.sewrepair && repair_type == 1)
+	if(I.sewrepair && repair_type == 1)
+		return
+	if(I.anvilrepair && repair_type == 0)
+		return
+	if(I.max_integrity)
+		if(I.obj_integrity != I.max_integrity)
+			to_chat(user, span_warning("This requires more repairs."))
 			return
-		if(I.anvilrepair && repair_type == 0)
+		if(initial(I.max_integrity) == I.max_integrity)
+			to_chat(user, span_warning("This item is already in top shape."))
 			return
-		if(I.max_integrity)
-			if(I.obj_integrity == I.max_integrity)
-				to_chat(user, span_warning("This is not broken."))
-				return
-			if(!I.ontable() && table_need == TRUE)
-				to_chat(user, span_warning("I should put this on a table first."))
-				return
-			if(I.sewrepair)
-				playsound(loc, 'sound/foley/sewflesh.ogg', 100, TRUE, -2)
-			if(I.anvilrepair)
-				playsound(loc,'sound/items/bsmith3.ogg', 100, TRUE, -2)
-			var/const/AUTO_SEW_DELAY = CLICK_CD_MELEE
-			if(!do_after(user, 2 SECONDS, target = I))
-				return
-			else
-				if(I.sewrepair)
-					playsound(loc, 'sound/foley/sewflesh.ogg', 50, TRUE, -2)
-				if(I.anvilrepair)
-					playsound(loc,'sound/items/bsmith3.ogg', 100, TRUE, -2)
-
-				user.visible_message(span_info("[user] repairs [I]!"))
-				if(I.body_parts_covered != I.body_parts_covered_dynamic)
-					user.visible_message(span_info("[user] repairs [I]'s coverage!"))
-					I.repair_coverage()
-				I.obj_integrity = min(I.obj_integrity + (max_integrity/10), I.max_integrity) //10%
-				I.max_integrity -= 5
-				src.obj_integrity = min(src.obj_integrity - 10, src.max_integrity) //can restore 700% for good cloth kits, and 300% for bad cloth, 400% for bad metal,  1000% for good metal kit.
-				if(I.obj_broken && I.obj_integrity >= I.max_integrity)
-					var/obj/item/T = I
-					T.obj_fix()
-					return
-				if(do_after(user, AUTO_SEW_DELAY, target = I))
-					attack_obj(I, user)
+		if(!I.ontable() && table_need == TRUE)
+			to_chat(user, span_warning("I should put this on a table first."))
+			return
+		if(I.sewrepair)
+			playsound(loc, 'sound/repair/ameliorate_leather.ogg', 100, TRUE, -2)
+		if(I.anvilrepair)
+			playsound(loc,'sound/repair/ameliorate_metal.ogg', 100, TRUE, -2)
+		var/const/AUTO_SEW_DELAY = CLICK_CD_MELEE
+		in_use = TRUE
+		if(!do_after(user, 2 SECONDS, target = I))
+			in_use = FALSE
+			return
+		I.max_integrity = initial(I.max_integrity)
+		take_damage(1, BRUTE)
 		return
 	return ..()
 
@@ -95,7 +82,7 @@
 	name = "fabric patch"
 	icon_state = "custarsewingkit"
 	desc = "A meager set of pieces of cloth, a bundle of threads and a loose rope. It can be used for field repairs."
-	max_integrity = 300
+	max_integrity = 1
 	grid_width = 32
 	grid_height = 32
 
@@ -104,13 +91,13 @@
 	icon_state = "armorkit"
 	desc = "A wonderful set of metal patches, individual armor plates and straps for fastening them. It can be used to properly damaged weapons and armor, without the need for a blacksmith's hammer."
 	repair_type = 1
-	max_integrity = 600
+	max_integrity = 5
 
 /obj/item/repair_kit/metal/bad
 	name = "metal scrap kit"
 	icon_state = "custararmorkit"
 	desc = "A meager set of metal patches, repurposed iron shingles and straps for fastening them. It can be used to repair damaged weapons and armor in a pinch, without the need for a blacksmith's hammer. It can also be used in smithing to create banded iron pieces."
-	max_integrity = 300
+	max_integrity = 1
 
 /obj/item/armorkit_empty
 	name = "empty metal kit"

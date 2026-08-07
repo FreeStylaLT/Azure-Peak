@@ -145,6 +145,14 @@
 
 	// If our skill is Expert or above, we won't diminish our max integ.
 	// Otherwise, we need to have at least 1 level of skill and get lucky.
+
+	var/base_prob = ((user.STALUC - 10) * 10)
+
+	if(istype(src, /obj/item/rogueweapon/hammer/stone) && stage_count < REPAIR_STAGE_FINAL)
+		base_prob -= 10
+
+	base_prob = max(base_prob, 0)
+
 	var/keep_max_integ = ((stage_count > 3) || (prob((user.STALUC - 10) * 10) && stage_count > 0))
 	if(istype(attacked_item, /obj/item/clothing))
 		var/obj/item/clothing/C = attacked_item
@@ -153,10 +161,9 @@
 		if(C.armor_class == ARMOR_CLASS_HEAVY && HAS_TRAIT(user, TRAIT_HEAVYARMOR))
 			keep_max_integ = TRUE
 
-	// We want the other hammers to matter a bit, unless we're beyond blaming our tools
-	if(istype(src, /obj/item/rogueweapon/hammer/stone) && stage_count < REPAIR_STAGE_FINAL)
-		keep_max_integ = FALSE
-
+	// We keep our integ if we're repairing on an anvil regardless of tools.
+	if(locate(/obj/machinery/anvil) in attacked_item.loc)
+		keep_max_integ = TRUE
 	// Ditto, but the other way around.
 	if(!keep_max_integ)
 		if(istype(src, /obj/item/rogueweapon/hammer/blacksteel))
@@ -177,9 +184,17 @@
 	else
 		playsound(get_turf(attacked_item), pick('sound/repair/hammer_noskill_1.ogg', 'sound/repair/hammer_noskill_2.ogg', 'sound/repair/hammer_noskill_3.ogg'), 100, TRUE)
 
+	// We spawn the bling if we keep max integ, for the dopamine.
+	if(keep_max_integ && stage_count < REPAIR_STAGE_FINAL)
+		attacked_item.perform_repair_effect(user, REPAIR_STAGE_FINAL)
+
 	if(repair_percent && cycle_complete)
 		repair_percent *= attacked_item.max_integrity
 		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
+
+		if(!keep_max_integ)
+			max_integrity -= 5
+
 		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
 		user.visible_message(span_info("[user] repairs [attacked_item]!"))
 		if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
@@ -188,8 +203,6 @@
 		if(attacked_item.obj_broken && attacked_item.obj_integrity == attacked_item.max_integrity)
 			attacked_item.obj_fix()
 		user.mind.add_sleep_experience(attacked_item.anvilrepair, exp_gained/2) //We gain as much exp as we fix divided by 2
-		if(!keep_max_integ)
-			max_integrity -= 5
 
 	repair_busy = FALSE
 

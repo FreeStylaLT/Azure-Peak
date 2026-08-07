@@ -295,6 +295,8 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	/// does this item/weapon circumvent two-stage death during dismemberment? (do not add this to anything but ultra rare shit)
 	var/vorpal = FALSE
 
+	var/datum/weakref/last_attacker
+
 /obj/item/Initialize(mapload)
 	. = ..()
 	if(mapload)
@@ -1973,13 +1975,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			switch(stage)
 				if(REPAIR_STAGE_ONE)
 					play_repair_vfx("sewrepair_1", 0.7 SECONDS)
-					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.3 SECONDS)
+					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.2 SECONDS)
 				if(REPAIR_STAGE_TWO)
-					return
+					play_repair_vfx("sewrepair_2", 0.7 SECONDS)
+					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.2 SECONDS)
 				if(REPAIR_STAGE_THREE)
-					return
-				if(REPAIR_STAGE_FINAL)
-					return
+					play_repair_vfx("sewrepair_3", 0.7 SECONDS)
+					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.2 SECONDS)
 
 		if(REPAIR_TYPE_HAMMER)
 			switch(stage)
@@ -2001,7 +2003,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	var/sfx_to_play
 	switch(repair_type)
 		if(REPAIR_TYPE_SEW)
-			return
+			switch(stage)
+				if(REPAIR_STAGE_ONE)
+					sfx_to_play = 'sound/repair/sew_repair_novice.ogg'
+				if(REPAIR_STAGE_TWO)
+					sfx_to_play = 'sound/repair/sew_repair_apprentice.ogg'
+				if(REPAIR_STAGE_THREE)
+					sfx_to_play = 'sound/repair/sew_repair_expert.ogg'
 		if(REPAIR_TYPE_HAMMER)
 			switch(stage)
 				if(REPAIR_STAGE_ONE)

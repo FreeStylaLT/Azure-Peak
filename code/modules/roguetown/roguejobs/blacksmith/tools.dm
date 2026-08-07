@@ -187,7 +187,7 @@
 
 	// We spawn the bling if we keep max integ, for the dopamine.
 	if(keep_max_integ && stage_count < REPAIR_STAGE_FINAL)
-		attacked_item.perform_repair_effect(user, REPAIR_STAGE_FINAL, REPAIR_TYPE_HAMMER)
+		attacked_item.perform_repair_effect(user, REPAIR_STAGE_DING, REPAIR_TYPE_HAMMER)
 
 	if(repair_percent && cycle_complete)
 		repair_percent *= attacked_item.max_integrity
@@ -205,6 +205,7 @@
 			attacked_item.obj_fix()
 
 		if(stage_count == REPAIR_STAGE_FINAL && !attacked_item.GetComponent(/datum/component/fit_clothing))
+			attacked_item.perform_repair_effect(user, REPAIR_STAGE_FINAL, REPAIR_TYPE_HAMMER)
 			attacked_item.max_integrity = initial(attacked_item.max_integrity)
 
 		user.mind.add_sleep_experience(attacked_item.anvilrepair, exp_gained/2) //We gain as much exp as we fix divided by 2

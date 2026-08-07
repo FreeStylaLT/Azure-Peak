@@ -1996,6 +1996,10 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 					play_repair_vfx("hamrepair_3", 0.8 SECONDS)
 					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.3 SECONDS)
 	if(stage == REPAIR_STAGE_FINAL)
+		play_repair_vfx("repair_perfect", 0.8 SECONDS)
+		play_repair_sfx(stage)
+
+	if(stage == REPAIR_STAGE_DING)
 		play_repair_vfx("repair_bling", 0.8 SECONDS)
 		play_repair_sfx(stage)
 

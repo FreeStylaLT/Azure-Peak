@@ -4858,6 +4858,11 @@
 /obj/structure/fluff/railing/border/north,
 /turf/open/transparent/openspace,
 /area/rogue/indoors/cave)
+"uc" = (
+/obj/structure/fluff/railing/wood/north,
+/obj/machinery/ameliorate,
+/turf/open/floor/rogue/twig,
+/area/rogue/indoors/banditcamp)
 "ud" = (
 /obj/structure/chair/stool/rogue,
 /obj/machinery/light/rogue/candle/r,
@@ -9121,6 +9126,10 @@
 "Mh" = (
 /obj/effect/decal/cleanable/debris/stony,
 /turf/open/floor/rogue/churchbrick,
+/area/rogue/under/cave/inhumen)
+"Mi" = (
+/obj/machinery/ameliorate,
+/turf/open/floor/rogue/twig,
 /area/rogue/under/cave/inhumen)
 "Mj" = (
 /obj/structure/roguewindow/stained/zizo,
@@ -32291,7 +32300,7 @@ vE
 vE
 vE
 RY
-IH
+uc
 pS
 qX
 Va
@@ -35327,7 +35336,7 @@ zU
 bI
 qW
 qW
-qW
+Mi
 UM
 CN
 Ev

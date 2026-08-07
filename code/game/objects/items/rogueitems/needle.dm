@@ -188,7 +188,7 @@
 		if(istype(src, /obj/item/needle/pestra))
 			keep_max_integ = TRUE
 
-	var/root_time = 0.8 SECONDS * stage_count
+	var/root_time = 0.7 SECONDS * stage_count
 	var/cycle_complete = TRUE
 	user.Immobilize(root_time)
 	if(stage_count)
@@ -196,7 +196,7 @@
 			if(i == 1)
 				attacked_item.perform_repair_effect(user, i, REPAIR_TYPE_SEW)
 			else
-				if(do_after(user, 0.8 SECONDS, TRUE, progress = FALSE, same_direction = TRUE))
+				if(do_after(user, 0.7 SECONDS, TRUE, progress = FALSE, same_direction = TRUE))
 					attacked_item.perform_repair_effect(user, i, REPAIR_TYPE_SEW)
 				else
 					cycle_complete = FALSE

@@ -66,7 +66,6 @@
 				playsound(loc, 'sound/foley/sewflesh.ogg', 100, TRUE, -2)
 			if(I.anvilrepair)
 				playsound(loc,'sound/items/bsmith3.ogg', 100, TRUE, -2)
-			var/const/XP_ON_SUCCESS = 0.7
 			var/const/AUTO_SEW_DELAY = CLICK_CD_MELEE
 			if(!do_after(user, 2 SECONDS, target = I))
 				return
@@ -80,12 +79,8 @@
 				if(I.body_parts_covered != I.body_parts_covered_dynamic)
 					user.visible_message(span_info("[user] repairs [I]'s coverage!"))
 					I.repair_coverage()
-				if(XP_ON_SUCCESS > 0)
-					if(I.anvilrepair)
-						user.mind.add_sleep_experience(I.anvilrepair, user.STAINT * XP_ON_SUCCESS)
-					else
-						user.mind.add_sleep_experience(/datum/skill/craft/sewing, user.STAINT * XP_ON_SUCCESS)
 				I.obj_integrity = min(I.obj_integrity + (max_integrity/10), I.max_integrity) //10%
+				I.max_integrity -= 5
 				src.obj_integrity = min(src.obj_integrity - 10, src.max_integrity) //can restore 700% for good cloth kits, and 300% for bad cloth, 400% for bad metal,  1000% for good metal kit.
 				if(I.obj_broken && I.obj_integrity >= I.max_integrity)
 					var/obj/item/T = I
@@ -110,7 +105,6 @@
 	desc = "A wonderful set of metal patches, individual armor plates and straps for fastening them. It can be used to properly damaged weapons and armor, without the need for a blacksmith's hammer."
 	repair_type = 1
 	max_integrity = 600
-	table_need = TRUE
 
 /obj/item/repair_kit/metal/bad
 	name = "metal scrap kit"
@@ -164,7 +158,7 @@
 	if(!user.cmode)
 		if(try_construct_consume(src, M, user))
 			return
-		else 
+		else
 			return ..()
 	else
 		return ..()

@@ -608,3 +608,11 @@ GLOBAL_LIST_EMPTY(round_join_times)
 #define ARMOR_MAT_PLATE 1
 #define ARMOR_MAT_LEATHER 2
 #define ARMOR_MAT_CHAINMAIL 3
+
+// Repair defines
+#define REPAIR_TYPE_SEW "sew"
+#define REPAIR_TYPE_HAMMER "hammer"
+#define REPAIR_STAGE_ONE 1
+#define REPAIR_STAGE_TWO 2
+#define REPAIR_STAGE_THREE 3
+#define REPAIR_STAGE_FINAL 4

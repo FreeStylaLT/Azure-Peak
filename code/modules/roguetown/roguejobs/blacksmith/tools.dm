@@ -120,47 +120,77 @@
 		return
 	repair_busy = TRUE
 	var/user_skill = user.get_skill_level(attacked_item.anvilrepair)
-	var/no_decay = (HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
+	var/scaling_override = (HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
 	var/stage_count = min(user_skill, 4)
+	var/repair_percent = 0.2
 
-	do
-		var/repair_percent = get_repair_percent(attacked_item)
-		if(user.get_skill_level(attacked_item.anvilrepair) <= 0)
-			if(HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
-				if(locate(/obj/machinery/anvil) in attacked_item.loc)
-					repair_percent = 0.035
-				//Squires can repair on tables, but less efficiently
-				else if(attacked_item.ontable())
-					repair_percent = 0.015
-			else if(prob(30))
-				repair_percent = 0.01
+	var/repair_delay = 3 SECONDS - (user_skill * (1 SECONDS / 6))
+
+	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
+	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))
+		return
+
+	if(stage_count < 3 && scaling_override)
+		repair_percent = 0.34
+	else
+		switch(stage_count)
+			if(REPAIR_STAGE_ONE)
+				repair_percent = 0.25
+			if(REPAIR_STAGE_TWO)
+				repair_percent = 0.34
+			if(REPAIR_STAGE_THREE, REPAIR_STAGE_FINAL)
+				repair_percent = 1
 			else
-				repair_percent = 0
-		else
-			repair_percent *= user.get_skill_level(attacked_item.anvilrepair)
+				repair_percent = 0.2
 
-		playsound(src,'sound/items/bsmithfail.ogg', 40, FALSE)
-		if(repair_percent)
-			repair_percent *= attacked_item.max_integrity
-			var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
-			attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
-			if(repair_percent == 0.01) // If an inexperienced repair attempt has been successful
-				to_chat(user, span_warning("You fumble your way into slightly repairing [attacked_item]."))
+	// If our skill is Expert or above, we won't diminish our max integ.
+	// Otherwise, we need to have at least 1 level of skill and get lucky.
+	var/keep_max_integ = ((stage_count > 3) || (prob((user.STALUC - 10) * 10) && stage_count > 0))
+	if(istype(attacked_item, /obj/item/clothing))
+		var/obj/item/clothing/C = attacked_item
+		if(C.armor_class == ARMOR_CLASS_MEDIUM && HAS_TRAIT(user, TRAIT_MEDIUMARMOR))
+			keep_max_integ = TRUE
+		if(C.armor_class == ARMOR_CLASS_HEAVY && HAS_TRAIT(user, TRAIT_HEAVYARMOR))
+			keep_max_integ = TRUE
+
+	// We want the other hammers to matter a bit, unless we're beyond blaming our tools
+	if(istype(src, /obj/item/rogueweapon/hammer/stone) && stage_count < REPAIR_STAGE_FINAL)
+		keep_max_integ = FALSE
+
+	// Ditto, but the other way around.
+	if(!keep_max_integ)
+		if(istype(src, /obj/item/rogueweapon/hammer/blacksteel))
+			keep_max_integ = TRUE
+
+	var/root_time = 0.8 SECONDS * stage_count
+	var/cycle_complete = TRUE
+	user.Immobilize(root_time)
+	if(stage_count)
+		for(var/i in 1 to stage_count)
+			if(i == 1)
+				attacked_item.perform_repair_effect(user, i, REPAIR_TYPE_HAMMER)
 			else
-				user.visible_message(span_info("[user] repairs [attacked_item]!"))
-				if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
-					user.visible_message(span_info("[user] repairs [attacked_item]'s coverage!"))
-					attacked_item.repair_coverage()
-			if(attacked_item.obj_broken && attacked_item.obj_integrity == attacked_item.max_integrity)
-				attacked_item.obj_fix()
-			user.mind.add_sleep_experience(attacked_item.anvilrepair, exp_gained/2) //We gain as much exp as we fix divided by 2
-		else
-			user.visible_message(span_warning("[user] fumbles trying to repair [attacked_item]!"))
+				if(do_after(user, 0.8 SECONDS, TRUE, progress = FALSE, same_direction = TRUE))
+					attacked_item.perform_repair_effect(user, i, REPAIR_TYPE_HAMMER)
+				else
+					cycle_complete = FALSE
+	else
+		playsound(get_turf(attacked_item), pick('sound/repair/hammer_noskill_1.ogg', 'sound/repair/hammer_noskill_2.ogg', 'sound/repair/hammer_noskill_3.ogg'), 100, TRUE)
 
-		if(attacked_item.obj_integrity >= attacked_item.max_integrity)
-			break
+	if(repair_percent && cycle_complete)
+		repair_percent *= attacked_item.max_integrity
+		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
+		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
+		user.visible_message(span_info("[user] repairs [attacked_item]!"))
+		if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
+			user.visible_message(span_info("[user] repairs [attacked_item]'s coverage!"))
+			attacked_item.repair_coverage()
+		if(attacked_item.obj_broken && attacked_item.obj_integrity == attacked_item.max_integrity)
+			attacked_item.obj_fix()
+		user.mind.add_sleep_experience(attacked_item.anvilrepair, exp_gained/2) //We gain as much exp as we fix divided by 2
+		if(!keep_max_integ)
+			max_integrity -= 5
 
-	while(do_after(user, CLICK_CD_FAST, target = attacked_item))
 	repair_busy = FALSE
 
 /obj/item/rogueweapon/hammer/proc/repair_structure(obj/structure/attacked_structure, mob/living/user)

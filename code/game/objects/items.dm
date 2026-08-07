@@ -1954,3 +1954,67 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 /obj/item/proc/remove_floating() // needed for timers
 	item_flags &= ~FLOATING_ITEM
+
+/obj/item/proc/repair_effect_check(mob/living/user)
+	if(!user || !Adjacent(user))
+		return FALSE
+	return TRUE
+
+/// This is a hodged-butt proc that tries to make an effect sync up with a particular frame of sfx for best effect.
+/// Byond does not have an animation controller for keyframes calling procs or scripts, so, we do it by hand.
+/// This is entirely for a more satisfying feel of the animations and should be sacrificed for performance if it comes down to it.
+/obj/item/proc/perform_repair_effect(mob/living/user, stage, repair_type)
+	if(!user || !stage || !repair_type)
+		CRASH("[src] called perform_repair_effect without a valid stage, repair_type or user")
+	if(!repair_effect_check(user))
+		return
+	switch(repair_type)
+		if(REPAIR_TYPE_SEW)
+			switch(stage)
+				if(REPAIR_STAGE_ONE)
+					play_repair_vfx("sewrepair_1", 0.7 SECONDS)
+					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.3 SECONDS)
+				if(REPAIR_STAGE_TWO)
+					return
+				if(REPAIR_STAGE_THREE)
+					return
+				if(REPAIR_STAGE_FINAL)
+					return
+
+		if(REPAIR_TYPE_HAMMER)
+			switch(stage)
+				if(REPAIR_STAGE_ONE)
+					play_repair_vfx("hamrepair_1", 0.9 SECONDS)
+					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.5 SECONDS)
+				if(REPAIR_STAGE_TWO)
+					play_repair_vfx("hamrepair_2", 0.8 SECONDS)
+					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.4 SECONDS)
+				if(REPAIR_STAGE_THREE)
+					playsound(src, 'sound/repair/hammer_windup.ogg', 100, TRUE)
+					play_repair_vfx("hamrepair_3", 0.8 SECONDS)
+					addtimer(CALLBACK(src, PROC_REF(play_repair_sfx), stage, repair_type), 0.3 SECONDS)
+	if(stage == REPAIR_STAGE_FINAL)
+		play_repair_vfx("repair_bling", 0.8 SECONDS)
+		play_repair_sfx(stage)
+
+/obj/item/proc/play_repair_sfx(stage, repair_type)
+	var/sfx_to_play
+	switch(repair_type)
+		if(REPAIR_TYPE_SEW)
+			return
+		if(REPAIR_TYPE_HAMMER)
+			switch(stage)
+				if(REPAIR_STAGE_ONE)
+					sfx_to_play = 'sound/repair/hammer_novice_1.ogg'
+				if(REPAIR_STAGE_TWO)
+					sfx_to_play = 'sound/repair/hammer_apprentice_1.ogg'
+				if(REPAIR_STAGE_THREE)
+					sfx_to_play = 'sound/repair/hammer_expert_1.ogg'
+	if(stage == REPAIR_STAGE_FINAL)
+		sfx_to_play = pick('sound/repair/repair_perfect_1.ogg', 'sound/repair/repair_perfect_2.ogg', 'sound/repair/repair_perfect_3.ogg')
+	if(sfx_to_play)
+		playsound(src, sfx_to_play, 100, TRUE)
+
+/obj/item/proc/play_repair_vfx(istate, timer)
+	if(istate && timer)
+		new /obj/effect/temp_visual/repair_fx(get_turf(src), timer, istate)

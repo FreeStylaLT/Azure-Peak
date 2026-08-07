@@ -116,8 +116,6 @@
 				else
 					break
 			return
-	if(user)
-		set_last_attacker(user)
 	. = ..()
 
 /obj/item/proc/sharpen(obj/item/natural/ST, mob/user, factor = 1)

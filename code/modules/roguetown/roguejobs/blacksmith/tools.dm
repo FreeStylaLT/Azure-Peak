@@ -128,6 +128,7 @@
 
 	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
 	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))
+		repair_busy = FALSE
 		return
 
 	if(stage_count < 3 && scaling_override)
@@ -492,6 +493,10 @@
 	desc = "Each strikes reverberate loudly chanting war!"
 	icon_state = "hammer_i"
 	smeltresult = /obj/item/ingot/iron
+
+/obj/item/rogueweapon/hammer/iron/communal	// iron hammer
+	name = "communal hammer"
+	desc = "A hammer procured by the local Eorans, meant for the communal use. You didn't read this after having snatched it for yourself, did you?"
 
 /obj/item/rogueweapon/hammer/steel	// steel hammer
 	name = "claw hammer"

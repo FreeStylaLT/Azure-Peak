@@ -147,6 +147,7 @@
 
 	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
 	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))
+		repair_busy = FALSE
 		return
 
 	if(stage_count < 3 && scaling_override)
@@ -347,6 +348,10 @@
 	desc = "A deceptively long needle with a craned tip, laced for labors-a-plenety."
 	stringamt = 30
 	maxstring = 30
+
+/obj/item/needle/bronze/communal
+	name = "communal bronze needle"
+	desc = "A needle left with utmost goodwill intentions, meant to help repair the equipment of those in need. You didn't snatch it for yourself, did you?"
 
 /obj/item/needle/aalloy
 	name = "decrepit needle"

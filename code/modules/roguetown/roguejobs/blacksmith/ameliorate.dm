@@ -2,7 +2,7 @@
 	icon = 'icons/roguetown/misc/forge.dmi'
 	name = "ameliorate"
 	desc = "A mixture of artifice and smithing, made easy enough to use for anyone. This will clear up any dents or small tears made in armor, making it new again. Fitted light armor will end up ruined, however."
-	icon_state = "anvil"
+	icon_state = "ameliorate"
 	max_integrity = 200
 	density = TRUE
 	damage_deflection = 25
@@ -21,6 +21,14 @@
 
 	if(in_use)
 		to_chat(user, span_warning("It's currently being used!"))
+		return
+
+	if(I.max_integrity != I.obj_integrity)
+		to_chat(user, span_warning("\The [I] still needs repairs before being ameliorated!"))
+		return
+
+	if(initial(I.max_integrity) == I.max_integrity)
+		to_chat(user, span_warning("This does not need any amelioration. It is fine."))
 		return
 
 	var/sfx

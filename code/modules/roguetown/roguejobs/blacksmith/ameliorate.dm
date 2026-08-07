@@ -44,6 +44,7 @@
 		in_use = TRUE
 		if(do_after(user, use_delay, TRUE, same_direction = TRUE))
 			I.max_integrity = initial(I.max_integrity)
+			I.obj_integrity = I.max_integrity
 			if(has_fitting)
 				has_fitting.Destroy()
 			in_use = FALSE

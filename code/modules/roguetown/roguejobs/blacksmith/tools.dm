@@ -118,6 +118,11 @@
 
 	if(repair_busy)
 		return
+
+	if((user.in_combat_until + 50 SECONDS)> world.time)
+		to_chat(user, span_warning("I am still too tense from my recent fight."))
+		return
+
 	repair_busy = TRUE
 	var/user_skill = user.get_skill_level(attacked_item.anvilrepair)
 	var/scaling_override = (HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))

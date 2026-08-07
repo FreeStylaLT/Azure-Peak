@@ -203,6 +203,10 @@
 			attacked_item.repair_coverage()
 		if(attacked_item.obj_broken && attacked_item.obj_integrity == attacked_item.max_integrity)
 			attacked_item.obj_fix()
+
+		if(stage_count == REPAIR_STAGE_FINAL && !attacked_item.GetComponent(/datum/component/fit_clothing))
+			attacked_item.max_integrity = initial(attacked_item.max_integrity)
+
 		user.mind.add_sleep_experience(attacked_item.anvilrepair, exp_gained/2) //We gain as much exp as we fix divided by 2
 
 	repair_busy = FALSE

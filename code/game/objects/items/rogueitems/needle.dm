@@ -214,11 +214,17 @@
 			max_integrity -= 5
 		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
 		user.visible_message(span_info("[user] repairs [attacked_item]!"))
+
 		if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
 			user.visible_message(span_info("[user] repairs [attacked_item]'s coverage!"))
 			attacked_item.repair_coverage()
+
 		if(attacked_item.obj_broken && attacked_item.obj_integrity == attacked_item.max_integrity)
 			attacked_item.obj_fix()
+
+		if(stage_count == REPAIR_STAGE_FINAL && !attacked_item.GetComponent(/datum/component/fit_clothing))
+			attacked_item.max_integrity = initial(attacked_item.max_integrity)
+
 		user.mind.add_sleep_experience(/datum/skill/craft/sewing, exp_gained/2) //We gain as much exp as we fix divided by 2
 		use(1)
 

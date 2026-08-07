@@ -99,38 +99,6 @@
 	desc = "A meager set of metal patches, repurposed iron shingles and straps for fastening them. It can be used to repair damaged weapons and armor in a pinch, without the need for a blacksmith's hammer. It can also be used in smithing to create banded iron pieces."
 	max_integrity = 1
 
-/obj/item/armorkit_empty
-	name = "empty metal kit"
-	desc = "An empty metal box that is suitable for storing various pieces of hardware and other scrap. </br>Stuff this with three pieces of iron scrap, obtainable by destroying iron equipment, to create a metal repair kit."
-	icon_state = "armorkit_empty"
-	icon = 'icons/roguetown/items/misc.dmi'
-	grid_width = 64
-	grid_height = 32
-	var/need_scrap = 3
-	var/current_scrap = 0
-	dropshrink = 0.7
-
-/obj/item/armorkit_empty/attackby(obj/O, mob/living/user, params)
-	if(!isitem(O))
-		return
-	var/obj/item/I = O
-	if(I.anvilrepair || I.type == /obj/item/scrap)
-		if(I.smeltresult == /obj/item/ingot/iron || I.type == /obj/item/scrap) //all iron stuff and iron scrap
-			if(!do_after(user, 2 SECONDS, target = I))
-				return
-			user.visible_message(span_notice("[user] salvages [I] into usable materials."))
-			qdel(I)
-			current_scrap++
-			if(current_scrap < need_scrap)
-				var/visible_scrap = need_scrap - current_scrap
-				to_chat(user, span_info("To fill [name], you need [visible_scrap] more..."))
-			if(current_scrap >= need_scrap)
-				new /obj/item/repair_kit/metal/bad(get_turf(src))
-				qdel(src)
-			return
-		return
-	return
-
 /obj/item/scrap
 	name = "iron scrap"
 	desc = "Shingles and scrap, born from violence upon iron. There may yet still be a use for these pieces.. </br>Iron scrap can be crafted into metal repair kits, which - when stuffed with iron scrap - can repair damaged equipment without the need for a blacksmith's hammer."

@@ -33,20 +33,20 @@
 	craftdiff = 1
 
 /datum/crafting_recipe/roguetown/survival/repairkitmetalingot
-	name = "empty metal repair kit (iron bar)"
+	name = "scrap repair kit 2x (iron bar)"
 	display_category = ITEM_CAT_TOOLS_WORKSHOP
-	result = /obj/item/armorkit_empty
+	result = list(/obj/item/repair_kit/metal/bad = 2)
 	reqs = list(
 		/obj/item/ingot/iron = 1,
 		)
 	craftdiff = 2
 
 /datum/crafting_recipe/roguetown/survival/repairkitmetalscrap
-	name = "empty metal repair kit (iron scrap)"
+	name = "scrap repair kit (iron scrap)"
 	display_category = ITEM_CAT_TOOLS_WORKSHOP
-	result = /obj/item/armorkit_empty
+	result = /obj/item/repair_kit/metal/bad
 	reqs = list(
-		/obj/item/scrap = 3,
+		/obj/item/scrap = 2,
 		)
 	craftdiff = 1
 

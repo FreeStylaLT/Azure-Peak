@@ -51,6 +51,7 @@
 			return
 		in_use = TRUE
 
+		var/sfx
 		if(I.anvilrepair && !I.sewrepair)
 			sfx = 'sound/repair/ameliorate_metal.ogg'
 		if(I.sewrepair && !I.anvilrepair)

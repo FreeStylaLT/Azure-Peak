@@ -726,7 +726,9 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			var/eff_currint = max(obj_integrity - (max_integrity * integrity_failure), 0)
 			var/ratio =	(eff_currint / eff_maxint)
 			var/percent = round((ratio * 100), 1)
-			inspec += "[percent]% ([floor(eff_currint)])"
+			var/integ_total = initial(max_integrity)
+			var/show_total = ((integ_total - max_integrity) >= 30)	// If our max integrity difference is 30 or more (a standard hit), we show it to the user.
+			inspec += "[percent]% ([floor(eff_currint)][show_total ? " / [integ_total]" : ""])"
 			if(force >= 5) // Durability is rather obvious for non-weapons
 				inspec += " <span class='info'><a href='?src=[REF(src)];explaindurability=1'>{?}</a></span>"
 		if(istype(src, /obj/item/clothing))	//awful

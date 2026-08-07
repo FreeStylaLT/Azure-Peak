@@ -241,7 +241,6 @@
 		/datum/action/cooldown/spell/conjure_arcyne_ward/crystalhide,
 		/datum/action/cooldown/spell/bind_armament,
 		/datum/action/cooldown/spell/arcyne_forge,
-		/datum/action/cooldown/spell/mending,
 	)
 	variants = list(
 		"mastery" = list(
@@ -375,7 +374,6 @@
 		/datum/action/cooldown/spell/augment_buff/grasp,
 		/datum/action/cooldown/spell/augment_buff/augment_defense,
 		/datum/action/cooldown/spell/darkvision,
-		/datum/action/cooldown/spell/mending,
 		/datum/action/cooldown/spell/create_campfire,
 	)
 	variants = list(

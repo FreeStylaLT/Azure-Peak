@@ -1,11 +1,11 @@
 /obj/machinery/ameliorate
 	icon = 'icons/roguetown/misc/forge.dmi'
 	name = "ameliorate"
-	desc = "A mixture of artifice and smithing, made easy enough to use for anyone. This will clear up any dents or small tears made in armor, making it new again. Fitted light armor will end up ruined, however."
+	desc = "A mixture of artifice and smithing, made easy enough to use for anyone. This will clear up any dents or small tears made in armor, restoring its maximum integrity. Fitted light armor will end up ruined, however. \n\n<b>It's operated by an empty hand and affects all armor placed atop of it.</b>"
 	icon_state = "ameliorate"
-	max_integrity = 200
+	max_integrity = 300
 	density = TRUE
-	damage_deflection = 25
+	damage_deflection = 45
 	climbable = TRUE
 	pass_flags_self = LETPASSTHROW
 	var/in_use = FALSE

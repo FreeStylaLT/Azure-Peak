@@ -74,6 +74,7 @@
 			in_use = FALSE
 			return
 		I.max_integrity = initial(I.max_integrity)
+		I.obj_integrity = I.max_integrity
 		take_damage(1, BRUTE)
 		return
 	return ..()

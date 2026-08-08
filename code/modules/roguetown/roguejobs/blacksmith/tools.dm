@@ -119,8 +119,9 @@
 	if(repair_busy)
 		return
 
-	if((user.in_combat_until + 10 SECONDS)> world.time)
-		to_chat(user, span_warning("I am still too tense from my recent fight."))
+	// We've been in combat in the last minute, no repairs yet, please.
+	if((user.in_combat_until + 20 SECONDS)> world.time)
+		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 20 SECONDS - world.time) / 10] seconds left)"))
 		return
 
 	repair_busy = TRUE
@@ -129,15 +130,13 @@
 	var/stage_count = min(user_skill, 4)
 	var/repair_percent = 0.2
 
-	var/repair_delay = 3 SECONDS - (user_skill * (1 SECONDS / 6))
-
 	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
 	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))
 		repair_busy = FALSE
 		return
 
 	if(stage_count < 3 && scaling_override)
-		repair_percent = 0.34
+		stage_count = 2
 	else
 		switch(stage_count)
 			if(REPAIR_STAGE_ONE)
@@ -152,7 +151,7 @@
 	// If our skill is Expert or above, we won't diminish our max integ.
 	// Otherwise, we need to have at least 1 level of skill and get lucky.
 
-	var/base_prob = ((user.STALUC - 10) * 10) + (stage_count * 10)
+	var/base_prob = ((user.STALUC - 10) * 10) + (stage_count * 20)
 
 	if(istype(src, /obj/item/rogueweapon/hammer/stone) && stage_count < REPAIR_STAGE_FINAL)
 		base_prob -= 10
@@ -196,10 +195,14 @@
 
 	if(repair_percent && cycle_complete)
 		repair_percent *= attacked_item.max_integrity
+		if(stage_count < REPAIR_STAGE_THREE || scaling_override)
+			repair_percent = clamp(repair_percent, 1, (60 + (stage_count * 20)))
+		if(stage_count == REPAIR_STAGE_THREE)
+			repair_percent = min(300, repair_percent)
 		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
 
 		if(!keep_max_integ)
-			max_integrity -= 5
+			attacked_item.max_integrity -= 5
 
 		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
 		user.visible_message(span_info("[user] repairs [attacked_item]!"))

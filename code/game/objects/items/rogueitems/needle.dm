@@ -139,8 +139,8 @@
 		return
 
 	// We've been in combat in the last minute, no repairs yet, please.
-	if((user.in_combat_until + 10 SECONDS)> world.time)
-		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 50 SECONDS - world.time) / 10] seconds left)"))
+	if((user.in_combat_until + 20 SECONDS)> world.time)
+		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 20 SECONDS - world.time) / 10] seconds left)"))
 		return
 
 	repair_busy = TRUE
@@ -217,7 +217,7 @@
 		repair_percent *= attacked_item.max_integrity
 		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
 		if(!keep_max_integ)
-			max_integrity -= 2
+			attacked_item.max_integrity -= 2
 		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
 		user.visible_message(span_info("[user] repairs [attacked_item]!"))
 

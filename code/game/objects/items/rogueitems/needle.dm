@@ -171,7 +171,8 @@
 
 	// If our skill is Expert or above, we won't diminish our max integ.
 	// Otherwise, we need to have at least 1 level of skill and get lucky.
-	var/base_prob = ((user.STALUC - 10) * 10) + (stage_count * 10)
+	var/base_prob = ((user.STALUC - 10) * 10) + (stage_count * 15)
+
 	if(istype(src, /obj/item/needle/thorn) && stage_count < REPAIR_STAGE_FINAL)
 		base_prob -= 10
 

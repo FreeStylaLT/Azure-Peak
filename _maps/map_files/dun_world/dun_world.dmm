@@ -11268,11 +11268,6 @@
 /obj/machinery/light/rogue/torchholder/l,
 /turf/open/floor/rogue/tile/masonic/inverted,
 /area/rogue/under/cave/orcdungeon)
-"cjE" = (
-/obj/structure/fluff/railing/border/north,
-/obj/structure/roguemachine/noticeboard,
-/turf/open/floor/rogue/concrete,
-/area/rogue/outdoors/town)
 "cjF" = (
 /obj/effect/decal/edge{
 	color = "#3f3f3f"
@@ -23243,6 +23238,12 @@
 /mob/living/carbon/human/species/skeleton/npc/mediumspread,
 /turf/open/floor/rogue/grasscold,
 /area/rogue/outdoors/mountains/decap)
+"evW" = (
+/obj/effect/decal/mossy{
+	dir = 4
+	},
+/turf/open/floor/rogue/dirt/road,
+/area/rogue/outdoors/town)
 "ewb" = (
 /obj/structure/fluff/railing/corner/south_east,
 /turf/open/floor/rogue/ruinedwood/spiral,
@@ -29191,7 +29192,6 @@
 /turf/open/floor/rogue/grass,
 /area/rogue/outdoors/mountains)
 "fCl" = (
-/obj/structure/fluff/railing/border/east,
 /obj/effect/decal/mossy{
 	dir = 4
 	},
@@ -72513,6 +72513,14 @@
 /obj/machinery/light/rogue/candle/blue/r,
 /turf/open/transparent/openspace,
 /area/rogue/outdoors/mountains/decap/stepbelow)
+"nEE" = (
+/obj/effect/decal/edge{
+	color = "#3f3f3f";
+	dir = 8
+	},
+/obj/structure/chair/bench,
+/turf/open/floor/rogue/cobble,
+/area/rogue/outdoors/town)
 "nEG" = (
 /obj/structure/closet/crate/chest/crate,
 /obj/effect/spawner/lootdrop/roguetown/dungeon/clothing,
@@ -85406,6 +85414,14 @@
 /obj/machinery/light/rogue/candle,
 /turf/open/floor/rogue/ruinedwood/spiral,
 /area/rogue/outdoors/beach)
+"pVC" = (
+/obj/effect/decal/edge{
+	color = "#3f3f3f";
+	dir = 4
+	},
+/obj/structure/chair/bench,
+/turf/open/floor/rogue/cobble,
+/area/rogue/outdoors/town)
 "pVJ" = (
 /obj/structure/closet/crate/roguecloset,
 /turf/open/floor/rogue/ruinedwood/turned,
@@ -86172,10 +86188,6 @@
 /mob/living/carbon/human/species/dwarfskeleton/ambush,
 /turf/open/floor/rogue/blocks,
 /area/rogue/outdoors/mountains/decap/gunduzirak)
-"qdb" = (
-/obj/structure/fluff/railing/border/north,
-/turf/open/floor/rogue/concrete,
-/area/rogue/outdoors/town)
 "qdc" = (
 /obj/machinery/light/rogue/firebowl/stump,
 /obj/effect/decal/cobbleedge{
@@ -92035,6 +92047,10 @@
 /obj/machinery/light/rogue/torchholder/r,
 /turf/open/floor/rogue/grasscold,
 /area/rogue/outdoors/exposed/magiciantower)
+"rhX" = (
+/obj/structure/roguemachine/noticeboard,
+/turf/open/floor/rogue/concrete,
+/area/rogue/outdoors/town)
 "rid" = (
 /obj/structure/fermentation_keg/redwine,
 /turf/open/floor/rogue/grass,
@@ -99202,7 +99218,6 @@
 /turf/open/floor/rogue/tile/harem1,
 /area/rogue/indoors/abandonedhotsprings)
 "sCp" = (
-/obj/structure/fluff/railing/corner,
 /obj/effect/decal/cobbleedge{
 	dir = 6
 	},
@@ -106735,7 +106750,6 @@
 /turf/open/floor/rogue/ruinedwood,
 /area/rogue/indoors)
 "tVs" = (
-/obj/structure/fluff/railing/border/west,
 /obj/machinery/light/rogue/firebowl,
 /turf/open/floor/rogue/cobble,
 /area/rogue/outdoors/town)
@@ -125694,15 +125708,6 @@
 "xCK" = (
 /turf/open/water/swamp,
 /area/rogue/under/town/sewer)
-"xCM" = (
-/obj/structure/fluff/railing/border/north,
-/obj/effect/decal/edge{
-	color = "#3f3f3f";
-	dir = 4
-	},
-/obj/structure/chair/bench,
-/turf/open/floor/rogue/cobble,
-/area/rogue/outdoors/town)
 "xCR" = (
 /obj/structure/fluff/pillow/magenta{
 	dir = 1
@@ -127332,15 +127337,6 @@
 /obj/machinery/light/rogue/candle/blue/l,
 /turf/open/floor/rogue/herringbone,
 /area/rogue/indoors/town/manor)
-"xTc" = (
-/obj/structure/fluff/railing/border/north,
-/obj/effect/decal/edge{
-	color = "#3f3f3f";
-	dir = 8
-	},
-/obj/structure/chair/bench,
-/turf/open/floor/rogue/cobble,
-/area/rogue/outdoors/town)
 "xTe" = (
 /obj/structure/flora/hotspring_rocks/grassy,
 /turf/open/floor/rogue/cobble,
@@ -279471,9 +279467,9 @@ dAu
 pxE
 gCs
 djq
-aYA
-gXs
+evW
 fty
+jnb
 jnb
 rMz
 kjm
@@ -279923,8 +279919,8 @@ xoY
 eFB
 cQe
 djq
-jiQ
-jUs
+eHg
+sns
 sns
 kfC
 qfA
@@ -280375,9 +280371,9 @@ pkQ
 fwK
 klT
 vJk
-mQr
-xCM
+pVC
 joy
+sns
 sns
 hQW
 sAU
@@ -280827,10 +280823,10 @@ fwK
 fwK
 tHM
 vJk
-jiQ
-cjE
+rhX
 lJF
-sns
+uGm
+uGm
 sns
 sAU
 xqO
@@ -281279,10 +281275,10 @@ iGf
 fwK
 jxP
 djq
-jiQ
-qdb
+dmV
 lJF
-sns
+uGm
+uGm
 sns
 kjm
 xqO
@@ -281731,9 +281727,9 @@ jxR
 fwK
 fxa
 djq
-aZo
-xTc
+nEE
 nTG
+sns
 sns
 sns
 kjm

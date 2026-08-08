@@ -139,8 +139,8 @@
 		return
 
 	// We've been in combat in the last minute, no repairs yet, please.
-	if((user.in_combat_until + 20 SECONDS)> world.time)
-		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 20 SECONDS - world.time) / 10] seconds left)"))
+	if((user.in_combat_until + 50 SECONDS)> world.time)
+		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 50 SECONDS - world.time) / 10] seconds left)"))
 		return
 
 	repair_busy = TRUE
@@ -157,7 +157,7 @@
 		return
 
 	if(stage_count < 3 && scaling_override)
-		repair_percent = 0.34
+		stage_count = 2
 	else
 		switch(stage_count)
 			if(REPAIR_STAGE_ONE)
@@ -178,7 +178,7 @@
 
 	base_prob = max(base_prob, 0)
 
-	var/keep_max_integ = ((stage_count > 3) || (prob(base_prob) && stage_count > 0))
+	var/keep_max_integ = ((stage_count > 3) || prob(base_prob))
 	if(istype(attacked_item, /obj/item/clothing))
 		var/obj/item/clothing/C = attacked_item
 		if(C.armor_class == ARMOR_CLASS_MEDIUM && HAS_TRAIT(user, TRAIT_MEDIUMARMOR))

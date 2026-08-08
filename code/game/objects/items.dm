@@ -2028,7 +2028,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 					sfx_to_play = 'sound/repair/hammer_apprentice_1.ogg'
 				if(REPAIR_STAGE_THREE)
 					sfx_to_play = 'sound/repair/hammer_expert_1.ogg'
-	if(stage == REPAIR_STAGE_FINAL)
+	if(stage == REPAIR_STAGE_FINAL || stage == REPAIR_STAGE_DING)
 		sfx_to_play = pick('sound/repair/repair_perfect_1.ogg', 'sound/repair/repair_perfect_2.ogg', 'sound/repair/repair_perfect_3.ogg')
 	if(sfx_to_play)
 		playsound(src, sfx_to_play, 100, TRUE)

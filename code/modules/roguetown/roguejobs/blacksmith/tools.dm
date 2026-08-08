@@ -203,7 +203,10 @@
 		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
 
 		if(!keep_max_integ)
-			attacked_item.max_integrity = min(attacked_item.max_integrity - 5, 50)
+			var/integ_loss = 5
+			if(istype(attacked_item, /obj/item/rogueweapon) && attacked_item.sharpness)
+				integ_loss = 3
+			attacked_item.max_integrity = min(attacked_item.max_integrity - integ_loss, 50)
 
 		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
 		user.visible_message(span_info("[user] repairs [attacked_item]!"))

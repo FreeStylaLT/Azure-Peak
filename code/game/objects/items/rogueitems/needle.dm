@@ -196,6 +196,7 @@
 	var/root_time = 0.7 SECONDS * stage_count
 	var/cycle_complete = TRUE
 	user.Immobilize(root_time)
+	user.changeNext_move(root_time)
 	if(stage_count)
 		for(var/i in 1 to stage_count)
 			if(i == 1)

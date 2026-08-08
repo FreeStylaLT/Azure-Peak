@@ -120,8 +120,8 @@
 		return
 
 	// We've been in combat in the last minute, no repairs yet, please.
-	if((user.in_combat_until + 30 SECONDS)> world.time)
-		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 30 SECONDS - world.time) / 10] seconds left)"))
+	if((user.in_combat_until + 10 SECONDS)> world.time)
+		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 10 SECONDS - world.time) / 10] seconds left)"))
 		return
 
 	repair_busy = TRUE

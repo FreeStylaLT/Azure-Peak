@@ -351,8 +351,8 @@
 	name = "clerical needle"
 	icon_state = "lesserneedle"
 	desc = "This iron-tipped needle can stem the flow of nastier wounds; a blessing, when one is delivered a grave blow while far away from the Church."
-	stringamt = 10
-	maxstring = 10
+	stringamt = 15
+	maxstring = 15
 	anvilrepair = null
 
 /obj/item/needle/pestra
@@ -370,6 +370,8 @@
 /obj/item/needle/bronze/communal
 	name = "communal bronze needle"
 	desc = "A needle left with utmost goodwill intentions, meant to help repair the equipment of those in need. You didn't snatch it for yourself, did you?"
+	stringamt = 50
+	maxstring = 50
 
 /obj/item/needle/aalloy
 	name = "decrepit needle"

@@ -159,7 +159,8 @@
 
 	base_prob = max(base_prob, 0)
 
-	var/keep_max_integ = ((stage_count > 3) || prob(base_prob))
+	var/keep_max_integ_chance = ((stage_count > 3) || prob(base_prob))
+	var/keep_max_integ = FALSE
 	if(istype(attacked_item, /obj/item/clothing))
 		var/obj/item/clothing/C = attacked_item
 		if(C.armor_class == ARMOR_CLASS_MEDIUM && HAS_TRAIT(user, TRAIT_MEDIUMARMOR))
@@ -191,7 +192,7 @@
 		playsound(get_turf(attacked_item), pick('sound/repair/hammer_noskill_1.ogg', 'sound/repair/hammer_noskill_2.ogg', 'sound/repair/hammer_noskill_3.ogg'), 100, TRUE)
 
 	// We spawn the bling if we keep max integ, for the dopamine.
-	if(keep_max_integ && stage_count < REPAIR_STAGE_FINAL)
+	if(keep_max_integ_chance && stage_count < REPAIR_STAGE_FINAL && !keep_max_integ)
 		attacked_item.perform_repair_effect(user, REPAIR_STAGE_DING, REPAIR_TYPE_HAMMER)
 
 	if(repair_percent && cycle_complete)
@@ -202,7 +203,7 @@
 			repair_percent = min(300, repair_percent)
 		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
 
-		if(!keep_max_integ)
+		if(!keep_max_integ && !keep_max_integ_chance)
 			var/integ_loss = 5
 			if(istype(attacked_item, /obj/item/rogueweapon) && attacked_item.sharpness)
 				integ_loss = 3

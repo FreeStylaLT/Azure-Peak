@@ -178,14 +178,12 @@
 
 	base_prob = max(base_prob, 0)
 
-	var/keep_max_integ = ((stage_count > 3) || prob(base_prob))
+	var/keep_max_integ_chance = ((stage_count > 3) || prob(base_prob))
+	var/keep_max_integ = FALSE
 	if(istype(attacked_item, /obj/item/clothing))
 		var/obj/item/clothing/C = attacked_item
-		if(C.armor_class == ARMOR_CLASS_MEDIUM && HAS_TRAIT(user, TRAIT_MEDIUMARMOR))
+		if(C.armor_class == ARMOR_CLASS_LIGHT && HAS_TRAIT(C, TRAIT_DODGEEXPERT))
 			keep_max_integ = TRUE
-		if(C.armor_class == ARMOR_CLASS_HEAVY && HAS_TRAIT(user, TRAIT_HEAVYARMOR))
-			keep_max_integ = TRUE
-
 	// We keep our integ if we're repairing on a cool table regardless of tools.
 	if((locate(/obj/structure/table/wood/fancy) in attacked_item.loc) || (locate(/obj/structure/table/wood/folding) in attacked_item.loc))
 		keep_max_integ = TRUE
@@ -211,7 +209,7 @@
 		playsound(get_turf(attacked_item), 'sound/foley/sewflesh.ogg', 100, TRUE, -2)
 
 	// We spawn the bling if we keep max integ, for the dopamine.
-	if(keep_max_integ && stage_count < REPAIR_STAGE_FINAL)
+	if(keep_max_integ_chance && stage_count < REPAIR_STAGE_FINAL && !keep_max_integ)
 		attacked_item.perform_repair_effect(user, REPAIR_STAGE_DING, REPAIR_TYPE_SEW)
 
 	if(repair_percent && cycle_complete)

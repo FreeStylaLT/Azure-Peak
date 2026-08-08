@@ -130,6 +130,8 @@
 	var/stage_count = min(user_skill, 4)
 	var/repair_percent = 0.2
 
+	var/repair_delay = 3 SECONDS - (user_skill * (1 SECONDS / 6))
+
 	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
 	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))
 		repair_busy = FALSE
@@ -202,7 +204,7 @@
 		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
 
 		if(!keep_max_integ)
-			attacked_item.max_integrity -= 5
+			attacked_item.max_integrity = min(attacked_item.max_integrity - 5, 50)
 
 		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
 		user.visible_message(span_info("[user] repairs [attacked_item]!"))

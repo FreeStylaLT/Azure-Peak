@@ -223,6 +223,7 @@
 			if(istype(attacked_item, /obj/item/clothing))
 				if(attacked_item.max_integrity && attacked_item.integrity_failure && attacked_item.integrity_failure == ARMOR_INTEG_FAILURE)
 					attacked_item.max_integrity += (attacked_item.max_integrity * 0.11142857143)	// don't ask
+			attacked_item.obj_integrity = attacked_item.max_integrity
 
 		user.mind.add_sleep_experience(attacked_item.anvilrepair, exp_gained/2) //We gain as much exp as we fix divided by 2
 

@@ -176,6 +176,9 @@
 		if(istype(src, /obj/item/rogueweapon/hammer/blacksteel))
 			keep_max_integ = TRUE
 
+	if(HAS_TRAIT(user, TRAIT_ACTIVE_SQUIRE))
+		keep_max_integ = TRUE
+
 	var/root_time = 0.8 SECONDS * stage_count
 	var/cycle_complete = TRUE
 	user.Immobilize(root_time)

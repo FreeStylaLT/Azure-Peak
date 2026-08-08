@@ -215,7 +215,7 @@
 	if(repair_percent && cycle_complete)
 		repair_percent *= attacked_item.max_integrity
 		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
-		if(!keep_max_integ)
+		if(!keep_max_integ && !keep_max_integ_chance)
 			attacked_item.max_integrity -= 2
 		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
 		user.visible_message(span_info("[user] repairs [attacked_item]!"))

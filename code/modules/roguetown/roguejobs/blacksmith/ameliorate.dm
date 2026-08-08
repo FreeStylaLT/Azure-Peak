@@ -12,6 +12,10 @@
 	var/use_delay = 1 SECONDS
 	var/custom_dropshrink = 0.5
 
+/obj/machinery/ameliorate/obj_break(damage_flag)
+	. = ..()
+	loud_message("A screeching noise echoes in the distance. An Ameliorate was destroyed.", 60)
+
 /obj/machinery/ameliorate/attackby(obj/item/I, mob/user, params)
 	if(!user || !I)
 		return

@@ -139,7 +139,7 @@
 		return
 
 	// We've been in combat in the last minute, no repairs yet, please.
-	if((user.in_combat_until + 50 SECONDS)> world.time)
+	if((user.in_combat_until + 10 SECONDS)> world.time)
 		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 50 SECONDS - world.time) / 10] seconds left)"))
 		return
 
@@ -231,6 +231,10 @@
 		if(stage_count == REPAIR_STAGE_FINAL && !attacked_item.GetComponent(/datum/component/fit_clothing))
 			attacked_item.perform_repair_effect(user, REPAIR_STAGE_FINAL, REPAIR_TYPE_SEW)
 			attacked_item.max_integrity = initial(attacked_item.max_integrity)
+
+			if(istype(attacked_item, /obj/item/clothing))
+				if(attacked_item.max_integrity && attacked_item.integrity_failure && attacked_item.integrity_failure == ARMOR_INTEG_FAILURE)
+					attacked_item.max_integrity += (attacked_item.max_integrity * 0.11142857143)	// don't ask
 
 		user.mind.add_sleep_experience(/datum/skill/craft/sewing, exp_gained/2) //We gain as much exp as we fix divided by 2
 		use(1)

@@ -66,6 +66,11 @@
 				visible_message(span_info("<b>[I] gets ameliorated!</b>"))
 				I.max_integrity = initial(I.max_integrity)
 				I.obj_integrity = I.max_integrity
+
+				if(istype(I, /obj/item/clothing))
+					if(I.max_integrity && I.integrity_failure && I.integrity_failure == ARMOR_INTEG_FAILURE)
+						I.max_integrity += (I.max_integrity * 0.11142857143)	// don't ask
+
 				if(has_fitting)
 					has_fitting.Destroy()
 			else

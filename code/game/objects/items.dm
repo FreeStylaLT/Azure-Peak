@@ -2157,9 +2157,6 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			if(istype(src, /obj/item/rogueweapon/hammer/blacksteel))
 				keep_max_integ_quiet = TRUE
 
-	if(HAS_TRAIT(user, TRAIT_ACTIVE_SQUIRE))
-		keep_max_integ_quiet = TRUE
-
 	if(istype(attacked_item, /obj/item/rogueweapon))
 		keep_max_integ_quiet = TRUE
 

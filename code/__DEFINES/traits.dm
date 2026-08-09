@@ -68,7 +68,6 @@
 #define TRAIT_UNSATISFIED "Unsatisfactory Act"
 #define TRAIT_SEEDKNOW "Seed Knower"
 #define TRAIT_SQUIRE_REPAIR "Squire Knowledge"
-#define TRAIT_ACTIVE_SQUIRE "Squire In Active Service"
 #define TRAIT_TRAINED_SMITH "Trained Smith"
 #define TRAIT_CAUTIOUS_FISHER "Cautious Fisher"
 #define TRAIT_POLYTHEIST "Polytheist"
@@ -451,7 +450,6 @@ GLOBAL_LIST_INIT(roguetraits, list(
 	TRAIT_CIVILIZEDBARBARIAN = span_info("My rigorous training in the martial arts has turned me into a living weapon. No limb is out of reach for my fists and feet, and my unarmed strikes are now stronger (+4 Unarmed Damage). My parrying with bracers, knuckles, or bandages is significantly more effective."),
 	TRAIT_COMICSANS = span_sans("I am cursed with a odd voice."),
 	TRAIT_SQUIRE_REPAIR = span_info("Trained at my Master's side, I can restore any kind of gears with time and polish them until they gleam like new."),
-	TRAIT_ACTIVE_SQUIRE = span_info("I know how to best repair all sorts of gear, preserving their max integrity."),
 	TRAIT_WATERBREATHING = span_info("I do not drown in bodies of water."),
 	TRAIT_NUDE_SLEEPER = span_warning("I can't fall asleep unless I'm nude and in bed."),
 	TRAIT_ABYSSOR_SWIM = span_info("I get far less tired when swimming than my peers. I also find mirth in rain and in the midst of storms."),

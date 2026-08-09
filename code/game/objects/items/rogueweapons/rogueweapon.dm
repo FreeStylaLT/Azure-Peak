@@ -57,6 +57,8 @@
 	if(ispath(special))
 		special = new special()
 
+	restore_max_integ()
+
 /obj/item/rogueweapon/dropped(mob/user, silent)
 	. = ..()
 	if(istype(src, /obj/item/rogueweapon/shield))
@@ -114,11 +116,6 @@
 	sharpness = initial(sharpness)
 	can_parry = initial(can_parry)
 	..()
-
-/obj/item/rogueweapon/Initialize()
-	. = ..()
-	if(max_integrity && integrity_failure && integrity_failure == WEAPON_INTEG_FAILURE)
-		max_integrity += (max_integrity * 0.11142857143) // don't ask
 
 /obj/item/rogueweapon/rmb_self(mob/user)
 	if(!has_altgrip_modes())

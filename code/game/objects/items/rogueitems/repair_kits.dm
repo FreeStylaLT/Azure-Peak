@@ -85,7 +85,7 @@
 	name = "fabric patch"
 	icon_state = "custarsewingkit"
 	desc = "A meager set of pieces of cloth, a bundle of threads and a loose rope. It can be used for field repairs. It can only ameliorate items, restoring their maximum integrity."
-	max_integrity = 1
+	max_integrity = 2
 	grid_width = 32
 	grid_height = 32
 
@@ -94,13 +94,13 @@
 	icon_state = "armorkit"
 	desc = "A wonderful set of metal patches, individual armor plates and straps for fastening them. It can be used to properly damaged weapons and armor, without the need for a blacksmith's hammer. It can only ameliorate items, restoring their maximum integrity."
 	repair_type = 1
-	max_integrity = 5
+	max_integrity = 7
 
 /obj/item/repair_kit/metal/bad
 	name = "metal scrap kit"
 	icon_state = "custararmorkit"
 	desc = "A meager set of metal patches, repurposed iron shingles and straps for fastening them. It can be used to repair damaged weapons and armor in a pinch, without the need for a blacksmith's hammer. It can also be used in smithing to create banded iron pieces. It can only ameliorate items, restoring their maximum integrity."
-	max_integrity = 1
+	max_integrity = 2
 
 /obj/item/scrap
 	name = "iron scrap"

@@ -136,12 +136,3 @@
 /obj/item/proc/restore_bintegrity()
 	max_blade_int = initial(max_blade_int)//Given it's reduced above.
 	blade_int = initial(max_blade_int)//Now return it.
-
-/obj/item/proc/set_last_attacker(mob/user)
-	if(user)
-		last_attacker = WEAKREF(user)
-	addtimer(CALLBACK(src, PROC_REF(reset_last_attacker)), 60 SECONDS, TIMER_UNIQUE | TIMER_OVERRIDE)
-
-/obj/item/proc/reset_last_attacker()
-	if(last_attacker)
-		qdel(last_attacker)

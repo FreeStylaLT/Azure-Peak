@@ -24,7 +24,7 @@
 	obj_flags = CAN_BE_HIT | UNIQUE_RENAME | CLAMP_BREAK
 	blade_dulling = null
 	max_integrity = 250
-	integrity_failure = 0.2
+	integrity_failure = 0.1
 	wdefense = 3
 	wdefense_wbonus = 3 //Default is 3.
 	experimental_onhip = TRUE
@@ -42,7 +42,7 @@
 	var/datum/special_intent/special
 
 	var/malumblessed_w = FALSE
-	
+
 	// whether this is actually a tool, like hoes and hammers, not a weapon proper. used to allow TRAIT_TINYPAWS users to conduct repairs and such
 	var/is_tool = FALSE
 	/// sigh
@@ -53,7 +53,7 @@
 	. = ..()
 	if(!destroy_message)
 		destroy_message = span_warning("\The [src] shatters!")
-	
+
 	if(ispath(special))
 		special = new special()
 
@@ -114,6 +114,11 @@
 	sharpness = initial(sharpness)
 	can_parry = initial(can_parry)
 	..()
+
+/obj/item/rogueweapon/Initialize()
+	. = ..()
+	if(max_integrity && integrity_failure && integrity_failure == WEAPON_INTEG_FAILURE)
+		max_integrity += (max_integrity * 0.11142857143) // don't ask
 
 /obj/item/rogueweapon/rmb_self(mob/user)
 	if(!has_altgrip_modes())

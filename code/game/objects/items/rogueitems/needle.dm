@@ -33,10 +33,10 @@
 	var/can_repair = TRUE
 	grid_width = 32
 	grid_height = 32
-	var/repair_busy = FALSE
 	//dropshrink = 0.75
 	// we store the overlay to avoid needless icon updates.
 	var/mutable_appearance/thread_overlay
+	var/repair_integ_per_use = 300
 
 /obj/item/needle/examine()
 	. = ..()
@@ -127,125 +127,28 @@
 		return
 
 	var/obj/item/attacked_item = O
-
-	if(!attacked_item.sewrepair || (attacked_item.obj_integrity >= attacked_item.max_integrity) || !isturf(attacked_item.loc))
-		return
-
-	if(!attacked_item.ontable())
-		to_chat(user, span_warning("I should put this on a table first."))
-		return
-
-	if(repair_busy)
-		return
-
-	// We've been in combat in the last minute, no repairs yet, please.
-	if((user.in_combat_until + 10 SECONDS)> world.time)
-		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 10 SECONDS - world.time) / 10] seconds left)"))
-		return
-
-	repair_busy = TRUE
-	var/user_skill = user.get_skill_level(/datum/skill/craft/sewing)
-	var/scaling_override = (HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
-	var/stage_count = min(user_skill, 4)
-	var/repair_percent = 0.2
-
-	var/repair_delay = 3 SECONDS - (user_skill * (1 SECONDS / 6))
-
-	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
-	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))
-		repair_busy = FALSE
-		return
-
-	if(stage_count < 3 && scaling_override)
-		stage_count = 2
-	else
-		switch(stage_count)
-			if(REPAIR_STAGE_ONE)
-				repair_percent = 0.25
-			if(REPAIR_STAGE_TWO)
-				repair_percent = 0.34
-			if(REPAIR_STAGE_THREE, REPAIR_STAGE_FINAL)
-				repair_percent = 1
-			else
-				repair_percent = 0.2
-
-	// If our skill is Expert or above, we won't diminish our max integ.
-	// Otherwise, we need to have at least 1 level of skill and get lucky.
-	var/base_prob = ((user.STALUC - 10) * 10) + (stage_count * 15)
-
-	if(istype(src, /obj/item/needle/thorn) && stage_count < REPAIR_STAGE_FINAL)
-		base_prob -= 10
-
-	base_prob = max(base_prob, 0)
-
-	var/keep_max_integ_chance = ((stage_count > 3) || prob(base_prob))
-	var/keep_max_integ = FALSE
-	if(istype(attacked_item, /obj/item/clothing))
-		var/obj/item/clothing/C = attacked_item
-		if(C.armor_class == ARMOR_CLASS_LIGHT && HAS_TRAIT(C, TRAIT_DODGEEXPERT))
-			keep_max_integ = TRUE
-	// We keep our integ if we're repairing on a cool table regardless of tools.
-	if((locate(/obj/structure/table/wood/fancy) in attacked_item.loc) || (locate(/obj/structure/table/wood/folding) in attacked_item.loc))
-		keep_max_integ = TRUE
-
-	// Ditto, but the other way around.
-	if(!keep_max_integ)
-		if(istype(src, /obj/item/needle/pestra))
-			keep_max_integ = TRUE
-
-	if(HAS_TRAIT(user, TRAIT_ACTIVE_SQUIRE))
-		keep_max_integ = TRUE
-
-	var/root_time = 0.7 SECONDS * stage_count
-	var/cycle_complete = TRUE
-	user.Immobilize(root_time)
-	user.changeNext_move(root_time)
-	if(stage_count)
-		for(var/i in 1 to stage_count)
-			if(i == 1)
-				attacked_item.perform_repair_effect(user, i, REPAIR_TYPE_SEW)
-			else
-				if(do_after(user, 0.7 SECONDS, TRUE, progress = FALSE, same_direction = TRUE))
-					attacked_item.perform_repair_effect(user, i, REPAIR_TYPE_SEW)
-				else
-					cycle_complete = FALSE
-	else
-		playsound(get_turf(attacked_item), 'sound/foley/sewflesh.ogg', 100, TRUE, -2)
-
-	// We spawn the bling if we keep max integ, for the dopamine.
-	if(keep_max_integ_chance && stage_count < REPAIR_STAGE_FINAL && !keep_max_integ)
-		attacked_item.perform_repair_effect(user, REPAIR_STAGE_DING, REPAIR_TYPE_SEW)
-
-	if(repair_percent && cycle_complete)
-		repair_percent *= attacked_item.max_integrity
-		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
-		if(!keep_max_integ && !keep_max_integ_chance)
-			attacked_item.max_integrity -= 2
-		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
-		user.visible_message(span_info("[user] repairs [attacked_item]!"))
-
-		if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
-			user.visible_message(span_info("[user] repairs [attacked_item]'s coverage!"))
-			attacked_item.repair_coverage()
-
-		if(attacked_item.obj_broken && attacked_item.obj_integrity == attacked_item.max_integrity)
-			attacked_item.obj_fix()
-
-		if(stage_count == REPAIR_STAGE_FINAL && !attacked_item.GetComponent(/datum/component/fit_clothing))
-			attacked_item.perform_repair_effect(user, REPAIR_STAGE_FINAL, REPAIR_TYPE_SEW)
-			attacked_item.max_integrity = initial(attacked_item.max_integrity)
-
-			if(istype(attacked_item, /obj/item/clothing))
-				if(attacked_item.max_integrity && attacked_item.integrity_failure && attacked_item.integrity_failure == ARMOR_INTEG_FAILURE)
-					attacked_item.max_integrity += (attacked_item.max_integrity * 0.11142857143)	// don't ask
-
-			attacked_item.obj_integrity = attacked_item.max_integrity
-
-		user.mind.add_sleep_experience(/datum/skill/craft/sewing, exp_gained/2) //We gain as much exp as we fix divided by 2
-		use(1)
-
-	repair_busy = FALSE
+	var/repaired_integ = do_special_repair(attacked_item, user, REPAIR_TYPE_SEW)
+	if(repaired_integ)
+		use_for_repairs(repaired_integ, user)
 	return ..()
+
+/obj/item/needle/proc/use_for_repairs(integ, mob/living/user)
+	if(!integ)
+		return
+	repair_integ_per_use = repair_integ_per_use - integ
+	for(var/i in 1 to 10)	// I cannot fathom this needing more than 10 iterations. Otherwise this is just while() phobia.
+		if(repair_integ_per_use <= 0 && stringamt > 0)
+			var/newinteg = abs(repair_integ_per_use)
+			repair_integ_per_use = initial(repair_integ_per_use)
+			use(1)
+			var/balloon_str = "String used..."
+			if(stringamt <= 0)
+				balloon_str = "<font color = '#9b2727'>String used up!</font>"
+			user.balloon_alert(user, balloon_str)
+			repair_integ_per_use -= newinteg
+		else
+			break
+
 
 /obj/item/needle/proc/sew(mob/living/target, mob/living/user)
 	if(!istype(user))
@@ -349,14 +252,15 @@
 	desc = "This rough needle can be used to sew cloth and wounds."
 	stringamt = 5
 	maxstring = 5
+	repair_integ_per_use = 150
 	anvilrepair = null
 
 /obj/item/needle/thorn/cleric
 	name = "clerical needle"
 	icon_state = "lesserneedle"
 	desc = "This iron-tipped needle can stem the flow of nastier wounds; a blessing, when one is delivered a grave blow while far away from the Church."
-	stringamt = 15
-	maxstring = 15
+	stringamt = 20
+	maxstring = 20
 	anvilrepair = null
 
 /obj/item/needle/pestra
@@ -383,6 +287,7 @@
 	desc = "This decrepit old needle doesn't seem helpful for much."
 	stringamt = 5
 	maxstring = 5
+	repair_integ_per_use = 200
 
 #undef SEW_HP_EXP_NORMALIZER
 #undef SEW_EXP_PER_STEP

@@ -17,7 +17,6 @@
 	grid_height = 64
 	var/quality = 1
 	is_tool = TRUE
-	var/repair_busy = FALSE
 
 /obj/item/rogueweapon/hammer/get_mechanics_examine(mob/user)
 	. = ..()
@@ -116,123 +115,15 @@
 		to_chat(user, span_warning("I should put this on a table or an anvil first."))
 		return
 
-	if(repair_busy)
-		return
-
-	// We've been in combat in the last minute, no repairs yet, please.
-	if((user.in_combat_until + 10 SECONDS)> world.time)
-		to_chat(user, span_warning("I am still too tense from my recent fight. ([(user.in_combat_until + 10 SECONDS - world.time) / 10] seconds left)"))
-		return
-
-	repair_busy = TRUE
-	var/user_skill = user.get_skill_level(attacked_item.anvilrepair)
-	var/scaling_override = (HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
-	var/stage_count = min(user_skill, 4)
-	var/repair_percent = 0.2
-
-	var/repair_delay = 3 SECONDS - (user_skill * (1 SECONDS / 6))
-
-	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
-	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))
-		repair_busy = FALSE
-		return
-
-	if(stage_count < 3 && scaling_override)
-		stage_count = 2
-	else
-		switch(stage_count)
-			if(REPAIR_STAGE_ONE)
-				repair_percent = 0.25
-			if(REPAIR_STAGE_TWO)
-				repair_percent = 0.34
-			if(REPAIR_STAGE_THREE, REPAIR_STAGE_FINAL)
-				repair_percent = 1
-			else
-				repair_percent = 0.2
-
-	// If our skill is Expert or above, we won't diminish our max integ.
-	// Otherwise, we need to have at least 1 level of skill and get lucky.
-	var/base_prob = ((user.STALUC - 10) * 10) + (stage_count * 15)
-
-	if(istype(src, /obj/item/rogueweapon/hammer/stone) && stage_count < REPAIR_STAGE_FINAL)
-		base_prob -= 10
-
-	base_prob = max(base_prob, 0)
-
-	var/keep_max_integ_chance = ((stage_count > 3) || prob(base_prob))
-	var/keep_max_integ = FALSE
-	if(istype(attacked_item, /obj/item/clothing))
-		var/obj/item/clothing/C = attacked_item
-		if(C.armor_class == ARMOR_CLASS_MEDIUM && HAS_TRAIT(user, TRAIT_MEDIUMARMOR))
-			keep_max_integ = TRUE
-		if(C.armor_class == ARMOR_CLASS_HEAVY && HAS_TRAIT(user, TRAIT_HEAVYARMOR))
-			keep_max_integ = TRUE
-
-	// We keep our integ if we're repairing on an anvil regardless of tools.
-	if(locate(/obj/machinery/anvil) in attacked_item.loc)
-		keep_max_integ = TRUE
-	// Ditto, but the other way around.
-	if(!keep_max_integ)
-		if(istype(src, /obj/item/rogueweapon/hammer/blacksteel))
-			keep_max_integ = TRUE
-
-	if(HAS_TRAIT(user, TRAIT_ACTIVE_SQUIRE))
-		keep_max_integ = TRUE
-
-	var/root_time = 0.8 SECONDS * stage_count
-	var/cycle_complete = TRUE
-	user.Immobilize(root_time)
-	user.changeNext_move(root_time)
-	if(stage_count)
-		for(var/i in 1 to stage_count)
-			if(i == 1)
-				attacked_item.perform_repair_effect(user, i, REPAIR_TYPE_HAMMER)
-			else
-				if(do_after(user, 0.8 SECONDS, TRUE, progress = FALSE, same_direction = TRUE))
-					attacked_item.perform_repair_effect(user, i, REPAIR_TYPE_HAMMER)
-				else
-					cycle_complete = FALSE
-	else
-		playsound(get_turf(attacked_item), pick('sound/repair/hammer_noskill_1.ogg', 'sound/repair/hammer_noskill_2.ogg', 'sound/repair/hammer_noskill_3.ogg'), 100, TRUE)
-
-	// We spawn the bling if we keep max integ, for the dopamine.
-	if(keep_max_integ_chance && stage_count < REPAIR_STAGE_FINAL && !keep_max_integ)
-		attacked_item.perform_repair_effect(user, REPAIR_STAGE_DING, REPAIR_TYPE_HAMMER)
-
-	if(repair_percent && cycle_complete)
-		repair_percent *= attacked_item.max_integrity
-		if(stage_count < REPAIR_STAGE_THREE || scaling_override)
-			repair_percent = clamp(repair_percent, 1, (60 + (stage_count * 20)))
-		if(stage_count == REPAIR_STAGE_THREE)
-			repair_percent = min(300, repair_percent)
-		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
-
-		if(!keep_max_integ && !keep_max_integ_chance)
-			var/integ_loss = 5
-			if(istype(attacked_item, /obj/item/rogueweapon) && attacked_item.sharpness)
-				integ_loss = 3
-			attacked_item.max_integrity = max(attacked_item.max_integrity - integ_loss, 50)
-
-		attacked_item.obj_integrity = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity)
-		user.visible_message(span_info("[user] repairs [attacked_item]!"))
-		if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
-			user.visible_message(span_info("[user] repairs [attacked_item]'s coverage!"))
-			attacked_item.repair_coverage()
-		if(attacked_item.obj_broken && attacked_item.obj_integrity == attacked_item.max_integrity)
-			attacked_item.obj_fix()
-
-		if(stage_count == REPAIR_STAGE_FINAL && !attacked_item.GetComponent(/datum/component/fit_clothing))
-			attacked_item.perform_repair_effect(user, REPAIR_STAGE_FINAL, REPAIR_TYPE_HAMMER)
-			attacked_item.max_integrity = initial(attacked_item.max_integrity)
-
-			if(istype(attacked_item, /obj/item/clothing))
-				if(attacked_item.max_integrity && attacked_item.integrity_failure && attacked_item.integrity_failure == ARMOR_INTEG_FAILURE)
-					attacked_item.max_integrity += (attacked_item.max_integrity * 0.11142857143)	// don't ask
-			attacked_item.obj_integrity = attacked_item.max_integrity
-
-		user.mind.add_sleep_experience(attacked_item.anvilrepair, exp_gained/2) //We gain as much exp as we fix divided by 2
-
-	repair_busy = FALSE
+	var/repaired_integ = do_special_repair(attacked_item, user, REPAIR_TYPE_HAMMER)
+	if(repaired_integ)
+		var/integratio_before = obj_integrity / max_integrity
+		take_damage(floor(repaired_integ / 15), BRUTE)
+		var/integratio_after = obj_integrity / max_integrity
+		if(integratio_before > 0.5 && integratio_after < 0.5)
+			user.balloon_alert(user, "Hammer chips...")
+		if(integratio_before > 0.25 && integratio_after < 0.25)
+			user.balloon_alert(user, "Hammer breaking!")
 
 /obj/item/rogueweapon/hammer/proc/repair_structure(obj/structure/attacked_structure, mob/living/user)
 	if(!attacked_structure.hammer_repair || !attacked_structure.max_integrity)
@@ -481,7 +372,7 @@
 	desc = "A makeshift hammer, made with a crudly chisled-down rock."
 	icon_state = "hammer_r"
 	force = 18
-	max_integrity = 15
+	max_integrity = 50
 	anvilrepair = /datum/skill/craft/crafting
 
 /obj/item/rogueweapon/hammer/paalloy

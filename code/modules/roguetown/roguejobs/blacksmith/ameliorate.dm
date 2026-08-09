@@ -45,16 +45,17 @@
 /obj/machinery/ameliorate/attack_hand(mob/living/user)
 	. = ..()
 
+	if(in_use)
+		return
+
 	for(var/obj/item/I in loc)
 		if(I.max_integrity != I.obj_integrity)
 			to_chat(user, span_warning("\The [I] still needs repairs before being ameliorated!"))
-			return
+			continue
 
 		if(initial(I.max_integrity) == I.max_integrity)
 			to_chat(user, span_warning("\The [I] does not need any amelioration. It is fine."))
-			return
-		in_use = TRUE
-
+			continue
 		var/sfx
 		if(I.anvilrepair && !I.sewrepair)
 			sfx = 'sound/repair/ameliorate_metal.ogg'
@@ -67,14 +68,11 @@
 				playsound(src, sfx, 100, TRUE)
 			in_use = TRUE
 			if(do_after(user, use_delay, TRUE, same_direction = TRUE))
-				visible_message(span_info("<b>[I] gets ameliorated!</b>"))
+				visible_message(span_info("<b>[I] gets ameliorated and restored to its full integrity!</b>"))
 				I.max_integrity = initial(I.max_integrity)
 
 				if(istype(I, /obj/item/clothing))
-					if(I.max_integrity && I.integrity_failure && I.integrity_failure == ARMOR_INTEG_FAILURE)
-						I.max_integrity += (I.max_integrity * 0.11142857143)	// don't ask
-
-				I.obj_integrity = I.max_integrity
+					I.restore_max_integ()
 
 				if(has_fitting)
 					has_fitting.Destroy()

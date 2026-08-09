@@ -2290,7 +2290,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	for(var/i in 1 to cycle_count)
 		if(!Adjacent(user) || !attacked_item.Adjacent(user))
 			break
-		if(do_after(user, 1 SECONDS, TRUE, same_direction = TRUE))
+		if(do_after(user, 1.1 SECONDS, TRUE, same_direction = TRUE))
 			var/exp_gained = min(attacked_item.obj_integrity + user_skill, attacked_item.max_integrity) - attacked_item.obj_integrity
 
 			attacked_item.obj_integrity = min(attacked_item.obj_integrity + user_skill, attacked_item.max_integrity)

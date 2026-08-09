@@ -18,9 +18,18 @@
 	var/quality = 1
 	is_tool = TRUE
 
+/obj/item/rogueweapon/hammer/examine(mob/user)
+	. = ..()
+	if(repair_method == REPAIR_METHOD_EXPEDIENT)
+		. += span_notice("This hammer is set to repair quickly. Activate in-hand to change this.")
+	else if(repair_method == REPAIR_METHOD_SAFE)
+		. += span_notice("This hammer is set to repair slowly. Activate in-hand to change this.")
+
 /obj/item/rogueweapon/hammer/get_mechanics_examine(mob/user)
 	. = ..()
 	. += span_info("Left-click a damaged item made of metal - such as a weapon, armorpiece, or prosthetic - to repair it. Repairs work best when done on an anvil, but a regular old table can suffice in a pinch.")
+	. += span_info("Activate in-hand to switch between Expedient (Fast) and Safe (Slow) methods of repair.")
+	. += span_info("Even Expedient Repairs can be guaranteed to be safe if done on an anvil or the repairs are done to a piece of armor that is of the same Armor Class as the user's training.")
 	. += span_info("Left-click a damaged structure to repair it. Like with repairing items, the chance to successfully repair some integrity on each strike scales with the appropriate skill; the Carpentry skill for structures, Weaponsmithing for weapons, etcetera.")
 
 /obj/item/rogueweapon/hammer/getonmobprop(tag)
@@ -39,6 +48,17 @@
 		to_chat(user, span_warning("Your cursed hands burn at the touch of the hammer!"))
 		user.freak_out()
 		return
+	. = ..()
+
+/obj/item/rogueweapon/hammer/attack_self(mob/living/user)
+	if(!length(gripped_intents))
+		if(repair_method == REPAIR_METHOD_EXPEDIENT)
+			repair_method = REPAIR_METHOD_SAFE
+			to_chat(user, span_notice("You will now repair slowly and safely."))
+		else
+			repair_method = REPAIR_METHOD_EXPEDIENT
+			to_chat(user, span_notice("You will now repair with great speed, but risk damaging integrity slightly."))
+		user.playsound_local(get_turf(user), 'sound/misc/click.ogg', 100, TRUE)
 	. = ..()
 
 /obj/item/rogueweapon/hammer/attack_obj(obj/attacked_object, mob/living/user)
@@ -115,15 +135,18 @@
 		to_chat(user, span_warning("I should put this on a table or an anvil first."))
 		return
 
-	var/repaired_integ = do_special_repair(attacked_item, user, REPAIR_TYPE_HAMMER)
-	if(repaired_integ)
-		var/integratio_before = obj_integrity / max_integrity
-		take_damage(floor(repaired_integ / 15), BRUTE)
-		var/integratio_after = obj_integrity / max_integrity
-		if(integratio_before > 0.5 && integratio_after < 0.5)
-			user.balloon_alert(user, "Hammer chips...")
-		if(integratio_before > 0.25 && integratio_after < 0.25)
-			user.balloon_alert(user, "Hammer breaking!")
+	if(repair_method == REPAIR_METHOD_EXPEDIENT)
+		var/repaired_integ = do_special_repair(attacked_item, user, REPAIR_TYPE_HAMMER)
+		if(repaired_integ)
+			var/integratio_before = obj_integrity / max_integrity
+			take_damage(floor(repaired_integ / 15), BRUTE)
+			var/integratio_after = obj_integrity / max_integrity
+			if(integratio_before > 0.5 && integratio_after < 0.5)
+				user.balloon_alert(user, "Hammer chips...")
+			if(integratio_before > 0.25 && integratio_after < 0.25)
+				user.balloon_alert(user, "Hammer breaking!")
+	else if(repair_method == REPAIR_METHOD_SAFE)
+		do_safe_repair(attacked_item, user, REPAIR_TYPE_HAMMER)
 
 /obj/item/rogueweapon/hammer/proc/repair_structure(obj/structure/attacked_structure, mob/living/user)
 	if(!attacked_structure.hammer_repair || !attacked_structure.max_integrity)
@@ -359,6 +382,7 @@
 			break
 
 	while(do_after(user, CLICK_CD_MELEE, TRUE, M))
+
 
 /obj/item/rogueweapon/hammer/wood	// wood hammer (mallet)
 	name = "wooden mallet"

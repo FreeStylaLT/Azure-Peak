@@ -619,6 +619,8 @@ GLOBAL_LIST_EMPTY(round_join_times)
 // Repair defines
 #define REPAIR_TYPE_SEW "sew"
 #define REPAIR_TYPE_HAMMER "hammer"
+#define REPAIR_METHOD_EXPEDIENT "fast"
+#define REPAIR_METHOD_SAFE "slow"
 #define REPAIR_STAGE_ONE 1
 #define REPAIR_STAGE_TWO 2
 #define REPAIR_STAGE_THREE 3

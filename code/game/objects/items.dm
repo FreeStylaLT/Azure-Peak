@@ -295,6 +295,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	/// does this item/weapon circumvent two-stage death during dismemberment? (do not add this to anything but ultra rare shit)
 	var/vorpal = FALSE
 	var/repair_busy = FALSE
+	var/repair_method = REPAIR_METHOD_EXPEDIENT
 
 /obj/item/Initialize(mapload)
 	. = ..()
@@ -726,8 +727,8 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			var/ratio =	(eff_currint / eff_maxint)
 			var/percent = round((ratio * 100), 1)
 			var/integ_total = (initial(max_integrity) * 0.11142857143) // ..don't ask..
-			var/show_total = (integ_total != max_integrity)
-			inspec += "[percent]% ([floor(eff_currint)]) [show_total ? "[SPAN_TOOLTIP("This item is not in the best shape it could be. Expert-skill repairs, a gear repair kit or the Ameliorate found in town can repair its integrity fully.", "!")]"]"
+			var/show_total = ((floor(integ_total) - floor(max_integrity)) > 10)
+			inspec += "[percent]% ([floor(eff_currint)]) [show_total ? "[SPAN_TOOLTIP("This item is not in the best shape it could be. Expert-skill repairs, a gear repair kit or the Ameliorate found in town can repair its integrity fully.", "!")]" : ""]"
 			if(force >= 5) // Durability is rather obvious for non-weapons
 				inspec += " <span class='info'><a href='?src=[REF(src)];explaindurability=1'>{?}</a></span>"
 		if(istype(src, /obj/item/clothing))	//awful
@@ -2163,7 +2164,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		keep_max_integ_quiet = TRUE
 
 	// For the OCD that like to keep their armor topped off.
-	if((obj_integrity / max_integrity) >= 0.9)
+	if((attacked_item.obj_integrity / attacked_item.max_integrity) >= 0.9)
 		keep_max_integ_quiet = TRUE
 
 	// It's a fairly subtle difference but helps the syncing.
@@ -2248,3 +2249,69 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 	if(fully_restore)
 		obj_integrity = max_integrity
+
+/obj/item/proc/do_safe_repair(obj/item/attacked_item, mob/living/user, repair_type)
+	if(repair_type == REPAIR_TYPE_SEW)
+		if(!attacked_item.sewrepair)
+			return
+
+	if(repair_type == REPAIR_TYPE_HAMMER)
+		if(!attacked_item.anvilrepair)
+			return
+
+	if((attacked_item.obj_integrity >= attacked_item.max_integrity) || !isturf(attacked_item.loc))
+		return
+
+	if(!attacked_item.ontable())
+		to_chat(user, span_warning("I should put this on a table first."))
+		return
+
+	if(repair_busy)
+		return
+
+	repair_busy = TRUE
+	var/user_skill
+	if(repair_type == REPAIR_TYPE_SEW)
+		user_skill = user.get_skill_level(/datum/skill/craft/sewing)
+	else if(repair_type == REPAIR_TYPE_HAMMER && attacked_item.anvilrepair)
+		user_skill = user.get_skill_level(attacked_item.anvilrepair)
+
+	if(!user_skill)
+		user_skill = 0.5
+
+	if(user_skill < 3 && HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR))
+		user_skill = 3
+
+	var/xp_skill
+	switch(repair_type)
+		if(REPAIR_TYPE_SEW)
+			xp_skill = /datum/skill/craft/sewing
+		if(REPAIR_TYPE_HAMMER)
+			xp_skill = attacked_item.anvilrepair
+
+	var/cycle_count = ((attacked_item.max_integrity - attacked_item.obj_integrity) / user_skill)
+	for(var/i in 1 to cycle_count)
+		if(!Adjacent(user) || !attacked_item.Adjacent(user))
+			break
+		if(do_after(user, 1 SECONDS, TRUE, same_direction = TRUE))
+			var/exp_gained = min(attacked_item.obj_integrity + user_skill, attacked_item.max_integrity) - attacked_item.obj_integrity
+
+			attacked_item.obj_integrity = min(attacked_item.obj_integrity + user_skill, attacked_item.max_integrity)
+			user.visible_message(span_info("[user] slowly and steadily repairs [attacked_item]..."))
+
+			user.mind.add_sleep_experience(xp_skill, exp_gained/2) //We gain as much exp as we fix divided by 2
+
+			switch(repair_type)
+				if(REPAIR_TYPE_SEW)
+					playsound(get_turf(attacked_item), 'sound/foley/sewflesh.ogg', 100, TRUE, -2)
+				if(REPAIR_TYPE_HAMMER)
+					playsound(get_turf(attacked_item), pick('sound/repair/hammer_repair_simple_1.ogg', 'sound/repair/hammer_repair_simple_2.ogg', 'sound/repair/hammer_repair_simple_3.ogg', 'sound/repair/hammer_repair_simple_4.ogg', 'sound/repair/hammer_repair_simple_5.ogg'), 100, TRUE)
+
+			if(attacked_item.obj_broken && attacked_item.obj_integrity == attacked_item.max_integrity)
+				attacked_item.obj_fix()
+				if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
+					user.visible_message(span_info("[user] repairs [attacked_item]'s coverage!"))
+					attacked_item.repair_coverage()
+		else
+			break
+	repair_busy = FALSE

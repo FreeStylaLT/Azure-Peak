@@ -47,6 +47,10 @@
 			. += span_bold("It has no uses left.")
 	else
 		. += "Can be used indefinitely."
+	if(repair_method == REPAIR_METHOD_EXPEDIENT)
+		. += span_notice("This needle will repair quickly, but with some risk. Activate in-hand to change this.")
+	else if(repair_method == REPAIR_METHOD_SAFE)
+		. += span_notice("This needle will repair slowly, but safely. Activate in-hand to change this.")
 
 /obj/item/needle/get_mechanics_examine(mob/user)
 	. = ..()
@@ -54,6 +58,8 @@
 	. += span_info("While stitching a wound, it will bleed far slower than usual. This effect can be further stacked by applying cloth, bandages, or pressure to the wounded limb.")
 	. += span_info("If multiple stitchable wounds are present on the targeted limb, you'll be given the option to choose which specific wound is treated first.")
 	. += span_info("Needles require fibers to stitch, which can be found by cutting grass or foraging through bushes.")
+	. += span_info("Activate in-hand to switch between Expedient (Fast) and Safe (Slow) methods of repair.")
+	. += span_info("Even Expedient Repairs can be guarantee to be safe if done on foldable or fast tables, or if the Armor Class of the armor matches the training of the user.")
 	. += span_info("To rethread an emptied needle, left-click it with a strand of fiber. A fiber bundle works too, and will keep feeding strands in one at a time until the needle is full.")
 
 /obj/item/needle/Initialize()
@@ -122,14 +128,28 @@
 		return
 	return ..()
 
+/obj/item/needle/attack_self(mob/user)
+	. = ..()
+	if(!length(gripped_intents))
+		if(repair_method == REPAIR_METHOD_EXPEDIENT)
+			repair_method = REPAIR_METHOD_SAFE
+			to_chat(user, span_notice("You will now repair slowly and safely."))
+		else
+			repair_method = REPAIR_METHOD_EXPEDIENT
+			to_chat(user, span_notice("You will now repair with great speed, but risk damaging integrity slightly."))
+		user.playsound_local(get_turf(user), 'sound/misc/click.ogg', 100, TRUE)
+
 /obj/item/needle/attack_obj(obj/O, mob/living/user)
 	if(!isitem(O))
 		return
 
 	var/obj/item/attacked_item = O
-	var/repaired_integ = do_special_repair(attacked_item, user, REPAIR_TYPE_SEW)
-	if(repaired_integ)
-		use_for_repairs(repaired_integ, user)
+	if(repair_method == REPAIR_METHOD_EXPEDIENT)
+		var/repaired_integ = do_special_repair(attacked_item, user, REPAIR_TYPE_SEW)
+		if(repaired_integ)
+			use_for_repairs(repaired_integ, user)
+	else
+		do_safe_repair(attacked_item, user, REPAIR_TYPE_SEW)
 	return ..()
 
 /obj/item/needle/proc/use_for_repairs(integ, mob/living/user)

@@ -179,5 +179,5 @@
 			result = span_warning("([percent]%)")
 		if(percent >= 90)
 			var/astratan_symbol = icon2html('icons/misc/language.dmi', world, "ratvar")
-			result += SPAN_TOOLTIP_DANGEROUS_HTML("This can be repaired safely without integrity losses.", "<font size = 2>[astratan_symbol]</font>")
+			result += SPAN_TOOLTIP_DANGEROUS_HTML("This can be repaired safely without integrity losses.", "<font size = 1>[astratan_symbol]</font>")
 	return result

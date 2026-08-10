@@ -2083,31 +2083,30 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	// Attrition already, it's probably for the best to exclude them from repair costs.
 	var/integ_decay = 0
 	if(istype(attacked_item, /obj/item/clothing))
-		if(repair_type == REPAIR_TYPE_SEW)
-			integ_decay = 2
-		else if(repair_type == REPAIR_TYPE_HAMMER)
-			integ_decay = 5
+		integ_decay = (attacked_item.max_integrity * 0.02) // 2% of the integ, or 6 of 300 integ. Was a flat 5 for metal and 2 for leather before.
 
 	var/scaling_override = (HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
 	var/stage_count = min(user_skill, 4)
-	var/repair_percent = 0.2
+	var/repair_percent = 0.2	// Default value without skill. 20% of max integ, up to 60 flat.
 
-	var/repair_delay = 2.5 SECONDS - (user_skill * (1 SECONDS / 6))
+	var/repair_delay = 3 SECONDS - (user_skill * (1 SECONDS / 6))
 
 	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
 	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))
 		repair_busy = FALSE
 		return
 
-	if(stage_count < 3 && scaling_override)
-		stage_count = 2
+	if(stage_count < REPAIR_STAGE_THREE && scaling_override)
+		stage_count = REPAIR_STAGE_TWO
 	else
 		switch(stage_count)
 			if(REPAIR_STAGE_ONE)
 				repair_percent = 0.25
 			if(REPAIR_STAGE_TWO)
 				repair_percent = 0.34
-			if(REPAIR_STAGE_THREE, REPAIR_STAGE_FINAL)
+			if(REPAIR_STAGE_THREE)
+				repair_percent = 0.5
+			if(REPAIR_STAGE_FINAL)
 				repair_percent = 1
 			else
 				repair_percent = 0.2
@@ -2209,6 +2208,20 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 	if(repair_percent && cycle_complete)
 		repair_percent *= attacked_item.max_integrity
+		var/maxclamp
+		switch(stage_count)
+			if(0)
+				maxclamp = 60 // 20% of 300 integ
+			if(REPAIR_STAGE_ONE)
+				maxclamp = 75 // 25% of 300 integ
+			if(REPAIR_STAGE_TWO)
+				maxclamp = 100 // 33% of 300 integ
+			if(REPAIR_STAGE_THREE)
+				maxclamp = 200 // idk% of 300 integ
+			if(REPAIR_STAGE_FINAL)
+				maxclamp = 999
+		if(maxclamp)
+			repair_percent = min(repair_percent, maxclamp)
 		var/exp_gained = min(attacked_item.obj_integrity + repair_percent, attacked_item.max_integrity) - attacked_item.obj_integrity
 		if(integ_decay && stage_count != REPAIR_STAGE_FINAL)
 			if(!keep_max_integ_quiet && !keep_max_integ_chance)

@@ -439,6 +439,7 @@
 /obj/item/rogueweapon/hammer/iron/communal	// iron hammer
 	name = "communal hammer"
 	desc = "A hammer procured by the local Eorans, meant for the communal use. You didn't read this after having snatched it for yourself, did you?"
+	max_integrity = 500
 
 /obj/item/rogueweapon/hammer/steel	// steel hammer
 	name = "claw hammer"

@@ -726,8 +726,10 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			var/eff_currint = max(obj_integrity - (max_integrity * integrity_failure), 0)
 			var/ratio =	(eff_currint / eff_maxint)
 			var/percent = round((ratio * 100), 1)
-			var/integ_total = (initial(max_integrity) * 0.11142857143) // ..don't ask..
-			var/show_total = ((floor(integ_total) - floor(max_integrity)) > 10)
+			var/integ_total = (initial(max_integrity) + initial(max_integrity) * 0.11142857143) // ..don't ask..
+			var/show_total
+			if((floor(integ_total) - floor(max_integrity)) > 10)
+				show_total = TRUE
 			inspec += "[percent]% ([floor(eff_currint)]) [show_total ? "[SPAN_TOOLTIP("This item is not in the best shape it could be. Expert-skill repairs, a gear repair kit or the Ameliorate found in town can repair its integrity fully.", "!")]" : ""]"
 			if(force >= 5) // Durability is rather obvious for non-weapons
 				inspec += " <span class='info'><a href='?src=[REF(src)];explaindurability=1'>{?}</a></span>"
@@ -2090,7 +2092,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	var/stage_count = min(user_skill, 4)
 	var/repair_percent = 0.2
 
-	var/repair_delay = 3 SECONDS - (user_skill * (1 SECONDS / 6))
+	var/repair_delay = 2.5 SECONDS - (user_skill * (1 SECONDS / 6))
 
 	user.visible_message(span_notice("[user] is preparing to repair [attacked_item]..."), span_notice("I am preparing to repair [attacked_item], I should remain still."))
 	if(!do_after(user, repair_delay, TRUE, same_direction = TRUE, allow_movement = FALSE))

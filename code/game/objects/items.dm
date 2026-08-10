@@ -2298,7 +2298,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			attacked_item.obj_integrity = min(attacked_item.obj_integrity + user_skill, attacked_item.max_integrity)
 			user.visible_message(span_info("[user] slowly and steadily repairs [attacked_item]..."))
 
-			user.mind.add_sleep_experience(xp_skill, exp_gained/3) //We gain as much exp as we fix divided by 3
+			user.mind.add_sleep_experience(xp_skill, exp_gained / 4) //We gain as much exp as we fix divided by 4
 
 			switch(repair_type)
 				if(REPAIR_TYPE_SEW)

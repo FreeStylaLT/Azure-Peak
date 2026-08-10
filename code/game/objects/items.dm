@@ -2242,9 +2242,8 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 /obj/item/proc/restore_max_integ(fully_restore = TRUE)
 	max_integrity = initial(max_integrity)
 
-	if(istype(src, /obj/item/clothing))
-		if(max_integrity && integrity_failure && integrity_failure == ARMOR_INTEG_FAILURE)
-			max_integrity += (max_integrity * 0.11142857143)	// don't ask
+	if(max_integrity && integrity_failure && integrity_failure == ARMOR_INTEG_FAILURE)
+		max_integrity += (max_integrity * 0.11142857143)	// don't ask
 
 	if(fully_restore)
 		obj_integrity = max_integrity

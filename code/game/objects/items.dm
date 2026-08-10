@@ -2086,6 +2086,14 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		integ_decay = (attacked_item.max_integrity * 0.02) // 2% of the integ, or 6 of 300 integ. Was a flat 5 for metal and 2 for leather before.
 
 	var/scaling_override = (HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR) || HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
+
+	if(scaling_override)
+		if(integ_decay)
+			if(repair_type == REPAIR_TYPE_SEW && integ_decay > 2)
+				integ_decay = 2
+			else if(repair_type == REPAIR_TYPE_HAMMER && integ_decay > 5)
+				integ_decay = 5
+
 	var/stage_count = min(user_skill, 4)
 	var/repair_percent = 0.2	// Default value without skill. 20% of max integ, up to 60 flat.
 

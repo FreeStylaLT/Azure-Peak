@@ -78,6 +78,7 @@
 			I.restore_max_integ()
 
 		take_damage(1, BRUTE)
+		in_use = FALSE
 		return
 	return ..()
 

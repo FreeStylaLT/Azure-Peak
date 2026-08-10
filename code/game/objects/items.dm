@@ -2287,7 +2287,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		if(REPAIR_TYPE_HAMMER)
 			xp_skill = attacked_item.anvilrepair
 
-	var/cycle_count = ((attacked_item.max_integrity - attacked_item.obj_integrity) / user_skill)
+	var/cycle_count = (((attacked_item.max_integrity - attacked_item.obj_integrity) / user_skill) + 10) // + 10 so we'd do extra and make sure to trigger the check for it being actually fixed.
 	for(var/i in 1 to cycle_count)
 		if(!Adjacent(user) || !attacked_item.Adjacent(user))
 			break
@@ -2310,6 +2310,9 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 				if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
 					user.visible_message(span_info("[user] repairs [attacked_item]'s coverage!"))
 					attacked_item.repair_coverage()
+				break
+			if(attacked_item.obj_integrity == attacked_item.max_integrity)
+				break
 		else
 			break
 	repair_busy = FALSE

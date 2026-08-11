@@ -139,7 +139,7 @@
 		var/repaired_integ = do_special_repair(attacked_item, user, REPAIR_TYPE_HAMMER)
 		if(repaired_integ)
 			var/integratio_before = obj_integrity / max_integrity
-			take_damage(floor(repaired_integ / 15), BRUTE)
+			take_damage(floor(repaired_integ / 25), BRUTE)
 			var/integratio_after = obj_integrity / max_integrity
 			if(integratio_before > 0.5 && integratio_after < 0.5)
 				user.balloon_alert(user, "Hammer chips...")

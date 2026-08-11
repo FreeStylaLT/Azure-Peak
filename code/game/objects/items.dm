@@ -726,7 +726,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			var/eff_currint = max(obj_integrity - (max_integrity * integrity_failure), 0)
 			var/ratio =	(eff_currint / eff_maxint)
 			var/percent = round((ratio * 100), 1)
-			var/integ_total = (initial(max_integrity) + initial(max_integrity) * 0.11142857143) // ..don't ask..
+			var/integ_total = get_true_max_integ()
 			var/show_total
 			if((floor(integ_total) - floor(max_integrity)) > 10)
 				show_total = TRUE
@@ -2104,40 +2104,41 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		repair_busy = FALSE
 		return
 
-	if(stage_count < REPAIR_STAGE_THREE && scaling_override)
-		stage_count = REPAIR_STAGE_TWO
-	else
-		switch(stage_count)
-			if(REPAIR_STAGE_ONE)
-				repair_percent = 0.25
-			if(REPAIR_STAGE_TWO)
-				repair_percent = 0.34
-			if(REPAIR_STAGE_THREE)
-				repair_percent = 0.5
-			if(REPAIR_STAGE_FINAL)
-				repair_percent = 1
-			else
-				repair_percent = 0.2
+	switch(stage_count)
+		if(REPAIR_STAGE_ONE)
+			repair_percent = 0.25
+		if(REPAIR_STAGE_TWO)
+			repair_percent = 0.34
+		if(REPAIR_STAGE_THREE)
+			repair_percent = 0.5
+		if(REPAIR_STAGE_FINAL)
+			repair_percent = 1
+		else
+			repair_percent = 0.2
 
 	// If our skill is Expert or above, we won't diminish our max integ.
 	// Otherwise, we'll need to get lucky or make use of other circumstances.
 	var/base_prob = ((user.STALUC - 10) * 10) + (stage_count * 15)
 
-	// Small penalty if we're bumming our tools.
+	/*// Small penalty if we're bumming our tools.
 	// Do note the Communal ones near the Ameliorate are not of these type and shouldn't be.
 	if(stage_count < REPAIR_STAGE_FINAL)
 		if(istype(src, /obj/item/needle/thorn) || istype(src, /obj/item/rogueweapon/hammer/stone))
 			base_prob -= 10
+	*/
 
 	base_prob = max(base_prob, 0)
 
 	var/keep_max_integ_chance = prob(base_prob)	// This will produce a 'Ding!', as we got lucky.
 	var/keep_max_integ_quiet = FALSE	// This will NOT produce any 'Ding!' sfx or vfx as it's a consistently reproducible circumstance.
 
+	if(scaling_override && stage_count < REPAIR_STAGE_THREE)
+		stage_count = REPAIR_STAGE_THREE
+
 	if(istype(attacked_item, /obj/item/clothing))
 		var/obj/item/clothing/C = attacked_item
 		if(repair_type == REPAIR_TYPE_SEW)
-			if(C.armor_class == ARMOR_CLASS_LIGHT && HAS_TRAIT(C, TRAIT_DODGEEXPERT))
+			if(C.armor_class == ARMOR_CLASS_LIGHT && HAS_TRAIT(user, TRAIT_DODGEEXPERT))
 				keep_max_integ_quiet = TRUE
 
 		else if(repair_type == REPAIR_TYPE_HAMMER)
@@ -2194,7 +2195,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			if(i == 1)
 				attacked_item.perform_repair_effect(user, i, repair_type)
 			else
-				if(do_after(user, root_mult, TRUE, progress = FALSE, same_direction = TRUE))
+				if(do_after(user, root_mult, TRUE, progress = FALSE, same_direction = FALSE))
 					attacked_item.perform_repair_effect(user, i, repair_type)
 				else
 					cycle_complete = FALSE
@@ -2264,7 +2265,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	max_integrity = initial(max_integrity)
 
 	if(max_integrity && integrity_failure && integrity_failure == ARMOR_INTEG_FAILURE)
-		max_integrity += (max_integrity * 0.11142857143)	// don't ask
+		max_integrity += (max_integrity * GEAR_INTEG_CONSTANT)
 
 	if(fully_restore)
 		obj_integrity = max_integrity
@@ -2298,8 +2299,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	if(!user_skill)
 		user_skill = 0.5
 
-	if(user_skill < 3 && HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR))
-		user_skill = 3
+	if(user_skill < SKILL_LEVEL_JOURNEYMAN)
+		if(HAS_TRAIT(user, TRAIT_SQUIRE_REPAIR))
+			user_skill = 3
+
+	if(user_skill < SKILL_LEVEL_MASTER)
+		if(HAS_TRAIT(user, TRAIT_SELF_SUSTENANCE))
+			user_skill = 5
 
 	var/xp_skill
 	switch(repair_type)
@@ -2312,7 +2318,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	for(var/i in 1 to cycle_count)
 		if(!Adjacent(user) || !attacked_item.Adjacent(user))
 			break
-		if(do_after(user, 1.1 SECONDS, TRUE, same_direction = TRUE))
+		if(do_after(user, 1.1 SECONDS, TRUE, same_direction = FALSE))
 			var/exp_gained = min(attacked_item.obj_integrity + user_skill, attacked_item.max_integrity) - attacked_item.obj_integrity
 
 			attacked_item.obj_integrity = min(attacked_item.obj_integrity + user_skill, attacked_item.max_integrity)
@@ -2337,3 +2343,6 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		else
 			break
 	repair_busy = FALSE
+
+/obj/item/proc/get_true_max_integ()
+	return (initial(max_integrity) * GEAR_INTEG_CONSTANT)

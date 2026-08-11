@@ -627,3 +627,9 @@ GLOBAL_LIST_EMPTY(round_join_times)
 #define REPAIR_STAGE_FINAL 4
 #define REPAIR_STAGE_DING 5
 #define REPAIR_STAGE_INTEGLOSS 6
+
+// Our gear breaks at 10% integ. We show players their effective integ. (90% of compiled total).
+// This results in an annoying discrepancy (300 -> 270 for end-user).
+// This is what we multiply it by to make sure 90% of our compiled value is the compiled value.
+// So the user will see 300. There's a better way to do this than a magic number.
+#define GEAR_INTEG_CONSTANT 0.11142857143

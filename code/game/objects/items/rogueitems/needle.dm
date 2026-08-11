@@ -153,7 +153,7 @@
 	return ..()
 
 /obj/item/needle/proc/use_for_repairs(integ, mob/living/user)
-	if(!integ)
+	if(!integ || infinte)
 		return
 	repair_integ_per_use = repair_integ_per_use - integ
 	for(var/i in 1 to 10)	// I cannot fathom this needing more than 10 iterations. Otherwise this is just while() phobia.

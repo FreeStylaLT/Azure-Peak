@@ -2132,6 +2132,9 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	var/keep_max_integ_chance = prob(base_prob)	// This will produce a 'Ding!', as we got lucky.
 	var/keep_max_integ_quiet = FALSE	// This will NOT produce any 'Ding!' sfx or vfx as it's a consistently reproducible circumstance.
 
+	if(attacked_item.polished == 4)
+		keep_max_integ_quiet = TRUE
+
 	if(scaling_override && stage_count < REPAIR_STAGE_THREE)
 		stage_count = REPAIR_STAGE_THREE
 

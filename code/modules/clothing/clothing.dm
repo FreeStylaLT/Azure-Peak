@@ -99,6 +99,10 @@
 	if(heat_protection)
 		. += span_info("It looks like it will protect me from the <b>heat</b>.")
 
+	if((floor(get_true_max_integ()) - max_integrity) >= 5)
+		var/bad_integ_symbol = icon2html('icons/misc/repair_icons.dmi', world, "lost_maxinteg")
+		result += SPAN_TOOLTIP("This item has lost some of its maximum integrity. Expert repairs, a repair kit or the Ameliorate found in town can restore it.", "<font size = 1>[bad_integ_symbol]</font>")
+
 /obj/item/clothing/proc/persist_inv_flags(flag)
 	adjusted_inv_mask |= flag
 	adjusted_inv_value &= ~flag

@@ -728,7 +728,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			var/percent = round((ratio * 100), 1)
 			var/integ_total = get_true_max_integ()
 			var/show_total
-			if((floor(integ_total) - floor(max_integrity)) > 10)
+			if((floor(integ_total) - floor(max_integrity)) >= 5)
 				show_total = TRUE
 			inspec += "[percent]% ([show_total ? "<font_color = '#b3b46c'>" : ""][floor(eff_currint)][show_total ? "</font>" : ""]) [show_total ? "[SPAN_TOOLTIP("This item is not in the best shape it could be. Expert-skill repairs, a gear repair kit or the Ameliorate found in town can repair its integrity fully.", "!")]" : ""]"
 			if(force >= 5) // Durability is rather obvious for non-weapons

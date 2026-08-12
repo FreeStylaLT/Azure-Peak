@@ -24791,6 +24791,10 @@
 	},
 /turf/open/floor/rogue/naturalstone,
 /area/rogue/outdoors/mountains/decap/gunduzirak)
+"eMg" = (
+/obj/structure/roguerock,
+/turf/open/floor/rogue/cobblerock,
+/area/rogue/outdoors/woods/south)
 "eMi" = (
 /obj/structure/fluff/railing/fence{
 	dir = 8
@@ -79343,6 +79347,14 @@
 /obj/machinery/light/rogue/campfire/densefire,
 /turf/open/floor/rogue/twig,
 /area/rogue/indoors/cave/southern)
+"oPs" = (
+/obj/structure/table/wood/poor,
+/obj/item/repair_kit/bad,
+/obj/item/needle{
+	pixel_y = 5
+	},
+/turf/open/floor/rogue/cobblerock,
+/area/rogue/outdoors/woods/south)
 "oPu" = (
 /obj/structure/mineral_door/wood/deadbolt{
 	locked = 1
@@ -121108,6 +121120,14 @@
 /mob/living/carbon/human/species/skeleton/npc/mediumspread,
 /turf/open/floor/rogue/cobble,
 /area/rogue/under/cave/taricheamanor)
+"wIK" = (
+/obj/structure/table/wood/poor,
+/obj/item/repair_kit/metal/bad,
+/obj/item/rogueweapon/hammer/iron{
+	pixel_y = 6
+	},
+/turf/open/floor/rogue/cobblerock,
+/area/rogue/outdoors/woods/south)
 "wIL" = (
 /turf/open/floor/rogue/hay,
 /area/rogue/indoors/shelter)
@@ -327155,8 +327175,8 @@ jaH
 jIb
 fML
 gHU
-jIb
-jIb
+wIK
+jSw
 jIb
 jIb
 jIb
@@ -327607,8 +327627,8 @@ jaH
 fML
 fML
 reU
-jIb
-jIb
+eMg
+jSw
 kjr
 jIb
 jIb
@@ -328059,8 +328079,8 @@ fML
 gsg
 gsg
 gHU
-jIb
-jIb
+oPs
+jSw
 jIb
 jIb
 jIb
@@ -328525,10 +328545,10 @@ jaH
 gsD
 jaH
 jaH
-jaH
-jaH
-jaH
-jaH
+jIb
+jIb
+jIb
+jIb
 jIb
 jIb
 fML
@@ -328972,12 +328992,12 @@ fyu
 gsg
 jaH
 jaH
+jIb
 jaH
-jaH
+jIb
 gsD
-gsD
-jaH
-jaH
+jIb
+jIb
 jaH
 jaH
 gsg
@@ -329425,9 +329445,9 @@ jaH
 jaH
 jaH
 scn
+jIb
 jaH
-jaH
-gsD
+jIb
 gsD
 jaH
 gsg
@@ -329874,10 +329894,10 @@ jIb
 jIb
 jIb
 jIb
-jaH
-jaH
-jaH
-jaH
+jIb
+jIb
+jIb
+jIb
 gsg
 jaH
 gsD
@@ -330326,7 +330346,7 @@ jIb
 jIb
 jIb
 fML
-jaH
+jIb
 jaH
 jaH
 jaH

@@ -59,7 +59,7 @@
 		/obj/item/natural/hide/cured = 2,
 		)
 	skillcraft = /datum/skill/craft/sewing
-	craftdiff = 4 //Expert
+	craftdiff = 3 //Expert
 
 /datum/crafting_recipe/roguetown/survival/tneedle
 	name = "sewing needle"

@@ -143,6 +143,10 @@
 	if(!isitem(O))
 		return
 
+	if(!stringamt && !infinite)
+		to_chat(user, span_warning("The needle is out of thread!"))
+		return
+
 	var/obj/item/attacked_item = O
 	if(repair_method == REPAIR_METHOD_EXPEDIENT)
 		var/repaired_integ = do_special_repair(attacked_item, user, REPAIR_TYPE_SEW)

@@ -49,7 +49,11 @@
 
 /obj/item/examine(mob/user)
 	. = ..()
-	. += integrity_check()
+	var/bad_integ_notif = ""
+	if((floor(get_true_max_integ()) - max_integrity) >= 5)
+		var/bad_integ_symbol = icon2html('icons/misc/repair_icons.dmi', world, "lost_maxinteg")
+		bad_integ_notif = SPAN_TOOLTIP("This item has lost some of its maximum integrity. Expert repairs, a repair kit or the Ameliorate found in town can restore it.", "<font size = 1>[bad_integ_symbol]</font>")
+	. += integrity_check() + bad_integ_notif
 
 	var/derived_cat = GLOB.derived_categories ? GLOB.derived_categories[type] : null
 	var/display_cat = derived_cat

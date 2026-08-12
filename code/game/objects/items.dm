@@ -728,9 +728,11 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			var/percent = round((ratio * 100), 1)
 			var/integ_total = get_true_max_integ()
 			var/show_total
+			var/bad_integ_symbol
 			if((floor(integ_total) - floor(max_integrity)) >= 5)
 				show_total = TRUE
-			inspec += "[percent]% ([show_total ? "<font_color = '#b3b46c'>" : ""][floor(eff_currint)][show_total ? "</font>" : ""]) [show_total ? "[SPAN_TOOLTIP("This item is not in the best shape it could be. Expert-skill repairs, a gear repair kit or the Ameliorate found in town can repair its integrity fully.", "!")]" : ""]"
+				bad_integ_symbol = icon2html('icons/misc/repair_icons.dmi', world, "lost_maxinteg")
+			inspec += "[percent]% ([show_total ? "<font_color = '#b3b46c'>" : ""][floor(eff_currint)][show_total ? "</font>" : ""]) [show_total ? "[SPAN_TOOLTIP("This item is not in the best shape it could be. Expert-skill repairs, a gear repair kit or the Ameliorate found in town can repair its integrity fully.", "<font size = 2>[bad_integ_symbol]</font>")]" : ""]"
 			if(force >= 5) // Durability is rather obvious for non-weapons
 				inspec += " <span class='info'><a href='?src=[REF(src)];explaindurability=1'>{?}</a></span>"
 		if(istype(src, /obj/item/clothing))	//awful

@@ -54707,6 +54707,10 @@
 /obj/structure/flora/roguegrass/water/reeds,
 /turf/open/floor/rogue/dirt,
 /area/rogue/outdoors/beach/forest/south)
+"kkq" = (
+/obj/structure/roguerock,
+/turf/open/floor/rogue/cobblerock,
+/area/rogue/outdoors/beach/forest/hamlet)
 "kks" = (
 /obj/structure/table/wood/poor,
 /obj/effect/spawner/lootdrop/valuable_candle_spawner,
@@ -71043,6 +71047,14 @@
 	},
 /turf/open/floor/rogue/churchbrick,
 /area/rogue/under/cave/scarymaze)
+"nlc" = (
+/obj/structure/table/wood/poor,
+/obj/item/repair_kit/bad,
+/obj/item/needle{
+	pixel_y = 5
+	},
+/turf/open/floor/rogue/cobblerock,
+/area/rogue/outdoors/beach/forest/hamlet)
 "nle" = (
 /obj/structure/roguemachine/scomm/r{
 	scom_tag = "Cathedral - Office of the Bishop"
@@ -121007,6 +121019,14 @@
 /obj/structure/fluff/railing/wood/east,
 /turf/open/floor/rogue/twig,
 /area/rogue/indoors/inq/chapel)
+"wCi" = (
+/obj/structure/table/wood/poor,
+/obj/item/repair_kit/metal/bad,
+/obj/item/rogueweapon/hammer/iron{
+	pixel_y = 6
+	},
+/turf/open/floor/rogue/cobblerock,
+/area/rogue/outdoors/beach/forest/hamlet)
 "wCl" = (
 /obj/structure/fermentation_keg/crafted,
 /turf/open/floor/rogue/twig,
@@ -338586,9 +338606,9 @@ sfX
 sfX
 sfX
 sfX
-sfX
-sfX
-sfX
+xFI
+xFI
+xFI
 sfX
 sfX
 sfX
@@ -339038,9 +339058,9 @@ sfX
 sfX
 sfX
 sfX
-sfX
-sfX
-sfX
+wCi
+kkq
+nlc
 sfX
 auC
 sfX

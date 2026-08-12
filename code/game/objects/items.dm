@@ -2125,7 +2125,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 	// If our skill is Expert or above, we won't diminish our max integ.
 	// Otherwise, we'll need to get lucky or make use of other circumstances.
-	var/base_prob = ((user.STALUC - 10) * 10) + (stage_count * 15)
+	var/base_prob = ((user.STALUC - 10) * 10) + ((user.STAINT - 10) * 3) + (stage_count * 15)
 
 	/*// Small penalty if we're bumming our tools.
 	// Do note the Communal ones near the Ameliorate are not of these type and shouldn't be.

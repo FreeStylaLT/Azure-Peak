@@ -1129,7 +1129,7 @@
 	update_icon()
 
 /obj/item/quiver/mechanized/crossbow/attackby(obj/item/A, mob/user, params)
-	if(istype(A, /obj/item/contraption/linker)||istype(A, /obj/item/rogueweapon/hammer))
+	if(istype(A, /obj/item/rogueweapon/contraption/linker)||istype(A, /obj/item/rogueweapon/hammer))
 		if(arrows.len || holstered_weapon)
 			to_chat(user, span_warning("[src] needs to be emptied of bolts and any holstered weapon before I can reconfigure it."))
 			return TRUE

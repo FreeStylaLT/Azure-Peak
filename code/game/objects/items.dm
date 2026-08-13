@@ -2215,6 +2215,8 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		if(maxclamp)
 			repaired_integ = min(repaired_integ, maxclamp)
 
+	exp_gained = min(attacked_item.obj_integrity + repaired_integ, attacked_item.max_integrity) - attacked_item.obj_integrity
+
 	var/root_time = root_mult * stage_count
 	var/exp_gained
 	user.Immobilize(root_time)
@@ -2249,12 +2251,10 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			attacked_item.perform_repair_effect(user, REPAIR_STAGE_DING, repair_type)
 
 		else if(!keep_max_integ_chance && !keep_max_integ_quiet)
-			addtimer(CALLBACK(attacked_item, PROC_REF(perform_repair_effect), user, REPAIR_STAGE_INTEGLOSS, repair_type), 0.3 SECONDS)
+			addtimer(CALLBACK(attacked_item, PROC_REF(perform_repair_effect), user, REPAIR_STAGE_INTEGLOSS, repair_type), 0.4 SECONDS)
 
 	if(stage_count < REPAIR_STAGE_ONE)
 		finalize_repair(attacked_item, user, repair_type, stage_count, repaired_integ, (keep_max_integ_chance || keep_max_integ_quiet), integ_decay)
-
-	exp_gained = min(attacked_item.obj_integrity + repaired_integ, attacked_item.max_integrity) - attacked_item.obj_integrity
 
 	repair_busy = FALSE
 	if(exp_gained)	// This represents the amount of integrity we just repaired.
@@ -2264,11 +2264,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	if(!attacked_item.repair_effect_check(user))
 		return
 
-	if(integ_decay && repair_stage != REPAIR_STAGE_FINAL)
-		if(!keep_integ)
+	if(!keep_integ && repair_stage != REPAIR_STAGE_FINAL)
+		if(integ_decay)
 			attacked_item.max_integrity -= integ_decay
-	attacked_item.obj_integrity = min(attacked_item.obj_integrity + repaired_integ, attacked_item.max_integrity)
+
 	var/actual_integ = min(attacked_item.obj_integrity + repaired_integ, attacked_item.max_integrity) - attacked_item.obj_integrity
+	attacked_item.obj_integrity = min(attacked_item.obj_integrity + repaired_integ, attacked_item.max_integrity)
+
 	user.visible_message(span_info("[user] repairs [attacked_item]! [(!keep_integ && repair_stage != REPAIR_STAGE_FINAL) ? "It wears down a little bit." : (repair_stage == REPAIR_STAGE_FINAL) ? "It's done perfectly!" : "It's left the same."]"))
 
 	if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)

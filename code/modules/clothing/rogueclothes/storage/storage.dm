@@ -232,6 +232,7 @@
 	icon_state = "osatchelshort"
 	item_state = "osatchelshort"
 	slot_flags = ITEM_SLOT_BACK|ITEM_SLOT_HIP
+	component_type = /datum/component/storage/concrete/roguetown/satchel/short
 
 /obj/item/storage/backpack/rogue/satchel/mule/PopulateContents()
 	for(var/i in 1 to 3)
@@ -262,6 +263,7 @@
 	icon_state = "satchelshort"
 	item_state = "satchelshort"
 	slot_flags = ITEM_SLOT_BACK|ITEM_SLOT_HIP //Implement a check in the future that prevents more than one being worn at once.
+	component_type = /datum/component/storage/concrete/roguetown/satchel/short
 
 /obj/item/storage/backpack/rogue/satchel/short/black
 	name = "black short satchel"
@@ -588,7 +590,7 @@
 	//mob_overlay_icon = 'icons/roguetown/clothing/onmob/belts.dmi'
 	icon_state = "rucksack"
 	item_state = "rucksack"
-	slot_flags = ITEM_SLOT_HIP|ITEM_SLOT_BACK 
+	slot_flags = ITEM_SLOT_HIP|ITEM_SLOT_BACK
 	w_class = WEIGHT_CLASS_NORMAL
 	max_integrity = 400
 	equip_sound = 'sound/blank.ogg'

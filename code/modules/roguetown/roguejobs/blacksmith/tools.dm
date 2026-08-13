@@ -400,6 +400,7 @@
 	icon_state = "hammer_w"
 	force = 16
 	anvilrepair = /datum/skill/craft/crafting
+	max_integrity = 40
 
 /obj/item/rogueweapon/hammer/stone	// stone hammer
 	name = "stone hammer"
@@ -421,7 +422,7 @@
 	desc = "A hammer of wrought bronze. It has pounded out the beginning of a thousand legacies; of humble adventurers, of noble legionnaires, and of foolish heroes."
 	icon_state = "ahammer"
 	force = 12
-	max_integrity = 10
+	max_integrity = 75
 	smeltresult = /obj/item/ingot/aaslag
 	color = "#bb9696"
 
@@ -456,6 +457,7 @@
 	desc = "Steel to drive the iron nail without mercy."
 	icon_state = "hammer_s"
 	smeltresult = /obj/item/ingot/steel
+	max_integrity = 350
 
 /*
 /obj/item/rogueweapon/hammer/steel/attack_turf(turf/T, mob/living/user)

@@ -2079,6 +2079,8 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		to_chat(user, span_warning("I am still too tense from my recent fight. ([round((user.in_combat_until + 10 SECONDS - world.time) / 10)] seconds left)"))
 		return
 
+	var/reason_for_kept_integ = "The integrity was preserved. Reasons why: "
+
 	repair_busy = TRUE
 	var/user_skill
 	if(repair_type == REPAIR_TYPE_SEW)
@@ -2140,6 +2142,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	var/keep_max_integ_quiet = FALSE	// This will NOT produce any 'Ding!' sfx or vfx as it's a consistently reproducible circumstance.
 
 	if(attacked_item.polished == 4)
+		reason_for_kept_integ += "The polish kept it from decaying."
 		keep_max_integ_quiet = TRUE
 
 	if(scaling_override && stage_count < REPAIR_STAGE_THREE)
@@ -2149,32 +2152,39 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		var/obj/item/clothing/C = attacked_item
 		if(repair_type == REPAIR_TYPE_SEW)
 			if(C.armor_class == ARMOR_CLASS_LIGHT && HAS_TRAIT(user, TRAIT_DODGEEXPERT))
+				reason_for_kept_integ += "I am familiar with this armor type enough to repair it properly."
 				keep_max_integ_quiet = TRUE
 
 		else if(repair_type == REPAIR_TYPE_HAMMER)
 			if(C.armor_class == ARMOR_CLASS_MEDIUM && HAS_TRAIT(user, TRAIT_MEDIUMARMOR))
+				reason_for_kept_integ += "I am familiar with this armor type enough to repair it properly."
 				keep_max_integ_quiet = TRUE
 			if(C.armor_class == ARMOR_CLASS_HEAVY && HAS_TRAIT(user, TRAIT_HEAVYARMOR))
+				reason_for_kept_integ += "I am familiar with this armor type enough to repair it properly."
 				keep_max_integ_quiet = TRUE
 
 	if(repair_type == REPAIR_TYPE_SEW)
 		// We keep our integ if we're repairing on a cool table regardless of tools.
 		if((locate(/obj/structure/table/wood/fancy) in attacked_item.loc) || (locate(/obj/structure/table/wood/folding) in attacked_item.loc))
+			reason_for_kept_integ += "The repair surface was favorable."
 			keep_max_integ_quiet = TRUE
 
 		// Ditto, but with a cool tool instead.
 		if(!keep_max_integ_quiet)
 			if(istype(src, /obj/item/needle/pestra))
+				reason_for_kept_integ += "The tool aided me."
 				keep_max_integ_quiet = TRUE
 
 	if(repair_type == REPAIR_TYPE_HAMMER)
 		// We keep our integ if we're repairing on an anvil regardless of tools.
 		if(locate(/obj/machinery/anvil) in attacked_item.loc)
+			reason_for_kept_integ += "The repair surface was favorable."
 			keep_max_integ_quiet = TRUE
 
 		// Cool tool
 		if(!keep_max_integ_quiet)
 			if(istype(src, /obj/item/rogueweapon/hammer/blacksteel))
+				reason_for_kept_integ += "The tool aided me."
 				keep_max_integ_quiet = TRUE
 
 	if(istype(attacked_item, /obj/item/rogueweapon))
@@ -2182,7 +2192,11 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 
 	// For the OCD that like to keep their armor topped off.
 	if((attacked_item.obj_integrity / attacked_item.max_integrity) >= 0.9)
+		reason_for_kept_integ += "The damage was not severe enough."
 		keep_max_integ_quiet = TRUE
+
+	if(keep_max_integ_chance && !keep_max_integ_quiet)
+		reason_for_kept_integ += "I got lucky!"
 
 	// We're an Expert+ doing repairs, we'll do a blue ding anyway, we don't care about these anymore.
 	if(stage_count == REPAIR_STAGE_FINAL)
@@ -2215,14 +2229,18 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 		if(maxclamp)
 			repaired_integ = min(repaired_integ, maxclamp)
 
+	var/exp_gained
 	exp_gained = min(attacked_item.obj_integrity + repaired_integ, attacked_item.max_integrity) - attacked_item.obj_integrity
 
+	if(!keep_max_integ_chance && !keep_max_integ_quiet)
+		if(reason_for_kept_integ)
+			reason_for_kept_integ = null
+
 	var/root_time = root_mult * stage_count
-	var/exp_gained
 	user.Immobilize(root_time)
 	user.changeNext_move(root_time)
 	if(stage_count)
-		addtimer(CALLBACK(src, PROC_REF(finalize_repair), attacked_item, user, repair_type, stage_count, repaired_integ, (keep_max_integ_chance || keep_max_integ_quiet), integ_decay), root_time )
+		addtimer(CALLBACK(src, PROC_REF(finalize_repair), attacked_item, user, repair_type, stage_count, repaired_integ, (keep_max_integ_chance || keep_max_integ_quiet), integ_decay, reason_for_kept_integ), root_time )
 		for(var/i in 1 to stage_count)
 			if(!attacked_item.repair_effect_check(user)) // This is an adjacency check should the item get snagged during the animation.
 				break
@@ -2254,13 +2272,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			addtimer(CALLBACK(attacked_item, PROC_REF(perform_repair_effect), user, REPAIR_STAGE_INTEGLOSS, repair_type), 0.4 SECONDS)
 
 	if(stage_count < REPAIR_STAGE_ONE)
-		finalize_repair(attacked_item, user, repair_type, stage_count, repaired_integ, (keep_max_integ_chance || keep_max_integ_quiet), integ_decay)
+		finalize_repair(attacked_item, user, repair_type, stage_count, repaired_integ, (keep_max_integ_chance || keep_max_integ_quiet), integ_decay, reason_for_kept_integ)
 
 	repair_busy = FALSE
 	if(exp_gained)	// This represents the amount of integrity we just repaired.
 		return exp_gained
 
-/obj/item/proc/finalize_repair(obj/item/attacked_item, mob/living/user, repair_type, repair_stage, repaired_integ, keep_integ, integ_decay)
+/obj/item/proc/finalize_repair(obj/item/attacked_item, mob/living/user, repair_type, repair_stage, repaired_integ, keep_integ, integ_decay, reason_for_kept_integ)
 	if(!attacked_item.repair_effect_check(user))
 		return
 
@@ -2271,7 +2289,13 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	var/actual_integ = min(attacked_item.obj_integrity + repaired_integ, attacked_item.max_integrity) - attacked_item.obj_integrity
 	attacked_item.obj_integrity = min(attacked_item.obj_integrity + repaired_integ, attacked_item.max_integrity)
 
-	user.visible_message(span_info("[user] repairs [attacked_item]! [(!keep_integ && repair_stage != REPAIR_STAGE_FINAL) ? "It wears down a little bit." : (repair_stage == REPAIR_STAGE_FINAL) ? "It's done perfectly!" : "It's left the same."]"))
+	var/msg_to_all = span_info("[user] repairs [attacked_item]! [(!keep_integ && repair_stage != REPAIR_STAGE_FINAL) ? "It wears down a little bit." : (repair_stage == REPAIR_STAGE_FINAL) ? "It's done perfectly!" : "It's left the same."]")
+	var/msg_to_self = msg_to_all
+	var/integ_notif
+	if(keep_integ && reason_for_kept_integ)
+		integ_notif = icon2html('icons/misc/repair_icons.dmi', world, "safe_repair")
+		msg_to_self += SPAN_TOOLTIP("[reason_for_kept_integ]", "<font size = 1>[integ_notif]</font>")
+	user.visible_message(msg_to_all, msg_to_self)
 
 	if(attacked_item.body_parts_covered != attacked_item.body_parts_covered_dynamic)
 		user.visible_message(span_info("[user] repairs [attacked_item]'s coverage!"))

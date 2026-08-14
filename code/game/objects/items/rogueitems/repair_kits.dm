@@ -39,11 +39,55 @@
 			new /obj/item/scrap(get_turf(src))
 	qdel(src)
 
+/obj/item/repair_kit/attackby(obj/O, mob/living/user, params)
+	if(!isitem(O))
+		return
+	if(obj_integrity == max_integrity)
+		to_chat(user, span_warning("This repair kit is at maximum capacity."))
+		return
+
+	if(repair_type == 0)	 // Sew
+		if(istype(O, /obj/item/natural/cloth))
+			to_chat(user, span_info("I use [O] to restore some of the repair kit's capacity."))
+			qdel(O)
+			obj_integrity = min(obj_integrity+1,max_integrity)
+		if(istype(O,/obj/item/natural/bundle/cloth))
+			var/obj/item/natural/bundle/B = O
+			var/maxcycles = B.amount
+			to_chat(user, span_info("I use [O] to restore some of the repair kit's capacity."))
+			for(var/i in 1 to maxcycles)
+				if(B)	// We might lose the bundle as it gets consumed.
+					if(obj_integrity < max_integrity)
+						obj_integrity = min(obj_integrity+1,max_integrity)
+						B.use()
+	else if(repair_type == 1)	// Metal
+		if(istype(O, /obj/item/scrap))
+			qdel(O)
+			obj_integrity = min(obj_integrity+1,max_integrity)
+		if(istype(O, /obj/item/ingot))
+			var/restored_amt = 1
+			if(istype(O, /obj/item/ingot/iron))
+				restored_amt = 2
+			if(istype(O, /obj/item/ingot/steel))
+				restored_amt = 5
+			if(istype(O, /obj/item/ingot/bronze) || istype(O, /obj/item/ingot/copper))
+				restored_amt = 3
+			if(istype(O, /obj/item/ingot/avantyne))
+				restored_amt = 10
+			if(istype(O, /obj/item/ingot/gold))
+				restored_amt = 20
+			if(istype(O, /obj/item/ingot/aalloy))
+				restored_amt = 5
+			to_chat(user, span_info("I use [O] to restore some of the repair kit's capacity."))
+			qdel(O)
+			obj_integrity = min(obj_integrity+restored_amt,max_integrity)
+
+
 /obj/item/repair_kit/attack_obj(obj/O, mob/living/user)
 	if(!isitem(O) || in_use)
 		return
 	var/obj/item/I = O
-	if(src.obj_integrity <= 0)
+	if(src.obj_integrity < 0)
 		if(I.sewrepair)
 			playsound(loc, 'sound/foley/cloth_rip.ogg', 100, TRUE, -2)
 		if(I.anvilrepair)
@@ -58,7 +102,7 @@
 		if(I.obj_integrity != I.max_integrity)
 			to_chat(user, span_warning("This requires more repairs."))
 			return
-		if(initial(I.max_integrity) == I.max_integrity)
+		if(floor(I.get_true_max_integ()) == floor(I.max_integrity))
 			to_chat(user, span_warning("This item is already in top shape."))
 			return
 		if(!I.ontable() && table_need == TRUE)
@@ -75,9 +119,10 @@
 			return
 
 		if(istype(I, /obj/item/clothing))
+			visible_message("[user] restores [I]'s integrity with [src].")
 			I.restore_max_integ()
 
-		take_damage(1, BRUTE)
+		obj_integrity = max(obj_integrity-1, 0)
 		in_use = FALSE
 		return
 	return ..()

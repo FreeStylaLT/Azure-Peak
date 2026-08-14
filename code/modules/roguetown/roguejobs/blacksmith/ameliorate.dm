@@ -53,9 +53,14 @@
 			to_chat(user, span_warning("\The [I] still needs repairs before being ameliorated!"))
 			continue
 
-		if(initial(I.max_integrity) == I.max_integrity)
+		if(floor(I.get_true_max_integ()) == floor(I.max_integrity))
 			to_chat(user, span_warning("\The [I] does not need any amelioration. It is fine."))
 			continue
+
+		if(!istype(I, /obj/item/clothing))
+			to_chat(user, span_warning("\The [I] cannot be ameliorated. It's only usable with clothing."))
+			continue
+
 		var/sfx
 		if(I.anvilrepair && !I.sewrepair)
 			sfx = 'sound/repair/ameliorate_metal.ogg'
@@ -63,7 +68,7 @@
 			sfx = 'sound/repair/ameliorate_leather.ogg'
 
 		var/datum/component/fit_clothing/has_fitting = I.GetComponent(/datum/component/fit_clothing)
-		if(I.max_integrity != initial(I.max_integrity))
+		if(I.max_integrity != I.get_true_max_integ())
 			if(sfx)
 				playsound(src, sfx, 100, TRUE)
 			in_use = TRUE

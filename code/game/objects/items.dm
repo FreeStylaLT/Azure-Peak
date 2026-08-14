@@ -731,7 +731,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 			var/integ_total = get_true_max_integ()
 			var/show_total
 			var/bad_integ_symbol
-			if((floor(integ_total) - floor(max_integrity)) >= 5)
+			if((floor(integ_total) - floor(max_integrity)) >= 5 && istype(src, /obj/item/clothing))
 				show_total = TRUE
 				bad_integ_symbol = icon2html('icons/misc/repair_icons.dmi', world, "lost_maxinteg")
 			inspec += "[percent]% ([show_total ? "<font_color = '#b3b46c'>" : ""][floor(eff_currint)][show_total ? "</font>" : ""]) [show_total ? "[SPAN_TOOLTIP("This item is not in the best shape it could be. Expert-skill repairs, a gear repair kit or the Ameliorate found in town can repair its integrity fully.", "<font size = 2>[bad_integ_symbol]</font>")]" : ""]"
@@ -2403,4 +2403,7 @@ GLOBAL_VAR_INIT(rpg_loot_items, FALSE)
 	repair_busy = FALSE
 
 /obj/item/proc/get_true_max_integ()
-	return ((initial(max_integrity) * GEAR_INTEG_CONSTANT) + initial(max_integrity))
+	if(max_integrity && integrity_failure && integrity_failure == ARMOR_INTEG_FAILURE)
+		return ((initial(max_integrity) * GEAR_INTEG_CONSTANT) + initial(max_integrity))
+	else
+		return max_integrity

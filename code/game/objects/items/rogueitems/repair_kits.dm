@@ -10,7 +10,7 @@
 	throwforce = 0
 	resistance_flags = FLAMMABLE
 	slot_flags = ITEM_SLOT_HIP
-	max_integrity = 5
+	max_integrity = 7
 	experimental_inhand = FALSE
 	var/table_need = TRUE
 	var/repair_type = 0 //0 - cloth; 1 - metal
@@ -65,19 +65,15 @@
 			qdel(O)
 			obj_integrity = min(obj_integrity+1,max_integrity)
 		if(istype(O, /obj/item/ingot))
-			var/restored_amt = 1
-			if(istype(O, /obj/item/ingot/iron))
-				restored_amt = 2
-			if(istype(O, /obj/item/ingot/steel))
-				restored_amt = 5
-			if(istype(O, /obj/item/ingot/bronze) || istype(O, /obj/item/ingot/copper))
+			var/restored_amt = 2
+			if(istype(O, /obj/item/ingot/bronze) || istype(O, /obj/item/ingot/copper) || istype(O, /obj/item/ingot/iron))
 				restored_amt = 3
+			if(istype(O, /obj/item/ingot/steel) || istype(O, /obj/item/ingot/aalloy))
+				restored_amt = 5
 			if(istype(O, /obj/item/ingot/avantyne))
 				restored_amt = 10
-			if(istype(O, /obj/item/ingot/gold))
+			if(istype(O, /obj/item/ingot/gold) || istype(O, /obj/item/ingot/avantyne) || istype(O, /obj/item/ingot/blacksteel))
 				restored_amt = 20
-			if(istype(O, /obj/item/ingot/aalloy))
-				restored_amt = 5
 			to_chat(user, span_info("I use [O] to restore some of the repair kit's capacity."))
 			qdel(O)
 			obj_integrity = min(obj_integrity+restored_amt,max_integrity)

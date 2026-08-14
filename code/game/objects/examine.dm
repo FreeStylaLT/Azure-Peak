@@ -157,6 +157,12 @@
 			result = span_warning("It's damaged.")
 		if(80 to 99)
 			result = span_warning("It's a little damaged.")
+
+	// Annoying, but currently only clothing is affected by any integrity maluses. TODO: repairability flags?
+	if(!istype(src, /obj/item/clothing) && (anvilrepair || sewrepair) && int_percent < 100)
+		var/safe_integ_symbol = icon2html('icons/misc/repair_icons.dmi', world, "safe_repair")
+		result += SPAN_TOOLTIP("This can be repaired safely without integrity losses.", "<font size = 1>[safe_integ_symbol]</font>")
+
 	return result
 
 /obj/item/clothing/integrity_check(elaborate = FALSE, guarded = FALSE)

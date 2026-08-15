@@ -137,7 +137,7 @@
 #undef RECUPERATION_BASE_FILTER
 
 ///////////////////
-// T1 - Miracle  //
+// T1 - Miracle	//
 ///////////////////
 
 /datum/action/cooldown/spell/miracle/heal/undivided
@@ -347,10 +347,10 @@
 		/obj/effect/proc_holder/spell/invoked/attach_bodypart::name		= /obj/effect/proc_holder/spell/invoked/attach_bodypart,
 	)
 	var/list/miracle_templar_bundle = list(
-		/obj/effect/proc_holder/spell/invoked/abyssor_undertow::name 		= /obj/effect/proc_holder/spell/invoked/abyssor_undertow,
-		/datum/action/cooldown/spell/ravox/withstand::name 					= /datum/action/cooldown/spell/ravox/withstand,
-		/datum/action/cooldown/spell/noc/enlightenment::name 				= /datum/action/cooldown/spell/noc/enlightenment,
-		/obj/effect/proc_holder/spell/invoked/vendetta::name 				= /obj/effect/proc_holder/spell/invoked/vendetta,
+		/obj/effect/proc_holder/spell/invoked/abyssor_undertow::name		= /obj/effect/proc_holder/spell/invoked/abyssor_undertow,
+		/datum/action/cooldown/spell/ravox/withstand::name					= /datum/action/cooldown/spell/ravox/withstand,
+		/datum/action/cooldown/spell/noc/enlightenment::name				= /datum/action/cooldown/spell/noc/enlightenment,
+		/obj/effect/proc_holder/spell/invoked/vendetta::name				= /obj/effect/proc_holder/spell/invoked/vendetta,
 	)
 
 /datum/action/cooldown/spell/undivided/undivided_spellpack/cast(atom/cast_on)

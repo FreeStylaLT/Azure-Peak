@@ -57,7 +57,7 @@
 			bad_integ_notif = SPAN_TOOLTIP("This item has lost some of its maximum integrity. Expert repairs, a repair kit or the Ameliorate found in town can restore it.", "<font size = 1>[bad_integ_symbol]</font>")
 	. += integrity_check() + bad_integ_notif
 
-	var/derived_cat = GLOB.derived_categories ? GLOB.derived_categories[type] : null
+	var/derived_cat = get_derived_category(type)
 	var/display_cat = derived_cat
 	if(derived_cat)
 		var/bucket = get_navigator_bucket_for_item(src, derived_cat)

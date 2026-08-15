@@ -231,6 +231,7 @@
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass/bronze		= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/bronze/donator,
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass/iron			= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/iron/donator,
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass				= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/donator,
+		/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/holysee = /obj/item/clothing/suit/roguetown/armor/plate/cuirass/donator,
 		/obj/item/clothing/suit/roguetown/armor/leather						= /obj/item/clothing/suit/roguetown/armor/leather/donator
 	)
 	result_item = null
@@ -265,7 +266,6 @@
 		/obj/item/rogueweapon/huntingknife/idagger/steel/decorated			= /obj/item/rogueweapon/huntingknife/idagger/steel/decorated/donator
 	)
 	result_item = null
-	exact_type = TRUE
 
 /obj/item/enchantingkit/beltleather
 	name = "'Belt of Caped Leather' morphing elixir"
@@ -342,6 +342,7 @@
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass/bronze		= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/bronze/donator_girdle,
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fencer		= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/fencer/donator_girdle,
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass				= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/donator_girdle,
+		/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/holysee = /obj/item/clothing/suit/roguetown/armor/plate/cuirass/donator_girdle,
 		/obj/item/clothing/suit/roguetown/armor/leather						= /obj/item/clothing/suit/roguetown/armor/leather/donator_girdle
 	)
 	result_item = null
@@ -403,6 +404,15 @@
 		/obj/item/rogueweapon/whip/psywhip_lesser
 	)
 	result_item = /obj/item/rogueweapon/example/donator_elegant_urumi
+
+/obj/item/enchantingkit/donator_cropped_gambeson
+	name = "'Low Cut Padded Gambeson' morphing elixr"
+	desc = "A small container of special morphing dust, perfect to make a specific item. It can be used to alter the appearance of a padded gambeson or gambeson."
+	target_items = list(
+		/obj/item/clothing/suit/roguetown/armor/gambeson/heavy = /obj/item/clothing/suit/roguetown/armor/gambeson/heavy/donator_cropped,
+		/obj/item/clothing/suit/roguetown/armor/gambeson = /obj/item/clothing/suit/roguetown/armor/gambeson/donator_cropped
+	)
+	result_item = null
 
 /obj/item/enchantingkit/donator_universal_shield
 	name = "'Elegant Kite Shield' morphing elixir"
@@ -1109,6 +1119,7 @@
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted			= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/apostle,
 		/obj/item/clothing/suit/roguetown/armor/plate/full/fluted				= /obj/item/clothing/suit/roguetown/armor/plate/full/apostle,
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass					= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/apostle,
+		/obj/item/clothing/suit/roguetown/armor/plate/scale						= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/apostle,
 		/obj/item/clothing/suit/roguetown/armor/plate/full						= /obj/item/clothing/suit/roguetown/armor/plate/full/apostle
 	)
 	result_item = null
@@ -1126,6 +1137,7 @@
 		/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/fluted		= /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/fluted/robed,
 		/obj/item/clothing/suit/roguetown/armor/plate/full/fluted				= /obj/item/clothing/suit/roguetown/armor/plate/full/robed,
 		/obj/item/clothing/suit/roguetown/armor/plate/cuirass					= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/robed,
+		/obj/item/clothing/suit/roguetown/armor/plate/scale						= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/robed,
 		/obj/item/clothing/suit/roguetown/armor/plate/full						= /obj/item/clothing/suit/roguetown/armor/plate/full/robed
 	)
 	result_item = null
@@ -1197,6 +1209,7 @@
 		/obj/item/clothing/suit/roguetown/armor/plate/full/fluted/ornate		= /obj/item/clothing/suit/roguetown/armor/plate/full/robed/grandmaster,
 		/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/ornate		= /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/fluted/robed/grandmaster,
 		/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/fluted		= /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/fluted/robed/grandmaster,
+		/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/heavy         = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/fluted/robed/grandmaster,
 		/obj/item/clothing/suit/roguetown/armor/plate/full/fluted				= /obj/item/clothing/suit/roguetown/armor/plate/full/robed/grandmaster,
 		/obj/item/clothing/suit/roguetown/armor/plate/full						= /obj/item/clothing/suit/roguetown/armor/plate/full/robed/grandmaster
 	)
@@ -1213,3 +1226,18 @@
 		/obj/item/clothing/mask/rogue/facemask/steel/maille/fluted
 	)
 	result_item = /obj/item/clothing/mask/rogue/facemask/steel/maille/birdmask
+
+// Noire and Co.
+/obj/item/enchantingkit/nero_woodlandbrig
+	name = "'Woodland Brigandine' morphing elixir"
+	desc = "A small container of special morphing dust, perfect to make a specific item. It can be used to alter the appearance of a Light Brigandine vest, \
+	a set of Studded Leather Armor, a Steel Cuirass, a Fluted Cuirass, a Haubergeon, or a Hauberk."
+	target_items = list(
+		/obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted		= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/fluted/woodland/custom,
+		/obj/item/clothing/suit/roguetown/armor/chainmail/hauberk			= /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/woodland/custom,
+		/obj/item/clothing/suit/roguetown/armor/brigandine/light			= /obj/item/clothing/suit/roguetown/armor/brigandine/light/woodland/custom,
+		/obj/item/clothing/suit/roguetown/armor/leather/studded				= /obj/item/clothing/suit/roguetown/armor/leather/studded/woodland/custom,
+		/obj/item/clothing/suit/roguetown/armor/plate/cuirass				= /obj/item/clothing/suit/roguetown/armor/plate/cuirass/woodland/custom,
+		/obj/item/clothing/suit/roguetown/armor/chainmail					= /obj/item/clothing/suit/roguetown/armor/chainmail/woodland/custom
+	)
+	result_item = null

@@ -7,8 +7,8 @@
 	max_w_class = WEIGHT_CLASS_NORMAL
 
 /datum/component/storage/concrete/roguetown/satchel/short
-	screen_max_rows = 3
-	screen_max_columns = 4
+	screen_max_rows = 4
+	screen_max_columns = 3
 
 /datum/component/storage/concrete/roguetown/satchel/cloth
 	screen_max_rows = 3

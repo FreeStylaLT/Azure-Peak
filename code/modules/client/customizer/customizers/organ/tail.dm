@@ -97,6 +97,7 @@
 		/datum/sprite_accessory/tail/batl,
 		/datum/sprite_accessory/tail/bats,
 		/datum/sprite_accessory/tail/murid,
+		/datum/sprite_accessory/tail/murid_alt,
 		/datum/sprite_accessory/tail/guilmon
 		)
 
@@ -133,6 +134,7 @@
 		/datum/sprite_accessory/tail/kitsune,
 		/datum/sprite_accessory/tail/lab,
 		/datum/sprite_accessory/tail/murid,
+		/datum/sprite_accessory/tail/murid_alt,
 		/datum/sprite_accessory/tail/orca,
 		/datum/sprite_accessory/tail/otie,
 		/datum/sprite_accessory/tail/rabbit,
@@ -207,6 +209,7 @@
 		/datum/sprite_accessory/tail/kitsune,
 		/datum/sprite_accessory/tail/lab,
 		/datum/sprite_accessory/tail/murid,
+		/datum/sprite_accessory/tail/murid_alt,
 		/datum/sprite_accessory/tail/orca,
 		/datum/sprite_accessory/tail/otie,
 		/datum/sprite_accessory/tail/rabbit,
@@ -287,6 +290,7 @@
 		/datum/sprite_accessory/tail/kitsune,
 		/datum/sprite_accessory/tail/lab,
 		/datum/sprite_accessory/tail/murid,
+		/datum/sprite_accessory/tail/murid_alt,
 		/datum/sprite_accessory/tail/orca,
 		/datum/sprite_accessory/tail/otie,
 		/datum/sprite_accessory/tail/rabbit,

@@ -159,6 +159,10 @@
 	name = "Murid"
 	icon_state = "murid"
 
+/datum/sprite_accessory/tail/murid_alt
+	name = "Murid (Alternative)"
+	icon_state = "murid2"
+
 /datum/sprite_accessory/tail/orca
 	name = "Orca"
 	icon_state = "orca"

@@ -20,12 +20,12 @@
 /datum/sex_action/miscellaneous/grind_body/get_start_message(mob/living/carbon/human/user, mob/living/carbon/human/target)
 	var/datum/sex_session/sex_session = get_sex_session(user, target)
 	var/do_subtle = sex_session.doing_subtly
-	return span_warning("[user] [do_subtle ? "subtly " : ""]pulls themselves onto [target]...")
+	return span_warning("[user] [do_subtle ? "subtly " : ""]pulls themselves onto [target]...", vision_distance = (do_subtle ? 1 : DEFAULT_MESSAGE_RANGE))
 
 /datum/sex_action/miscellaneous/grind_body/get_finish_message(mob/living/carbon/human/user, mob/living/carbon/human/target)
 	var/datum/sex_session/sex_session = get_sex_session(user, target)
 	var/do_subtle = sex_session.doing_subtly
-	return span_warning("[user] stops [do_subtle ? "subtly " : ""]grinding against [target].")
+	return span_warning("[user] stops [do_subtle ? "subtly " : ""]grinding against [target].", vision_distance = (do_subtle ? 1 : DEFAULT_MESSAGE_RANGE))
 
 /datum/sex_action/miscellaneous/grind_body/on_perform_message(mob/living/carbon/human/user, mob/living/carbon/human/target)
 	var/datum/sex_session/sex_session = get_sex_session(user, target)

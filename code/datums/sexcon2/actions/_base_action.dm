@@ -175,7 +175,7 @@
 	var/do_subtle = sex_session.doing_subtly
 	var/message = get_start_message(user, target)
 	if(message)
-		user.visible_message(message, vision_distance = (do_subtle ? 1 : DEFAULT_MESSAGE_RANGE))
+		user.visible_message(message, vision_distance = (do_subtle ? 1 : DEFAULT_MESSAGE_RANGE), vision_distance = (do_subtle ? 1 : DEFAULT_MESSAGE_RANGE))
 
 	var/sound = get_start_sound(user, target)
 	if(sound)
@@ -201,7 +201,7 @@
 
 	var/message = get_finish_message(user, target)
 	if(message)
-		user.visible_message(message)
+		user.visible_message(message, vision_distance = (do_subtle ? 1 : DEFAULT_MESSAGE_RANGE))
 
 	return
 

@@ -223,8 +223,8 @@
 	var/skillmod = 15
 	var/intmod = 10
 
-	// Mages are less effective due to their innate zoning advantages
-	if(HAS_TRAIT(user, TRAIT_ARCYNE))
+	// Mages are less effective due to their innate zoning advantages, PvP only.
+	if(HAS_TRAIT(user, TRAIT_ARCYNE) && L.mind)
 		skillmod *= 0.5
 		intmod *= 0.5
 

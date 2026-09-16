@@ -219,8 +219,17 @@
 	if(L.mind)
 		I = L.get_active_held_item()
 		theirskill = L.get_wskill(I, /datum/skill/combat/unarmed)
-	perc += (ourskill - theirskill)*15	//skill is of the essence
-	perc += (user.STAINT - L.STAINT)*10	//but it's also mostly a mindgame
+
+	var/skillmod = 15
+	var/intmod = 10
+
+	// Mages are less effective due to their innate zoning advantages
+	if(HAS_TRAIT(user, TRAIT_ARCYNE))
+		skillmod *= 0.5
+		intmod *= 0.5
+
+	perc += (ourskill - theirskill)*skillmod	//skill is of the essence
+	perc += (user.STAINT - L.STAINT)*intmod	//but it's also mostly a mindgame
 	skill_factor = (ourskill - theirskill)/2
 
 	var/special_msg

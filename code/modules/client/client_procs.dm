@@ -1329,5 +1329,6 @@ GLOBAL_LIST_EMPTY(external_rsc_urls)
 	var/ckey_to_mute = C.ckey
 	if(ckey_to_mute in user_muted_ckeys)
 		return
+	message_admins("[ckey] [ADMIN_LOOKUPFLW(src)] personally muted [ckey_to_mute] [ADMIN_LOOKUPFLW(C)]")
 	to_chat(src, span_notice("You will no longer see their LOOC messages. Reconnect or click 'Reset LOOC Mutes' button in your OOC tab to see them again."))
 	LAZYADD(user_muted_ckeys, ckey_to_mute)

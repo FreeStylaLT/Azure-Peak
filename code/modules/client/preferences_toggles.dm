@@ -447,4 +447,13 @@
 		else
 			to_chat(src, "Examines will have some information behind dropdowns.")
 
+/client/proc/toggleooc()
+	set name = "Show/Hide OOC"
+	set category = "Preferences.Options"
+	set desc = "Toggles seeing OOC chatter"
+	if(prefs)
+		prefs.chat_toggles ^= CHAT_OOC
+		prefs.save_preferences()
+	to_chat(usr, "You will [(prefs.chat_toggles & CHAT_OOC) ? "now" : "no longer"] see messages on the OOC channel.")
+
 #undef TOGGLE_CHECKBOX

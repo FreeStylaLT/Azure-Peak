@@ -449,11 +449,11 @@
 
 /client/verb/toggle_showooc()
 	set category = "Preferences.Options"
-	set name = "Toggle OOC"
+	set name = "Show / Hide OOC"
 	set desc = "Toggles seeing OOC chatter"
 	if(prefs)
-		prefs.chat_toggles ^= CHAT_OOC
+		prefs.chat_toggles ^= CHAT_OOC_MUTED
 		prefs.save_preferences()
-	to_chat(usr, "You will [(prefs.chat_toggles & CHAT_OOC) ? "now" : "no longer"] see messages on the OOC channel.")
+	to_chat(usr, "You will [(prefs.chat_toggles & CHAT_OOC_MUTED) ? "no longer" : "now"] see messages on the OOC channel.")
 
 #undef TOGGLE_CHECKBOX

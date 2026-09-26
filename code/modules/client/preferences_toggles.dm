@@ -447,9 +447,9 @@
 		else
 			to_chat(src, "Examines will have some information behind dropdowns.")
 
-/client/proc/toggleooc()
-	set name = "Show/Hide OOC"
+/client/verb/toggle_showooc()
 	set category = "Preferences.Options"
+	set name = "Toggle OOC"
 	set desc = "Toggles seeing OOC chatter"
 	if(prefs)
 		prefs.chat_toggles ^= CHAT_OOC

@@ -3,7 +3,7 @@ GLOBAL_LIST_INIT(disconnected_admin_alert_role_times, list(
 	// "Grand Duke" = 10 MINUTES,
 ))
 
-#define DEFAULT_DISCONNECTED_ADMIN_ALERT_TIME 15 MINUTES
+#define DEFAULT_DISCONNECTED_ADMIN_ALERT_TIME 30 MINUTES
 
 /mob/living/proc/set_ssd_indicator(state)
 	if(state && stat != DEAD)

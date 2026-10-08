@@ -31,7 +31,7 @@ GLOBAL_LIST_INIT(disconnected_admin_alert_role_times, list(
 
 /mob/living/proc/disconnected_admin_alert()
 	disconnected_admin_alert_timer = null
-	if(client || !last_logout_time || stat == DEAD || disconnected_admin_alert_sent || HAS_TRAIT(src, TRAIT_NOSSDINDICATOR))
+	if(client || !last_logout_time || stat == DEAD || disconnected_admin_alert_sent || HAS_TRAIT(src, TRAIT_NOSSDINDICATOR) || QDELETED(src))
 		return
 	if(!ishuman(src))
 		return

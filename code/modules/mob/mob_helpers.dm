@@ -526,7 +526,18 @@
 			else
 				var/obj/item/held_item = get_active_held_item()
 				if(held_item)
-					held_item.saved_intent_index = numb
+					var/saved_index = UNWIELDED_INTENT
+					if(held_item.altgripped)
+						switch(held_item.current_alt_grip_index)
+							if(1)
+								saved_index = ALTGRIP_ONE_INTENT
+							if(2)
+								saved_index = ALTGRIP_TWO_INTENT
+							if(3)	// If we ever get more altgrips per weapon than.. three.. somehow, this should be expanded.
+								saved_index = ALTGRIP_THREE_INTENT
+					else if(held_item.wielded)
+						saved_index = WIELDED_INTENT
+					held_item.saved_intents[saved_index] = numb
 				else
 					if(active_hand_index == 1)
 						l_ua_index = numb
@@ -607,11 +618,24 @@
 		else
 			hud_used.action_intent.update_icon(possible_offhand_intents,possible_a_intents,oactive)
 	var/obj/item/active_item = get_active_held_item()
-	if(active_item && active_item.saved_intent_index > 0 && active_item.saved_intent_index <= possible_a_intents.len)
+	if(active_item)
+		var/intent_index = 1
+		if(active_item.wielded && active_item.saved_intents[WIELDED_INTENT] > 0)
+			intent_index = active_item.saved_intents[WIELDED_INTENT]
+		switch(active_item.current_alt_grip_index)
+			if(1)
+				intent_index = active_item.saved_intents[ALTGRIP_ONE_INTENT]
+			if(2)
+				intent_index = active_item.saved_intents[ALTGRIP_TWO_INTENT]
+			if(3)
+				intent_index = active_item.saved_intents[ALTGRIP_THREE_INTENT]
+		if(!active_item.wielded && !active_item.current_alt_grip_index)
+			if(active_item.saved_intents[UNWIELDED_INTENT] > 0)
+				intent_index = active_item.saved_intents[UNWIELDED_INTENT]
 		if(active_hand_index == 1)
-			l_index = active_item.saved_intent_index
+			l_index = intent_index
 		else
-			r_index = active_item.saved_intent_index
+			r_index = intent_index
 	if(active_hand_index == 1)
 		if(l_index > possible_a_intents.len)
 			l_index = 1
@@ -734,6 +758,8 @@
 	update_inv_hands()
 
 
+#define CMODE_SHAKE_ANIMATION "cmode_shake"
+
 /mob/verb/toggle_cmode()
 	set name = "cmode-change"
 	set hidden = 1
@@ -741,15 +767,18 @@
 	if(SSticker.current_state >= GAME_STATE_FINISHED)
 		return
 
-	var/mob/living/L
-	if(isliving(src))
-		L = src
+	if(!isliving(src))
+		return
+	var/mob/living/L = src
 	var/client/client = L.client
+	L.dualwield_attack_count = 0
 	if(L.IsSleeping() || L.surrendering)
 		if(cmode)
 			playsound_local(src, 'sound/misc/comboff.ogg', 100)
 			SSdroning.play_area_sound(get_area(src), client)
 			cmode = FALSE
+			if(client)
+				animate(client, tag = CMODE_SHAKE_ANIMATION)
 		if(hud_used)
 			if(hud_used.cmode_button)
 				hud_used.cmode_button.update_icon()
@@ -758,8 +787,8 @@
 		playsound_local(src, 'sound/misc/comboff.ogg', 100)
 		SSdroning.play_area_sound(get_area(src), client)
 		cmode = FALSE
-		if(client && HAS_TRAIT(src, TRAIT_SCREENSHAKE))
-			animate(client, pixel_y)
+		if(client)
+			animate(client, tag = CMODE_SHAKE_ANIMATION)
 	else
 		cmode = TRUE
 		playsound_local(src, 'sound/misc/combon.ogg', 100)
@@ -767,13 +796,19 @@
 			SSdroning.play_combat_music(L.cmode_music_override, client)
 		else if(L.cmode_music)
 			SSdroning.play_combat_music(L.cmode_music, client)
-		if(client && HAS_TRAIT(src, TRAIT_PSYCHOSIS))
-			animate(client, pixel_y = 1, time = 1, loop = -1, flags = ANIMATION_RELATIVE)
+		if(client && (HAS_TRAIT(src, TRAIT_PSYCHOSIS) || HAS_TRAIT(src, TRAIT_SCREENSHAKE)))
+			animate(client, pixel_y = 1, time = 1, loop = -1, flags = ANIMATION_RELATIVE, tag = CMODE_SHAKE_ANIMATION)
 			animate(pixel_y = -1, time = 1, flags = ANIMATION_RELATIVE)
+			if(HAS_TRAIT(src, TRAIT_PSYCHOSIS) && !HAS_TRAIT(src, TRAIT_SCREENSHAKE))
+				spawn(4 SECONDS)
+					if(cmode && client)
+						animate(client, tag = CMODE_SHAKE_ANIMATION)
 	if(hud_used)
 		if(hud_used.cmode_button)
 			hud_used.cmode_button.update_icon()
 	on_cmode()
+
+#undef CMODE_SHAKE_ANIMATION
 
 /mob/proc/on_cmode()
 	return
@@ -970,8 +1005,7 @@
 		if(source)
 			var/atom/movable/screen/alert/notify_action/A = O.throw_alert("[REF(source)]_notify_action", /atom/movable/screen/alert/notify_action)
 			if(A)
-				if(O.client.prefs && O.client.prefs.UI_style)
-					A.icon = ui_style2icon(O.client.prefs.UI_style)
+				A.icon = 'icons/mob/roguehud.dmi'
 				if (header)
 					A.name = header
 				A.desc = message
@@ -1115,15 +1149,6 @@
 	* I wish examine was less copypasted. (oranges say, be the change you want to see buddy)
 	*/
 /mob/proc/common_trait_examine()
-	if(HAS_TRAIT(src, TRAIT_DISSECTED))
-		var/dissectionmsg = ""
-		if(HAS_TRAIT_FROM(src, TRAIT_DISSECTED,"Extraterrestrial Dissection"))
-			dissectionmsg = " via Extraterrestrial Dissection. It is no longer worth experimenting on"
-		else if(HAS_TRAIT_FROM(src, TRAIT_DISSECTED,"Experimental Dissection"))
-			dissectionmsg = " via Experimental Dissection"
-		else if(HAS_TRAIT_FROM(src, TRAIT_DISSECTED,"Thorough Dissection"))
-			dissectionmsg = " via Thorough Dissection"
-		. += "<span class='notice'>This body has been dissected and analyzed[dissectionmsg].</span><br>"
 
 /**
 	* Get the list of keywords for policy config
@@ -1144,10 +1169,15 @@
 /mob/proc/can_see_reagents()
 	return stat == DEAD || has_unlimited_silicon_privilege //Dead guys and silicons can always see reagents
 
+/mob/proc/can_identify_reagents(atom/A)
+	if(can_see_reagents())
+		return TRUE
+	return Adjacent(A) && (get_skill_level(/datum/skill/craft/alchemy) >= SKILL_LEVEL_APPRENTICE || HAS_TRAIT(src, TRAIT_CICERONE))
+
 /mob/proc/get_role_title()
 	var/used_title
-	if(migrant_type)
-		var/datum/migrant_role/migrant = MIGRANT_ROLE(migrant_type)
+	var/datum/migrant_role/migrant = migrant_type ? MIGRANT_ROLE(migrant_type) : null
+	if(migrant?.job_type == /datum/job/roguetown/migrant)
 		used_title = migrant.name
 		if(migrant.advjob_examine && advjob)
 			used_title = advjob

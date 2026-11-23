@@ -68,6 +68,8 @@
 	var/object_damage_multiplier = 1
 	/// Whether or not our projectile can damage walls
 	var/damages_turf_walls = FALSE
+	/// If true directly targeted turfs can be hit
+	var/can_hit_turfs = FALSE
 	/// Chance for our projectile to break upon impacting a wall for reusable projectiles.
 	var/wall_impact_break_probability = 0
 	/// Hit state used to track whether or not we hit a turf for reusable projectiles.
@@ -108,7 +110,10 @@
 	var/ignore_source_check = FALSE
 
 	var/damage = 10
-	var/npc_simple_damage_mult = 1 // Multiplicative bonus damage vs mindless simple animals.
+	/// Damage multiplier against simple animals. Use the ANTIBEAST_* defines.
+	var/antibeast_factor = 1
+	/// Damage was reduced by SPELL_DMG. Simple animals take the unscaled value.
+	var/spell_damage_scaled = FALSE
 	var/damage_type = BRUTE //BRUTE, BURN, TOX, OXY, CLONE are the only things that should be in here
 	var/nodamage = FALSE //Determines if the projectile will skip any damage inflictions
 	var/flag = "piercing" //Defines what armor to use when it hits things. Setting this to "blunt" might result in unexpected behavior (i.e. knockout on hit, figure out the root causes and excise it)
@@ -158,8 +163,11 @@
 	var/poisonamount
 	var/poisonfeel
 
-	var/accuracy = 65 //How likely the project will hit it's intended target area. Decreases over distance moved, increased from perception.
-	var/bonus_accuracy = 0 //bonus accuracy that cannot be affected by range drop off.
+	var/aim_peak = 0
+	/// Flat aim modifier from the ammo itself, added on top of aim_peak
+	var/aim_mod = 0
+	/// Ignores every zone hit penalty and ceiling
+	var/steady_aim = FALSE
 
 	/// Min tile distance for full damage.
 	var/min_range = 0
@@ -180,13 +188,38 @@
 	. = ..()
 	permutated = list()
 	decayedRange = range
+	aim_peak = ACC_RANGED_NPC_BASE
 
 /obj/projectile/proc/Range()
 	range--
-	if(accuracy > 20) //so there is always a somewhat prevalent chance to hit the target, despite distance.
-		accuracy -= 10
 	if(range <= 0 && loc)
 		on_range()
+
+/* Ranged AIM Formula, greatly simplified.
+- If you are outside the min/max range, you hit chest (0 accuracy)
+- Outside of visual reach (7 tiles), -10 penalty per tile
+- Crossing a Z = 2 tiles of penalty (20).
+*/
+/obj/projectile/proc/get_aim_at(distance, crossed_z = FALSE)
+	if(min_range && distance < min_range)
+		return ACC_RANGED_FLOOR
+	if(max_range && distance > max_range)
+		return ACC_RANGED_FLOOR
+	var/aim = aim_peak + aim_mod
+	if(distance > ACC_RANGED_VISUAL_REACH)
+		aim -= (distance - ACC_RANGED_VISUAL_REACH) * ACC_RANGED_FARSIGHT_PENALTY
+	if(crossed_z)
+		aim -= ACC_RANGED_ZCROSS_PENALTY
+	return max(ACC_RANGED_FLOOR, aim)
+
+//
+/obj/projectile/proc/get_aim_from(atom/target)
+	if(!starting)
+		return aim_peak + aim_mod
+	var/turf/T = get_turf(target)
+	if(!istype(T))
+		return aim_peak + aim_mod
+	return get_aim_at(max(abs(T.x - starting.x), abs(T.y - starting.y)), T.z != starting.z)
 
 /obj/projectile/proc/check_range(turf/T)
 	if(!starting)
@@ -217,6 +250,9 @@
 		return hit_zone
 	//when a limb is missing the damage is actually passed to the chest
 	return BODY_ZONE_CHEST
+
+/mob/living/proc/hit_zone_name(hit_zone)
+	return parse_zone(check_limb_hit(hit_zone))
 
 /obj/projectile/proc/prehit(atom/target)
 	return TRUE
@@ -256,12 +292,25 @@
 
 	var/mob/living/L = target
 
+	if(isliving(firer) && HAS_TRAIT(L, TRAIT_PACIFISM))
+		var/mob/living/user = firer
+		reduce_intent_cooldown(user, /datum/status_effect/debuff/clashcd, 5 SECONDS)
+
+		if(!HAS_TRAIT(user, TRAIT_NOMOOD))
+			if(user.patron?.type in ALL_INHUMEN_PATRONS)
+				user.add_stress(/datum/stressevent/remorse_evil)
+			else
+				user.add_stress(/datum/stressevent/remorse)
+
 	if(blocked != 100) // not completely blocked
 		if(damage && L.blood_volume && damage_type == BRUTE)
 			var/splatter_dir = dir
 			if(starting)
 				splatter_dir = get_dir(starting, target_loca)
-			var/obj/effect/temp_visual/dir_setting/bloodsplatter/splatter = new(target_loca, splatter_dir)
+			var/splatter_type = (woundclass in GLOB.gore_bclasses) ? /obj/effect/temp_visual/dir_setting/bloodsplatter/spray : /obj/effect/temp_visual/dir_setting/bloodsplatter
+			var/obj/effect/temp_visual/dir_setting/bloodsplatter/splatter = new splatter_type(target_loca, splatter_dir)
+			if((woundclass in GLOB.splatter_bclasses) && prob(damage * 2))
+				L.blood_spray(splatter_dir)
 			splatter.set_blood_color(L.get_blood_color())
 			if(prob(33))
 				L.add_splatter_floor(target_loca)
@@ -391,7 +440,7 @@
 		playsound(loc, hitsound_wall, volume, TRUE, -1)
 
 	if(arcshot)
-		if(A.loc != original.loc)
+		if(get_turf(A) != get_turf(original))
 			if(ismob(A))
 				var/mob/M = A
 				if(!CHECK_BITFIELD(movement_type, UNSTOPPABLE))
@@ -713,13 +762,15 @@
 		var/mob/M = firer
 		if((target == firer) || (target in firer.buckled_mobs) || (istype(M) && (M.buckled == target)))
 			return FALSE
-	if(!ignore_loc && (loc != target.loc))
+	if(!ignore_loc && (loc != target.loc) && !(can_hit_turfs && direct_target && loc == target))
 		return FALSE
 	if(target in passthrough)
 		return FALSE
 	if(target.density)		//This thing blocks projectiles, hit it regardless of layer/mob stuns/etc.
 		return TRUE
 	if(!isliving(target))
+		if(isturf(target))		// non dense turfs
+			return can_hit_turfs && direct_target
 		if(target.layer < PROJECTILE_HIT_THRESHHOLD_LAYER)
 			return FALSE
 	else
@@ -763,8 +814,7 @@
 	if(isliving(source))
 		var/mob/living/shooter = source
 		if(shooter.buckled)
-			accuracy = max(5, accuracy * BUCKLE_PENALTY)
-			bonus_accuracy = max(0, bonus_accuracy * BUCKLE_PENALTY)
+			aim_peak = max(0, aim_peak * BUCKLE_PENALTY)
 
 	if(targloc && !params)
 		yo = targloc.y - curloc.y

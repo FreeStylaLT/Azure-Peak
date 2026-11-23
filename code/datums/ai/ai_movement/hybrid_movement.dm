@@ -35,7 +35,7 @@
 			controller.add_blackboard_key(future_path_blackboard_key, null)
 		if(!COOLDOWN_FINISHED(controller, movement_cooldown))
 			continue
-		COOLDOWN_START(controller, movement_cooldown, controller.movement_delay)
+		controller.advance_movement_cooldown()
 
 		if(!controller.can_move())
 			continue
@@ -86,17 +86,18 @@
 					continue
 
 		// Basic movement for targets on the same z-level with no existing path
-		if(end_turf?.z == movable_pawn?.z && !length(controller.movement_path) && !cliented && !always_advanced)
+		if(end_turf?.z == movable_pawn?.z && !length(controller.movement_path) && !cliented && !always_advanced && !swim_needs_planning(movable_pawn, current_turf, target_turf))
 			advanced = FALSE
 			var/can_move = controller.can_move()
 
 			var/current_loc = get_turf(movable_pawn)
 
 			if(!is_type_in_typecache(target_turf, GLOB.dangerous_turfs) && can_move)
-				step_to(movable_pawn, target_turf, controller.blackboard[BB_CURRENT_MIN_MOVE_DISTANCE], controller.movement_delay)
+				step_to(movable_pawn, target_turf, controller.blackboard[BB_CURRENT_MIN_MOVE_DISTANCE])
 
 				// Check if movement was successful
 				if(current_loc != get_turf(movable_pawn))
+					charge_diagonal_step(controller, current_loc)
 					// Successful basic movement - reset failure counter and clear fallback state
 					controller.pathing_attempts = 0
 					var/datum/weakref/weak = WEAKREF(controller)
@@ -173,6 +174,7 @@
 					// Only move if we can legitimately transition, otherwise regenerate path
 					if(can_transition)
 						movable_pawn.Move(next_step)
+						charge_diagonal_step(controller, current_turf)
 					else
 						// Can't reach next step legitimately, need new path
 						generate_path = TRUE
@@ -181,7 +183,12 @@
 					// Use step() with explicit direction rather than step_to().
 					// Step will fail if we can't move in that direction and allow us to climb.
 					var/move_dir = get_dir(movable_pawn, next_step)
-					if(!step(movable_pawn, move_dir, controller.movement_delay) && controller.can_climb_structures && world.time >= controller.next_climb_time)
+					var/stepped = step(movable_pawn, move_dir)
+					if(stepped)
+						charge_diagonal_step(controller, current_turf)
+						controller.climb_windup_turf = null
+						controller.climb_failed_turf = null
+					if(!stepped && controller.can_climb_structures)
 						// climbable/climb_structure are declared on /obj/structure and /obj/machinery separately, so iterate both.
 						var/obj/structure/struct_target
 						var/obj/machinery/mach_target
@@ -204,12 +211,12 @@
 								if(M.climbable)
 									mach_target = M
 									break
-						if(struct_target)
+						var/turf/climb_turf = get_turf(struct_target || mach_target)
+						if(climb_turf && controller.climb_windup_done(climb_turf) && world.time >= controller.next_climb_time)
 							controller.next_climb_time = world.time + controller.climb_interval
-							struct_target.climb_structure(movable_pawn)
-						else if(mach_target)
-							controller.next_climb_time = world.time + controller.climb_interval
-							mach_target.climb_structure(movable_pawn)
+							controller.climb_windup_turf = null
+							var/climbed = struct_target ? struct_target.climb_structure(movable_pawn) : mach_target.climb_structure(movable_pawn)
+							controller.climb_failed_turf = climbed ? null : climb_turf
 
 				// Check if target has moved significantly from the end of our path
 				if(last_turf != get_turf(controller.current_movement_target))
@@ -292,3 +299,12 @@
 					controller.movement_path.Cut(1, 2)
 				controller.clear_blackboard_key(future_path_blackboard_key) // Clear any future path as we have a fresh main path
 				SEND_SIGNAL(controller.pawn, COMSIG_AI_PATH_GENERATED, controller.movement_path)
+
+/datum/ai_movement/hybrid_pathing/proc/swim_needs_planning(atom/movable/pawn, turf/current_turf, turf/target_turf)
+	if(!isliving(pawn))
+		return FALSE
+	var/move_dir = get_dir(current_turf, target_turf)
+	for(var/turf/open/water/water_turf in list(current_turf, target_turf))
+		if(water_turf.is_swim_exhausting(pawn, move_dir))
+			return TRUE
+	return FALSE

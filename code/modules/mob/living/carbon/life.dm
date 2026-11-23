@@ -152,6 +152,9 @@
 	if(istype(onturf, /turf/open/water/sewer) && !HAS_TRAIT(src, TRAIT_HOLDBREATH))
 		add_stress(/datum/stressevent/sewertouched)
 
+	if(istype(onturf, /turf/open/water/swamp) && HAS_TRAIT(src, TRAIT_NOBLE_UNLANDED))
+		add_stress(/datum/stressevent/sewertouched)
+
 	if(istype(onturf, /turf/open/water/bath) && !wear_armor && !wear_shirt && !wear_pants)
 		add_stress(/datum/stressevent/bathwater)
 
@@ -228,7 +231,7 @@ In addition, severe effects won't always trigger unless the drink is poisonously
 All effects don't start immediately, but rather get worse over time; the rate is affected by the imbiber's alcohol tolerance
 
 0: Non-alcoholic
-1-10: Barely classifiable as alcohol - occassional slurring
+1-10: Barely classifiable as alcohol - occasional slurring
 11-20: Slight alcohol content - slurring
 21-30: Below average - imbiber begins to look slightly drunk
 31-40: Just below average - no unique effects
@@ -376,47 +379,32 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 //WE HANDLE SUNDERSTACKS HERE
 	if(sunder_stacks)
 		sunder_stacks = max(sunder_stacks - 1, 0) //Takes a bit to shrug off
-		if(cultslurring < 5) //Fucks up our ability to talk, completely until all sunderstacks are gone
-			cultslurring += 1.2
+
+		apply_status_effect(/datum/status_effect/debuff/sunder_stacks) //You survived an EXTREMELY lethal blow, you might want to keep back for now
 
 		if(sunder_stacks >= 21)
-			apply_status_effect(/datum/status_effect/debuff/sunder_stacks) //You survived an EXTREMELY lethal blow, you might want to keep back for now
+			if(cultslurring < 5) //Fucks up our ability to talk, completely until we're below 20 stacks
+				cultslurring += 1.2
 
-		if(sunder_stacks >= 41)
+		if(sunder_stacks >= 31)
 			adjustBruteLoss(1)
-			if(prob(3)) //5% chance of random dizziness
-				vomit(blood = TRUE, stun = FALSE) // vomiting blood, because you are actually pretty fucked up sire. No immobilise yet.
-				Dizzy(3)
+			if(prob(3)) //3% chance of blood vomiting
+				vomit(blood = TRUE, stun = FALSE) // vomiting blood, because you are actually pretty fucked up sire.
+				Dizzy(5) //Tiny bit of Dizzy
 
-		if(sunder_stacks >= 71) //At this point you've taken (2) blows or more and shouldn't be escaping death this easily.
+		if(sunder_stacks >= 41) //At this point you've taken (2) blows (or are a vampire) or more and shouldn't be escaping death this easily.
 			adjustBruteLoss(1)
 			if(prob(12)) //12% chance to have random movement + stun + dizziness
 				confused += 8
 				vomit(blood = TRUE, stun = FALSE) // vomiting blood, because you are actually pretty fucked up sire.
-				Dizzy(15)
-			if(prob(5)) //5% chance to collapse randomly
-				vomit(blood = TRUE, stun = FALSE) // vomiting blood, because you are actually pretty fucked up sire.
-				Knockdown(15)
+				Dizzy(5)
 
 		if(sunder_stacks >= 101) //We are beyond the point of lethal, somehow. This will cripple you severely.
 			adjustBruteLoss(1)
 			if(prob(50))
 				blur_eyes(5)
+				Knockdown(5) //can't stand at all hardly, mortality almost forced upon a form that cannot sustain it.
 			Dizzy(25)//You are completely fucked up at this point, any more stacks of SUNDER and you're DEAD.
-
-
-//used in human and monkey handle_environment()
-/mob/living/carbon/proc/natural_bodytemperature_stabilization()
-	var/body_temperature_difference = BODYTEMP_NORMAL - bodytemperature
-	switch(bodytemperature)
-		if(-INFINITY to BODYTEMP_COLD_DAMAGE_LIMIT) //Cold damage limit is 50 below the default, the temperature where you start to feel effects.
-			return max((body_temperature_difference * metabolism_efficiency / BODYTEMP_AUTORECOVERY_DIVISOR), BODYTEMP_AUTORECOVERY_MINIMUM)
-		if(BODYTEMP_COLD_DAMAGE_LIMIT to BODYTEMP_NORMAL)
-			return max(body_temperature_difference * metabolism_efficiency / BODYTEMP_AUTORECOVERY_DIVISOR, min(body_temperature_difference, BODYTEMP_AUTORECOVERY_MINIMUM/4))
-		if(BODYTEMP_NORMAL to BODYTEMP_HEAT_DAMAGE_LIMIT) // Heat damage limit is 50 above the default, the temperature where you start to feel effects.
-			return min(body_temperature_difference * metabolism_efficiency / BODYTEMP_AUTORECOVERY_DIVISOR, max(body_temperature_difference, -BODYTEMP_AUTORECOVERY_MINIMUM/4))
-		if(BODYTEMP_HEAT_DAMAGE_LIMIT to INFINITY)
-			return min((body_temperature_difference / BODYTEMP_AUTORECOVERY_DIVISOR), -BODYTEMP_AUTORECOVERY_MINIMUM)	//We're dealing with negative numbers
 
 /////////
 //LIVER//
@@ -573,16 +561,18 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 	if (!client) // not really relevant to NPCs at the moment
 		return
 
-	var/datum/charflaw/sleepless/sleepless_flaw = get_flaw()
-	if(!istype(sleepless_flaw, /datum/charflaw/sleepless))
-		sleepless_flaw = null
+	var/datum/charflaw/sleepless/sleepless_flaw = get_flaw(/datum/charflaw/sleepless)
 	if(HAS_TRAIT(src, TRAIT_NOSLEEP))
 		if(!(mobility_flags & MOBILITY_STAND))
 			energy_add(5)
 	//Healing while sleeping in a bed
 	if(IsSleeping())
+		dualwield_attack_count = 0
 		if(HAS_TRAIT(src, TRAIT_NOREGEN) || HAS_TRAIT(src, TRAIT_IRONMAN))
 			return
+		if(HAS_TRAIT(src, TRAIT_DEATHLESS) || HAS_TRAIT(src, TRAIT_ZOMBIE_IMMUNE)) // To prevent a softlock involving blood loss.
+			if(blood_volume < BLOOD_VOLUME_BAD)
+				blood_volume += (BLOOD_VOLUME_NORMAL * 0.002)
 		var/sleepy_mod = 0.5
 		var/doesnt_hunger = HAS_TRAIT(src, TRAIT_NOHUNGER)
 		if(HAS_TRAIT(src, TRAIT_BETTER_SLEEP))
@@ -595,9 +585,9 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 			var/list/limb_list = list(BODY_ZONE_R_ARM, BODY_ZONE_L_ARM, BODY_ZONE_R_LEG, BODY_ZONE_L_LEG)
 			for(var/zone in limb_list)
 				var/obj/item/bodypart/limb = get_bodypart(zone)
-				if(!limb && nutrition > 250)
+				if(!limb && nutrition > 100)
 					regenerate_limb(zone)
-					nutrition -= 250
+					nutrition -= 100
 		else if(isturf(loc)) //No illegal tech.
 			var/obj/structure/bed/rogue/bed = locate() in loc
 			if(bed)
@@ -607,6 +597,8 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 					var/obj/structure/flora/newbranch/branch = locate() in loc
 					if(branch)
 						sleepy_mod = 2 // just equivalent to a bedroll
+				if(HAS_TRAIT(src, TRAIT_WATERSLEEP) && istype(loc, /turf/open/water))
+					sleepy_mod = 2 // ditto
 		if(nutrition > 0 || doesnt_hunger)
 			energy_add(sleepy_mod * 15)
 		if(hydration > 0 || doesnt_hunger)
@@ -614,7 +606,7 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 				blood_volume = min(blood_volume + (4 * sleepy_mod), BLOOD_VOLUME_NORMAL)
 			for(var/obj/item/bodypart/affecting as anything in bodyparts)
 				//for context, it takes 5 small cuts (0.2 x 5) or 3 normal cuts (0.4 x 3) for a bodypart to not be able to heal itself
-				if(affecting.get_bleed_rate() >= 1)
+				if(affecting.get_bleed_rate() >= 1 && !HAS_TRAIT(src, TRAIT_ZOMBIE_IMMUNE)) // however, if you're undead - and therefore won't deadite - we let you get back up after a VERY long time, bcs otherwise any artery can be an RR
 					continue
 				if(affecting.heal_damage(sleepy_mod, sleepy_mod, required_status = BODYPART_ORGANIC))
 					src.update_damage_overlays()
@@ -634,6 +626,7 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 			var/obj/structure/bed/rogue/bed = locate() in loc
 			if(bed)
 				SEND_SIGNAL(bed, COMSIG_SLEEPING_ON_BED, src)
+				SEND_SIGNAL(src, COMSIG_SLEEPING_ON_BED, src) // send this to both the mob and bed, they're used for different things
 				sleepy_mod = bed.sleepy
 			else
 				sleepy_mod = 1
@@ -641,6 +634,8 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 					var/obj/structure/flora/newbranch/branch = locate() in loc
 					if(branch)
 						sleepy_mod = 2 //Worse than a bedroll, better than nothing.
+				if(HAS_TRAIT(src, TRAIT_WATERSLEEP) && istype(loc, /turf/open/water))
+					sleepy_mod = 2 // ditto
 		if(sleepy_mod > 0)
 			if(eyesclosed)
 				if(HAS_TRAIT(src, TRAIT_NOSLEEP) && !sleepless_flaw)
@@ -683,6 +678,10 @@ GLOBAL_LIST_INIT(ballmer_windows_me_msg, list("Yo man, what if, we like, uh, put
 						if(!is_asleep) //to not spam chat
 							to_chat(src, span_blue("I've fallen asleep."))
 							is_asleep = TRUE
+						if((sleepy_mod < 3 || !istype(get_area(src), /area/rogue/indoors)) && HAS_TRAIT(src, TRAIT_NOBLE_UNLANDED)) // nobles need good beds and a proper room or they complain
+							add_stress(/datum/stressevent/unlanded_noble_poor_sleep)
+						else if (sleepy_mod>=3 && has_stress_event(/datum/stressevent/unlanded_noble_poor_sleep))
+							remove_stress(/datum/stressevent/unlanded_noble_poor_sleep) // a good night's sleep fixes it
 						// those who have gazed upon zuranus may have... odd dreams.
 						if(has_status_effect(/datum/status_effect/zuranus))
 							var/zizo_dream = has_status_effect(/datum/status_effect/zuranus) // this is stupid im sorry

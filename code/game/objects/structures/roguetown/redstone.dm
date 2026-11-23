@@ -147,6 +147,8 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 /obj/structure/lever/get_mechanics_examine(mob/user)
 	. = ..()
 	. += span_info("Left-click the lever to actuate whatever might be connected to it. The time needed to complete this action scales with your character's Strength.")
+	. += span_info("A skilled Engineer could use a wrench to link this to a device.")
+	. += span_info("The Master of the Guild of Craft can unlink devices from each other by using their special wrench.")
 
 /obj/structure/lever/attack_hand(mob/user)
 	if(isliving(user))
@@ -183,7 +185,7 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 			playsound(user, 'sound/misc/wood_saw.ogg', 100, TRUE)
 		return
 	else if(istype(item, /obj/item/rogueweapon/chisel/assembly))
-		to_chat(user, span_warning("You most use both hands to rename doors."))
+		to_chat(user, span_warning("You must use both hands to rename doors."))
 
 /obj/structure/lever/onkick(mob/user)
 	if(isliving(user))
@@ -274,6 +276,11 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 	anchored = TRUE
 	redstone_structure = TRUE
 
+/obj/structure/pressure_plate/get_mechanics_examine(mob/user)
+	. = ..()
+	. += span_info("A skilled Engineer could use a wrench to link this to a device.")
+	. += span_info("The Master of the Guild of Craft can unlink devices from each other by using their special wrench.")
+
 /obj/structure/pressure_plate/Crossed(atom/movable/AM)
 	. = ..()
 	if(!anchored)
@@ -327,7 +334,7 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 			playsound(user, 'sound/misc/wood_saw.ogg', 100, TRUE)
 		return
 	else if(istype(item, /obj/item/rogueweapon/chisel/assembly))
-		to_chat(user, span_warning("You most use both hands to rename plates."))
+		to_chat(user, span_warning("You must use both hands to rename plates."))
 
 /*
 /obj/structure/pressure_plate/attack_hand(mob/user) //commented out for now, they're stuposed to be anchored structures for dungeons. End of vanderlin traps port. Maybe an artificer subtype craft in the future.
@@ -344,7 +351,6 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 	var/triggered = FALSE
 
 /obj/structure/pressure_plate/once/Crossed(atom/movable/AM)
-	. = ..()
 	if(triggered)
 		return
 	if(!anchored)
@@ -368,7 +374,7 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 	desc = "A engineering contraption made to launch various objects in the direction it's pointed."
 	icon = 'icons/roguetown/misc/engineering_structure.dmi'
 	icon_state = "activator"
-	max_integrity = 45 // so it gets destroyed when used to explode a bomb
+	max_integrity = 750 // raised to make it more durable in large wars and events, where they are primarily used
 	//w_class = WEIGHT_CLASS_HUGE // mechanical stuff is usually pretty heavy.
 	density = TRUE
 	anchored = TRUE
@@ -449,7 +455,7 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 			playsound(user, 'sound/misc/wood_saw.ogg', 100, TRUE)
 		return
 	else if(istype(item, /obj/item/rogueweapon/chisel/assembly))
-		to_chat(user, span_warning("You most use both hands to rename the launcher."))
+		to_chat(user, span_warning("You must use both hands to rename the launcher."))
 	playsound(loc, 'sound/misc/keyboard_enter.ogg', 100, FALSE, -1)
 	sleep(7)
 	if(containment)
@@ -535,7 +541,7 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 		return
 
 	// Reagent containers, bombs, flint, and impact grenades load directly
-	if(!containment && (istype(I, /obj/item/reagent_containers) || istype(I, /obj/item/bomb) || istype(I, /obj/item/impact_grenade) || istype(I, /obj/item/flint)))
+	if(!containment && (istype(I, /obj/item/reagent_containers) || istype(I, /obj/item/explosive/fused/bottle) || istype(I, /obj/item/explosive/impact) || istype(I, /obj/item/flint)))
 		if(!user.transferItemToLoc(I, src))
 			return ..()
 		containment = I
@@ -548,7 +554,7 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 		var/obj/item/storage/bag = I
 		var/has_throwable = FALSE
 		for(var/obj/item/thing in bag.contents)
-			if(istype(thing, /obj/item/bomb) || istype(thing, /obj/item/impact_grenade))
+			if(istype(thing, /obj/item/explosive/fused/bottle) || istype(thing, /obj/item/explosive/impact))
 				has_throwable = TRUE
 				break
 		if(has_throwable)
@@ -563,9 +569,11 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 
 	// Quivers: allow all ammo types including javelins; block only slings
 	if(!ammo && istype(I, /obj/item/quiver))
+		/*removing sling ammo restriction, seeing if this gives more versatility
 		if(istype(I, /obj/item/quiver/sling))
 			to_chat(user, span_warning("The launcher can't fire sling bullets."))
 			return TRUE
+		*/
 		if(!user.transferItemToLoc(I, src))
 			return
 		playsound(src, 'sound/misc/chestclose.ogg', 25)
@@ -585,7 +593,7 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 		var/obj/item/storage/bag = containment
 		var/obj/item/throwable
 		for(var/obj/item/thing in bag.contents)
-			if(istype(thing, /obj/item/bomb) || istype(thing, /obj/item/impact_grenade))
+			if(istype(thing, /obj/item/explosive/fused/bottle) || istype(thing, /obj/item/explosive/impact))
 				throwable = thing
 				break
 		if(throwable)
@@ -605,8 +613,8 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 		return
 
 	// Single bomb — light and throw
-	if(istype(containment, /obj/item/bomb))
-		var/obj/item/bomb/B = containment
+	if(istype(containment, /obj/item/explosive/fused/bottle))
+		var/obj/item/explosive/fused/bottle/B = containment
 		containment = null
 		update_icon()
 		B.forceMove(get_turf(src))
@@ -615,8 +623,8 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 		return
 
 	// Impact grenade — throw directly (impact on landing)
-	if(istype(containment, /obj/item/impact_grenade))
-		var/obj/item/impact_grenade/G = containment
+	if(istype(containment, /obj/item/explosive/impact))
+		var/obj/item/explosive/impact/G = containment
 		containment = null
 		update_icon()
 		G.forceMove(get_turf(src))
@@ -762,6 +770,18 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 	animate(pixel_x = oldx-1, time = 0.5)
 	animate(pixel_x = oldx, time = 0.5)
 
+//pop things out when destroyed.
+/obj/structure/englauncher/Destroy()
+	if(containment)
+		playsound(src, 'sound/misc/hiss.ogg', 100, FALSE, -1)
+		containment.forceMove(get_turf(src))
+		containment = null
+	if(ammo)
+		playsound(src, 'sound/misc/hiss.ogg', 100, FALSE, -1)
+		ammo.forceMove(get_turf(src))
+		ammo = null
+	return ..()
+
 /obj/structure/floordoor
 	name = "floorhatch"
 	desc = "A handy floor hatch for people who need privacy upstairs."
@@ -780,6 +800,11 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 	AddComponent(/datum/component/squeak, list('sound/foley/footsteps/FTMET_A1.ogg','sound/foley/footsteps/FTMET_A2.ogg','sound/foley/footsteps/FTMET_A3.ogg','sound/foley/footsteps/FTMET_A4.ogg'), 100)
 	return ..()
 */
+/obj/structure/floordoor/get_mechanics_examine(mob/user)
+	. = ..()
+	. += span_info("A skilled Engineer could use a wrench to link this to a device.")
+	. += span_info("The Master of the Guild of Craft can unlink devices from each other by using their special wrench.")
+
 /obj/structure/floordoor/obj_break(damage_flag)
 	set_is_platform(FALSE)
 	obj_flags &= ~BLOCK_Z_IN_UP
@@ -879,7 +904,7 @@ GLOBAL_LIST_EMPTY(redstone_objs)
 			playsound(user, 'sound/misc/wood_saw.ogg', 100, TRUE)
 		return
 	else if(istype(held, /obj/item/rogueweapon/chisel/assembly))
-		to_chat(user, span_warning("You most use both hands to rename the plate."))
+		to_chat(user, span_warning("You must use both hands to rename the plate."))
 
 /obj/structure/kybraxor
 	name = "Kybraxor the Devourer"

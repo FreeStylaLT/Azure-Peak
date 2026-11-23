@@ -2,8 +2,8 @@
 	source_aspect = /datum/magic_aspect/pseudo/spellblade
 	name = "Blade Storm"
 	desc = "Mark a patch of ground within reach - a shadow of yourself coalesces there. Then, a mote later, you emerge in a storm of slashes, focusing on whomever is at its center and sweep around them.\
-		Requires 7 Momentum: 4 strikes at 30 damage each. \
-		Overcharged at 10 Momentum: 6 strikes at 30 damage each."
+		Requires 7 Momentum: 4 strikes at 30 damage each on the center, 3 on everyone around it. \
+		Overcharged at 10 Momentum: 11 strikes on the center, 5 on everyone around it."
 	button_icon = 'icons/mob/actions/classuniquespells/spellblade.dmi'
 	button_icon_state = "blade_storm"
 	sound = 'sound/magic/blink.ogg'
@@ -98,9 +98,9 @@
 	log_combat(H, cast_on, "used Blade Storm on", zone=H.zone_selected)
 
 	var/list/ring_turfs = get_hollow_ring(center)
-	new /obj/effect/temp_visual/blade_storm_telegraph/warning(center, telegraph_delay)
+	new /obj/effect/temp_visual/telegraph/blade_storm/fadein(center, telegraph_delay)
 	for(var/turf/T in ring_turfs)
-		new /obj/effect/temp_visual/blade_storm_telegraph/warning(T, telegraph_delay)
+		new /obj/effect/temp_visual/telegraph/blade_storm/fadein(T, telegraph_delay)
 	playsound(center, 'sound/magic/charging.ogg', 60, TRUE)
 
 	addtimer(CALLBACK(src, PROC_REF(execute_storm), H, held_weapon, center, ring_turfs, cached_aoe_cuts, aoe_damage, cached_p_cuts, personal_damage, cached_locked_zone), telegraph_delay)
@@ -156,7 +156,7 @@
 		for(var/mob/living/victim in T)
 			if(victim == user || victim.stat == DEAD)
 				continue
-			if(spell_guard_check(victim, FALSE, storm_deflected ? null : user))
+			if(spell_guard_check(victim, FALSE, user, punish_caster = storm_deflected ? FALSE : null))
 				storm_deflected = TRUE
 				continue
 			arcyne_strike(user, victim, weapon, aoe_dmg, def_zone, BCLASS_CUT, spell_name = "Blade Storm (Cut [cut_num])", skip_animation = TRUE, skip_message = TRUE)
@@ -174,6 +174,13 @@
 		var/obj/effect/temp_visual/blade_cut/V = new(center)
 		V.dir = get_dir(user, victim)
 
+/datum/action/cooldown/spell/blade_storm/get_impact_turfs(atom/center)
+	var/turf/T = get_turf(center)
+	if(!T)
+		return list()
+	. = list(T) + get_hollow_ring(T)
+	. -= get_turf(owner)
+
 /datum/action/cooldown/spell/blade_storm/proc/get_hollow_ring(turf/center)
 	var/list/ring = list()
 	for(var/dx in -1 to 1)
@@ -185,21 +192,12 @@
 				ring += T
 	return ring
 
-/obj/effect/temp_visual/blade_storm_telegraph
-	icon = 'icons/effects/effects.dmi'
-	icon_state = "trap"
+/obj/effect/temp_visual/telegraph/blade_storm
 	light_outer_range = 1
 	duration = 8
-	layer = MASSIVE_OBJ_LAYER
 
-/obj/effect/temp_visual/blade_storm_telegraph/warning
-	alpha = 0
-
-/obj/effect/temp_visual/blade_storm_telegraph/warning/Initialize(mapload, fade_in_time)
-	if(fade_in_time)
-		duration = fade_in_time
-	. = ..()
-	animate(src, alpha = 255, time = duration)
+/obj/effect/temp_visual/telegraph/blade_storm/fadein
+	fade_in = TRUE
 
 /obj/effect/melee_swing
 	name = "arcyne slash"

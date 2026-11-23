@@ -87,7 +87,7 @@
 		else
 			. += span_warning("It seems slightly unstable...")
 	if(skill >= 6 && sneaky_misfire_chance)
-		. += span_warning("This contraption has a chance for catastrophic failure in the hands of the inexperient.")
+		. += span_warning("This contraption has a chance for catastrophic failure in the hands of the inexperienced.")
 
 /obj/item/rogueweapon/contraption/proc/battery_collapse(atom/A, mob/living/user)
 	to_chat(user, span_info("The [accepted_power_source.name] wastes away into nothing."))
@@ -123,7 +123,7 @@
 		S.set_up(1, 1, front)
 		S.start()
 		if((max_stored_charge - current_charge) < charge_per_source) //checking if there's too much charge
-			to_chat(user, span_info("I try to insert the [I.name] but theres already \a [initial(accepted_power_source.name)] inside!"))
+			to_chat(user, span_info("I try to insert the [I.name] but there's already \a [initial(accepted_power_source.name)] inside!"))
 			playsound(src, 'sound/combat/hits/blunt/woodblunt (2).ogg', 100, TRUE)
 			shake_camera(user, 1, 1)
 		else
@@ -138,7 +138,7 @@
 		S.start()
 		if((max_stored_charge - current_charge) < charge_per_prime) //checking if there's too much charge with a prime source
 			if((max_stored_charge - current_charge) < charge_per_source) //if there's too much for prime, we give it the standard charge
-				to_chat(user, span_info("I try to insert the [I.name] but theres already \a [initial(accepted_power_source.name)] inside!"))
+				to_chat(user, span_info("I try to insert the [I.name] but there's already \a [initial(accepted_power_source.name)] inside!"))
 				playsound(src, 'sound/combat/hits/blunt/woodblunt (2).ogg', 100, TRUE)
 				shake_camera(user, 1, 1)
 			else
@@ -184,9 +184,9 @@
 	playsound(src, 'sound/misc/clockloop.ogg', 25, TRUE)
 
 /obj/item/rogueweapon/contraption/attack_obj(obj/O, mob/living/user)
+	if(brute_attack && (user.used_intent.type != /datum/intent/use))
+		return ..()
 	if(!current_charge)
-		if(brute_attack && (user.used_intent.type != /datum/intent/use))
-			return ..()
 		flick(off_icon, src)
 		to_chat(user, span_info("The contraption beeps! It requires \a [initial(accepted_power_source.name)]!"))
 		playsound(src, 'sound/magic/magic_nulled.ogg', 100, TRUE)
@@ -208,6 +208,14 @@
 	grid_width = 64
 	grid_height = 32
 	var/active_item = FALSE
+	twirly = SKILL_LEVEL_EXPERT
+
+/obj/item/rogueweapon/contraption/linker/twirl_skill_needed()
+	if(ismob(loc))
+		var/mob/M = loc
+		if(M.get_skill_level(/datum/skill/craft/engineering) >= twirly)
+			return 0
+	return INFINITY //hacky, but you can only twirl with expert engineering
 
 /obj/item/rogueweapon/contraption/linker/master
 	name = "Guild Master's Wrench"
@@ -266,12 +274,13 @@
 
 /obj/item/rogueweapon/contraption/linker/get_mechanics_examine(mob/user)
 	. = ..()
+	. += span_info("Wrenches consume gears to perform a variety of artificing functions.")
+	. += span_info("Use of a wrench requires a high Engineering skill, and may befuddle your character otherwise.")
 	. += span_info("Use it like a multitool on compatible machinery to store a target in its buffer, then use it again on another compatible target to link them.")
-	. += span_info("Right click it in-hand to wipe its stored buffer.")
+	. += span_info("Right click it with an empty hand to wipe its stored buffer.")
 	. += span_info("Right-click an adjacent rotatable rotational object while holding this to rotate it.")
 	. += span_info("Middle-click an adjacent placed shaft, cogwheel, or gearbox while holding this to disassemble it back into an item pile.")
-	if(user.get_skill_level(/datum/skill/craft/engineering) >= 4)
-		. += span_info("Holding it in your hands grants Tune Up, which spends wrench charge to repair or enhance compatible engineering targets.")
+	. += span_info("Holding it in your hands grants Tune Up, which spends wrench charge to repair or enhance compatible engineering targets.")
 
 /obj/item/rogueweapon/contraption/linker/attack_right(mob/user)
 	. = ..()
@@ -302,12 +311,12 @@
 
 /obj/item/rogueweapon/contraption/wood_metalizer
 	name = "wood metalizer"
-	desc = "A creation of genious or insanity. This cursed contraption is somehow able to turn wood into metal."
+	desc = "A creation of genius or insanity. This cursed contraption is somehow able to turn wood into metal."
 	icon_state = "metalizer"
 	on_icon = "metalizer_flick"
 	off_icon = "metalizer_off"
 	w_class = WEIGHT_CLASS_NORMAL
-	misfire_chance = 15
+//	misfire_chance = 15  // Commented because it doesn't seem capable of misfiring in any way currently
 	charge_per_source = 5
 	max_stored_charge = 100
 	grid_height = 64
@@ -588,11 +597,17 @@
 /obj/item/rogueweapon/contraption/pick/drill/Initialize(mapload)
 	. = ..()
 	START_PROCESSING(SSobj, src)
+	RegisterSignal(src, COMSIG_ITEM_AFTERATTACK, PROC_REF(on_attack))
 
 
 /obj/item/rogueweapon/contraption/pick/drill/Destroy()
 	STOP_PROCESSING(SSobj, src)
+	UnregisterSignal(src, COMSIG_ITEM_AFTERATTACK)
 	return ..()
+
+/obj/item/rogueweapon/contraption/pick/drill/proc/on_attack(target, user, proximity_flag, click_parameters)
+	if(target && user && proximity_flag && isliving(target))
+		charge_deduction(target, user, rand(50, 100))
 
 /obj/item/rogueweapon/contraption/pick/drill/attack_obj(obj/O, mob/living/user)
 	. = ..()
@@ -605,6 +620,10 @@
 
 /obj/item/rogueweapon/contraption/pick/drill/afterattack(atom/target, mob/living/user, proximity_flag, list/modifiers)
 	. = ..()
+
+/obj/item/rogueweapon/contraption/pick/drill/battery_collapse(atom/A, mob/living/user)
+	. = ..()
+	user.dropItemToGround(src, TRUE)
 
 /obj/item/rogueweapon/contraption/pick/drill/attack_right(mob/user)
 	. = ..()

@@ -153,7 +153,8 @@
 		/datum/crafting_recipe/roguetown/structure/cauldronalchemy,
 		/datum/crafting_recipe/roguetown/alchemy,
 		/datum/alch_grind_recipe,
-		/datum/alch_cauldron_recipe
+		/datum/alch_cauldron_recipe,
+		/datum/transmutation_recipe
 		)
 
 /obj/item/recipe_book/brewing
@@ -177,12 +178,13 @@
 
 	types = list(
 		/datum/food_recipe,
-		/datum/stew_recipe,
+		/datum/container_craft,
 		/datum/crafting_recipe/roguetown/cooking,
 		/datum/book_entry/cooking_basics,
 		/datum/book_entry/cooking_ingredients,
 		/datum/book_entry/cooking_pies,
 		/datum/book_entry/cooking_deepfry,
+		/datum/book_entry/container_craft,
 		/datum/book_entry/cuisine
 	)
 
@@ -247,6 +249,17 @@
 	can_spawn = FALSE
 	wiki_only = TRUE
 	types = list(/datum/book_entry/treasury_general, /datum/book_entry/treasury_realm, /datum/book_entry/treasury_merchant, /datum/book_entry/treasury_underground)
+
+/obj/item/recipe_book/fishing_guide
+	name = "The Angler's Almanac"
+	desc = "Notes on fishing techniques and aquatic lyfe."
+	wiki_name = "Fishing"
+	wiki_section = "Guides"
+	icon_state = "basic_book_0"
+	base_icon_state = "basic_book"
+	can_spawn = FALSE
+	wiki_only = TRUE
+	types = list(/datum/book_entry/fishing)
 
 /obj/item/recipe_book/combat_primer
 	name = "The Comprehensive Guide to Combat, 1508 Edition"

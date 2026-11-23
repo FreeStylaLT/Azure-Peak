@@ -212,6 +212,7 @@
 	sellprice = 0
 	base_type = CTYPE_ICOIN
 	plural_name = "otavan marques"
+	materia = list(/datum/materia_aspect/lunar)
 
 /obj/item/roguecoin/inqcoin/get_mechanics_examine(mob/user)
 	. = ..()
@@ -227,6 +228,7 @@
 	sellprice = 10
 	base_type = CTYPE_GOLD
 	plural_name = "zenarii"
+	materia = list(/datum/materia_aspect/solar)
 
 
 // SILVER
@@ -237,6 +239,7 @@
 	sellprice = 5
 	base_type = CTYPE_SILV
 	plural_name = "ziliquae"
+	materia = list(/datum/materia_aspect/lunar)
 
 // COPPER
 /obj/item/roguecoin/copper
@@ -246,6 +249,7 @@
 	sellprice = 1
 	base_type = CTYPE_COPP
 	plural_name = "zennies"
+	materia = list(/datum/materia_aspect/change)
 
 // ANCIENT
 /obj/item/roguecoin/aalloy
@@ -255,6 +259,60 @@
 	sellprice = 3 //Dungeon-specific coinage - valued by historians, collectors, and smelters.
 	base_type = CTYPE_ANCIENT
 	plural_name = "psila"
+	materia = list(/datum/materia_aspect/aalloy)
+
+/obj/item/roguecoin/aalloy/update_icon()
+	..()
+	slot_flags = ITEM_SLOT_MOUTH
+
+/obj/item/roguecoin/aalloy/examine(mob/user)
+	. = ..()
+	if(user.mind?.has_antag_datum(/datum/antagonist/renegade))
+		. += span_info("I'm feeling quite hungry. I want to put them in my mouth. Maybe I'll fetch a boon?")
+		. += span_info("In a pickle? Take a chance. Flip the coin.")
+
+/obj/item/roguecoin/aalloy/mob_can_equip(mob/living/M, mob/living/equipper, slot, disable_warning = FALSE, bypass_equip_delay_self = FALSE)
+	if(slot == SLOT_MOUTH && quantity > 1 && !M?.mind?.has_antag_datum(/datum/antagonist/renegade))
+		if(!disable_warning)
+			to_chat(M, span_warning("That's far too many coins to fit in my mouth."))
+		return FALSE
+	return ..()
+
+/obj/item/roguecoin/aalloy/equipped(mob/user, slot, initial = FALSE)
+	. = ..()
+	var/datum/antagonist/renegade/R = user.mind?.has_antag_datum(/datum/antagonist/renegade)
+	if(slot != SLOT_MOUTH || !R)
+		return
+	if(!R.boons.in_reach(user))
+		to_chat(user, span_warning("I can't reach Vheslie's gaze from outside the town or sewers!"))
+		return
+	R.boons.ui_interact(user)
+
+/obj/item/roguecoin/aalloy/attack_self(mob/living/carbon/user)
+	var/last_flip = flip_cd
+	. = ..()
+	if(flip_cd == last_flip || !user.mind?.has_antag_datum(/datum/antagonist/renegade))
+		return
+	var/heads = heads_tails
+	user.doUnEquip(src)
+	qdel(src)
+	if(heads)
+		for(var/i in 1 to 20)
+			var/turf/T = find_safe_turf()
+			var/area/A = T?.loc
+			if(!A || A.noteleport || T.is_blocked_turf(TRUE))
+				continue
+			user.visible_message(span_warning("[user] vanishes as the psilen lands!"), span_userdanger("The psilen crumbles and the world lurches out from under me!"))
+			do_teleport(user, T, channel = TELEPORT_CHANNEL_MAGIC, forced = TRUE)
+			return
+		to_chat(user, span_warning("The psilen crumbles to dust, and nothing happens."))
+		return
+	for(var/zone in shuffle(list(BODY_ZONE_L_ARM, BODY_ZONE_R_ARM, BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)))
+		var/obj/item/bodypart/BP = user.get_bodypart(zone)
+		for(var/wound_type in shuffle(list(/datum/wound/slash, /datum/wound/puncture, /datum/wound/fracture, /datum/wound/dislocation)))
+			if(BP?.add_wound(wound_type))
+				to_chat(user, span_userdanger("The psilen crumbles and my [BP.name] tears open!"))
+				return
 
 /obj/item/roguecoin/inqcoin/pile/Initialize(mapload)
 	. = ..()
@@ -280,6 +338,14 @@
 	. = ..()
 	set_quantity(4) // 20 mammons combine with starting pouch to buy something
 
+/obj/item/roguecoin/silver/pile/wretchpile/Initialize(mapload)
+	. = ..()
+	set_quantity(10) // 50 mammons, to avoid being dead broke when latejoining
+
+/obj/item/roguecoin/silver/pile/munitioneerpile/Initialize(mapload) //for muntineer, exclusely to speed up them aquiring materials w/ out having to benefit town by selling to them or lose the arms race against the guild.
+	. = ..()
+	set_quantity(16) // 80 mammons, to avoid being dead broke when latejoining
+
 /obj/item/roguecoin/gold/pile/Initialize(mapload)
 	. = ..()
 	set_quantity(rand(4,19))
@@ -291,6 +357,10 @@
 /obj/item/roguecoin/gold/aspirantpile/Initialize(mapload)
 	. = ..()
 	set_quantity(20) // Fixed 200 mammons for aspirants which is a good psychological number to buy 1 merc's service
+
+/obj/item/roguecoin/gold/renegadepile/Initialize(mapload)
+	. = ..()
+	set_quantity(10)
 
 
 #undef CTYPE_GOLD

@@ -84,7 +84,7 @@
 		i.light_system = MOVABLE_LIGHT
 		if(!i.GetComponent(/datum/component/overlay_lighting))
 			i.AddComponent(/datum/component/overlay_lighting)
-		i.set_light_range(10)
+		i.set_light_range(8)
 		i.set_light_power(1)
 		i.set_light_color(LIGHT_COLOR_WHITE)
 		i.set_light_on(TRUE)
@@ -107,6 +107,7 @@
 		new /obj/effect/temp_visual/cleaning_pulse(get_turf(user))
 		wash_atom(user, CLEAN_STRONG)
 		user.remove_stress(/datum/stressevent/sewertouched)
+		user.remove_stress(/datum/stressevent/unlanded_noble_bloody_equipment)
 		to_chat(user, span_notice("The glamour settles, and I am spotless once more."))
 	. = ..()
 

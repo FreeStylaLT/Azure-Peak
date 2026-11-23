@@ -47,6 +47,15 @@
 	target.apply_overlay(MUTATIONS_LAYER)
 	playsound(target,'sound/villain/wonder.ogg', 40)
 	target.apply_status_effect(/datum/status_effect/awestruck, owner)
+	var/secret_link = ""
+	if(target.get_secret_for(owner, "vampire"))
+		if(ishuman(owner) && ishuman(target))
+			var/mob/living/carbon/human/vampire = owner
+			var/mob/living/carbon/human/awestruck_human = target
+			vampire.remember_secret_target(awestruck_human, "vampire")
+		secret_link = " (<a href='?src=[REF(target)];task=view_remote_secret;secret_type=vampire'>Recall Secrets</a>)"
+	if(secret_link)
+		to_chat(owner, span_notice("Your supernatural presence brushes against something hidden within [target].") + secret_link)
 	if(!owner.cmode)
 		to_chat(target, span_love("<b>Come close and look upon me.</b>"))
 		owner.say("Look upon me.")
@@ -171,18 +180,47 @@
 
 /datum/coven_power/presence/fall/activate(mob/living/carbon/human/target)
 	. = ..()
+	var/mypower = owner.STAINT
+	var/theirpower = target.STAINT
+	var/difference = mypower - theirpower
+
 	target.remove_overlay(MUTATIONS_LAYER)
 	var/mutable_appearance/presence_overlay = mutable_appearance('icons/effects/clan.dmi', "presence", -MUTATIONS_LAYER)
 	presence_overlay.pixel_z = 1
 	target.overlays_standing[MUTATIONS_LAYER] = presence_overlay
 	target.apply_overlay(MUTATIONS_LAYER)
 
-	target.Immobilize(3 SECONDS)
-	to_chat(target, "<span class='userlove'><b>KNEEL</b></span>")
+	to_chat(target, "<span class='userlove'><b>KNEEL.</b></span>")
 	to_chat(target, "<span class='userlove'><b>MY NEW GOD!</b></span>")
 	playsound(target,'sound/villain/wonder_secret_known.ogg', 40)
-	owner.say("KNEEL!!")
-	target.set_resting(TRUE, TRUE)
+	if(!owner.cmode)
+		owner.say("Kneel.")
+	else
+		owner.say("KNEEL!!")
+
+	switch(difference)
+		if(-INFINITY to -3)
+			to_chat(target, "<span class='userlove'><b>You hesitate.</b></span>")
+			target.visible_message(span_suicide("[target] hesitates for a moment."))
+			target.playsound_local(target, 'sound/magic/heartbeat.ogg', 100)
+			target.Immobilize(0.5 SECONDS)
+		if(-2)
+			to_chat(target, "<span class='userlove'><b>...Huh?</b></span>")
+			target.visible_message(span_suicide("[target] pauses for a moment."))
+			target.playsound_local(target, 'sound/magic/heartbeat.ogg', 100)
+			target.Immobilize(1 SECONDS)
+		if(-1)
+			to_chat(target, "<span class='userlove'><b>The world fogs up for a moment.</b></span>")
+			target.visible_message(span_suicide("[target] looks dazed for a moment."))
+			target.playsound_local(target, 'sound/magic/heartbeat.ogg', 100)
+			target.Immobilize(1.5 SECONDS)
+			target.apply_status_effect(/datum/status_effect/debuff/vulnerable, 3 SECONDS)
+		if(0 to INFINITY)
+			target.Knockdown(4)
+			target.apply_status_effect(/datum/status_effect/debuff/vulnerable, 3 SECONDS)
+			to_chat(target, "<span class='userlove'><b>KNEEL</b></span>")
+			to_chat(target, "<span class='userlove'><b>MY NEW GOD!</b></span>")
+			playsound(target,'sound/villain/wonder_secret_known.ogg', 40)
 
 /datum/coven_power/presence/fall/deactivate(mob/living/carbon/human/target)
 	. = ..()

@@ -122,7 +122,7 @@
 	/// Organs we can disembowel associated with chance to disembowel
 	var/static/list/affected_organs = list(
 		ORGAN_SLOT_STOMACH = 100,
-		ORGAN_SLOT_LIVER = 50,
+		ORGAN_SLOT_GUTS = 100,
 	)
 
 /datum/wound/slash/disembowel/can_stack_with(datum/wound/other)
@@ -133,7 +133,7 @@
 /datum/wound/slash/disembowel/on_mob_gain(mob/living/affected)
 	. = ..()
 	affected.emote("paincrit", TRUE)
-	affected.Slowdown(20)
+	affected.apply_slowdown(39 SECONDS)
 	shake_camera(affected, 2, 2)
 
 /datum/wound/slash/disembowel/on_bodypart_gain(obj/item/bodypart/affected)

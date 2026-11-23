@@ -174,6 +174,7 @@
 /////////////////
 #define COMSIG_ATOM_ATTACK_GHOST "atom_attack_ghost"			//from base of atom/attack_ghost(): (mob/dead/observer/ghost)
 #define COMSIG_ATOM_ATTACK_HAND "atom_attack_hand"				//from base of atom/attack_hand(): (mob/user)
+#define COMSIG_ATOM_ATTACK_PAW "atom_attack_paw"				//from base of atom/attack_paw(): (mob/user)
 #define COMSIG_ATOM_ATTACK_RIGHT "atom_attack_right"				//from base of atom/proc/attack_right()): (mob/user)
 	#define COMPONENT_NO_ATTACK_HAND 1							//works on all 3.
 ///from base of atom/animal_attack(): (/mob/user)
@@ -292,13 +293,14 @@
 	#define SPEECH_MODE 8
 #define COMSIG_MOB_DEADSAY "mob_deadsay" // from /mob/say_dead(): (mob/speaker, message)
 	#define MOB_DEADSAY_SIGNAL_INTERCEPT 1
-///from base of /mob/verb/pointed: (atom/A)
+///from base of /mob/proc/linepoint: (atom/A)
 #define COMSIG_MOB_POINTED "mob_pointed"
 // /mob/living signals
 #define COMSIG_LIVING_GRAB_SELF_ATTEMPT "living_grab_self_attempt"
 	#define COMPONENT_CANCEL_GRAB_ATTACK 1
 #define COMSIG_LIVING_SET_RESTING "comsig_set_resting"
 #define COMSIG_LIVING_RESIST "living_resist"					//from base of mob/living/resist() (/mob/living)
+#define COMSIG_DEAD_RESIST "dead_resist"						//from mob/dead/observer/eye/screye/displaced_soul/proc/resist_possession() (no arguments)
 #define COMSIG_LIVING_IGNITED "living_ignite"					//from base of mob/living/ignite_mob() (/mob/living)
 #define COMSIG_LIVING_EXTINGUISHED "living_extinguished"		//from base of mob/living/extinguish_mob() (/mob/living)
 #define COMSIG_LIVING_ELECTROCUTE_ACT "living_electrocute_act"		//from base of mob/living/electrocute_act(): (shock_damage, source, siemens_coeff, flags)
@@ -382,6 +384,7 @@
 #define COMSIG_ITEM_WEARERCROSSED "wearer_crossed"				//called on item when crossed by something (): (/atom/movable, mob/living/crossed)
 #define COMSIG_ITEM_ATTACK_TURF "item_attack_turf"
 #define COMSIG_ITEM_GUN_PROCESS_FIRE	"item_gun_process_fire"		//called on /obj/item/gun/proc/process_fire
+#define COMSIG_MOB_FIRED_GUN "mob_fired_gun"		//from base of /obj/item/gun/proc/process_fire(): (obj/item/gun/gun_fired, atom/target, params, zone_override)
 #define COMSIG_ITEM_RESTORE_BINTEGRITY "item_restore_bintegrity"	//called on /obj/item/proc/restore_bintegrity()
 
 // /obj/item/clothing signals
@@ -504,6 +507,15 @@
 #define COMSIG_AFTER_STORAGE_REMOVE "storage_after_remove"				//(obj/item/removing, obj/storage_master)
 
 #define COMSIG_STORAGE_ADDED "storage_item_added"
+#define COMSIG_STORAGE_CLOSED "storage_close"
+#define COMSIG_STORAGE_REMOVED "storage_item_removed"
+
+#define COMSIG_CONTAINER_CRAFT_COMPLETE "container_craft_complete"
+///from [/datum/container_craft_operation/proc/abort_craft]: (datum/container_craft_operation/operation, reason)
+#define COMSIG_CONTAINER_CRAFT_ABORTED "container_craft_aborted"
+
+///from base of [/datum/reagents/proc/set_temperature]: (new_temp, old_temp)
+#define COMSIG_REAGENTS_TEMP_CHANGE "reagents_temp_change"
 
 /*******Non-Signal Component Related Defines*******/
 

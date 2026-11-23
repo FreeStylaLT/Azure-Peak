@@ -27,6 +27,7 @@
 	var/playing = FALSE
 	grid_height = 64
 	grid_width = 32
+	obj_flags = UNIQUE_RENAME
 
 /obj/item/rogue/instrument/equipped(mob/living/user, slot)
 	. = ..()
@@ -60,18 +61,6 @@
 	if(soundloop)
 		soundloop.stop()
 		user.remove_status_effect(/datum/status_effect/buff/playing_music)
-
-/obj/item/rogue/instrument/proc/check_file(infile, filename, user)
-	var/file_ext = LOWER_TEXT(copytext(filename, -4))
-	var/file_size = length(infile)
-
-	if(file_ext != ".ogg")
-		return "SONG MUST BE AN OGG."
-	if(file_size > 4 * 1024 * 1024)
-		return "TOO BIG. 4 MEGS OR LESS."
-
-	message_admins("[ADMIN_LOOKUPFLW(user)] uploaded a song [filename] of size [file_size / 1000000] (~MB).")
-	return null
 
 /obj/item/rogue/instrument/attack_self(mob/living/user)
 	var/stressevent = /datum/stressevent/music
@@ -129,43 +118,35 @@
 			if(!choice || !user)
 				return
 
-			if(playing || !(src in user.held_items) || user.get_inactive_held_item())
+			if(playing || !(src in user.held_items))
 				return
 
 			if(choice == "Upload New Song")
 				if(lastfilechange && world.time < lastfilechange + 3 MINUTES)
-					say("NOT YET!")
+					to_chat(user, span_warning("It is not ready yet, wait [max(0, ceil((lastfilechange + 3 MINUTES - world.time) / 10))] seconds."))
+					user.playsound_local(user, 'sound/misc/beep.ogg', 100, FALSE)
 					return
-				playsound(loc, 'sound/misc/beep.ogg', 100, FALSE, -1)
-				var/infile = input(user, "CHOOSE A NEW SONG", src) as null|file
-
-				if(!infile)
+				var/newfile = music_upload(user, src)
+				if(!newfile)
 					return
-				if(playing || !(src in user.held_items) || user.get_inactive_held_item())
-					return
-
-				var/filename = "[infile]"
-				var/file_error = check_file(infile, filename, user)
-				if(file_error)
-					to_chat(user, span_warning(file_error))
+				if(playing || !(src in user.held_items))
 					return
 
 				lastfilechange = world.time
-				fcopy(infile,"data/jukeboxuploads/[user.ckey]/[filename]")
-				curfile = file("data/jukeboxuploads/[user.ckey]/[filename]")
+				curfile = newfile
 
-				var/songname = input(user, "Name your song:", "Song Name") as text|null
-				if(songname)
-					song_list[songname] = curfile
+				var/path = "[curfile]"
+				var/entry = input(user, "Name your song:", "Song Name") as text|null
+				if(QDELETED(src))
+					return
+				var/songname = strip_html(entry, MAX_NAME_LEN)
+				if(!songname || songname == "Upload New Song")
+					songname = copytext(path, findlasttext(path, "/") + 1)
+				song_list[songname] = newfile
 				return
 
 			curfile = song_list[choice]
 			if(!user || playing || !(src in user.held_items))
-				return
-			if(user.get_inactive_held_item())
-				playing = FALSE
-				soundloop.stop()
-				user.remove_status_effect(/datum/status_effect/buff/playing_music)
 				return
 			if(curfile)
 				playing = TRUE
@@ -342,7 +323,7 @@
 
 /obj/item/rogue/instrument/shamisen
 	name = "shamisen"
-	desc = "The shamisen, or simply «three strings», is an kazengunese stringed instrument with a washer, which is usually played with the help of a bachi."
+	desc = "The shamisen, or simply «three strings», is an Kazengunese stringed instrument with a washer, which is usually played with the help of a bachi."
 	icon_state = "shamisen"
 	lefthand_file = 'icons/mob/inhands/items_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/items_righthand.dmi'

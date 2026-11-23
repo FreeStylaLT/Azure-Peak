@@ -10,11 +10,15 @@
 
 	var/mob/viewing
 
+	/// if this is true, you can see name and FT even if they're masked. used by the known characters menu
+	var/override_visible = FALSE
+
 /datum/examine_panel/familiar
 
-/datum/examine_panel/New(mob/holder_mob)
+/datum/examine_panel/New(mob/holder_mob, override = FALSE)
 	if(holder_mob)
 		holder = holder_mob
+	override_visible = override
 
 /datum/examine_panel/Destroy(force)
 	holder = null
@@ -104,8 +108,12 @@
 	var/ooc_notes = ""
 	var/ooc_notes_nsfw
 	var/headshot = ""
+	var/artist_credit = ""
+	var/artist_link = ""
 	var/list/img_gallery = list()
 	var/list/nsfw_img_gallery = list()
+	var/ooc_extra_image
+	var/nsfw_ooc_extra_image
 	var/char_name
 	var/song_url
 	var/song_title
@@ -117,27 +125,47 @@
 
 	if(ishuman(holder))
 		var/mob/living/carbon/human/holder_human = holder
-		if(!(holder_human.wear_armor && holder_human.wear_armor.flags_inv) && !(holder_human.wear_shirt && holder_human.wear_shirt.flags_inv))
+		if((!(holder_human.wear_armor && holder_human.wear_armor.flags_inv) && !(holder_human.wear_shirt && holder_human.wear_shirt.flags_inv)) || holder_human.client?.prefs?.show_nsfw_clothed)
 			is_naked = TRUE
-		obscured = ((!isobserver(user)) && !holder_human.client?.prefs?.masked_examine) && ((holder_human.wear_mask && (holder_human.wear_mask.flags_inv & HIDEFACE)) || (holder_human.head && (holder_human.head.flags_inv & HIDEFACE)))
-		flavor_text = obscured ? "Obscured" : holder_human.flavortext_cached
-		flavor_text_nsfw = obscured ? "Obscured" : holder_human.nsfwflavortext_cached
+		obscured = ((!override_visible) && ((!isobserver(user)) && !holder_human.client?.prefs?.masked_examine) && ((holder_human.wear_mask && (holder_human.wear_mask.flags_inv & HIDEFACE)) || (holder_human.head && (holder_human.head.flags_inv & HIDEFACE))))
+		flavor_text = (obscured && !holder_human.client?.prefs?.show_nsfw_clothed) ? "Obscured" : holder_human.flavortext_cached
+		flavor_text_nsfw = (obscured && !holder_human.client?.prefs?.show_nsfw_clothed) ? "Obscured" : holder_human.nsfwflavortext_cached
 		ooc_notes += holder_human.ooc_notes_cached
 		ooc_notes_nsfw += holder_human.erpprefs_cached
-		char_name = holder_human.name
+		char_name = (override_visible ? holder_human.real_name : holder_human.name)
 		song_url = holder_human.ooc_extra
 		song_title = holder_human.song_title
 		is_vet = holder_human.check_agevet()
 		if(!obscured)
-			if(vampireplayer && (!SEND_SIGNAL(holder_human, COMSIG_DISGUISE_STATUS))&& !isnull(holder_human.vampire_headshot_link)) //vampire with their disguise down and a valid headshot
+			if(vampireplayer && (!SEND_SIGNAL(holder_human, COMSIG_DISGUISE_STATUS)) && !isnull(holder_human.vampire_headshot_link)) //vampire with their disguise down and a valid headshot
 				headshot = holder_human.vampire_headshot_link
+				artist_credit = holder_human.vampire_headshot_artist_credit
+				artist_link = holder_human.vampire_headshot_artist_link
 			else if (lichplayer && !isnull(holder_human.lich_headshot_link))//Lich with a valid headshot
 				headshot = holder_human.lich_headshot_link
+				artist_credit = holder_human.lich_headshot_artist_credit
+				artist_link = holder_human.lich_headshot_artist_link
 			else
 				headshot = holder_human.headshot_link
+				artist_credit = holder_human.headshot_artist_credit
+				artist_link = holder_human.headshot_artist_link
 			img_gallery = holder_human.img_gallery
 			if(is_naked)
 				nsfw_img_gallery = holder_human.nsfw_img_gallery
+			ooc_extra_image = holder_human.ooc_extra_img
+			if(is_naked)
+				nsfw_ooc_extra_image = holder_human.nsfw_ooc_extra_img
+		if(!headshot)
+			headshot = "headshot_red.png"
+	else if(istype(holder, /mob/living/simple_animal/hostile/retaliate/rogue/ooze_blob/pure_form))
+		var/mob/living/simple_animal/hostile/retaliate/rogue/ooze_blob/pure_form/pure_ooze = holder
+		is_naked = TRUE
+		flavor_text = pure_ooze.flavortext_cached
+		ooc_notes = pure_ooze.ooc_notes_cached
+		headshot = pure_ooze.familiar_headshot_link
+		artist_credit = pure_ooze.headshot_artist_credit
+		artist_link = pure_ooze.headshot_artist_link
+		char_name = pure_ooze.name
 		if(!headshot)
 			headshot = "headshot_red.png"
 
@@ -151,13 +179,22 @@
 		song_title = pref.song_title
 		if(vampireplayer && (!SEND_SIGNAL(pref, COMSIG_DISGUISE_STATUS))&& !isnull(pref.vampire_headshot_link)) //vampire with their disguise down and a valid headshot
 			headshot = pref.vampire_headshot_link
+			artist_credit = pref.vampire_headshot_artist_credit
+			artist_link = pref.vampire_headshot_artist_link
 		else if (lichplayer && !isnull(pref.lich_headshot_link))//Lich with a valid headshot
 			headshot = pref.lich_headshot_link
+			artist_credit = pref.lich_headshot_artist_credit
+			artist_link = pref.lich_headshot_artist_link
 		else
 			headshot = pref.headshot_link
+			artist_credit = pref.headshot_artist_credit
+			artist_link = pref.headshot_artist_link
 		img_gallery = pref.img_gallery
 		if(is_naked)
 			nsfw_img_gallery = pref.nsfw_img_gallery
+		ooc_extra_image = pref.ooc_extra_img
+		if(is_naked)
+			nsfw_ooc_extra_image = pref.nsfw_ooc_extra_img
 		char_name = pref.real_name
 		song_url = pref.ooc_extra
 		is_vet = viewing.check_agevet()
@@ -172,18 +209,22 @@
 	if(ishuman(holder))
 		var/mob/living/carbon/human/holder_human = holder
 		char_examine_theme = holder_human.examine_theme
+	else if(istype(holder, /mob/living/simple_animal/hostile/retaliate/rogue/ooze_blob/pure_form))
+		var/mob/living/simple_animal/hostile/retaliate/rogue/ooze_blob/pure_form/pure_ooze = holder
+		char_examine_theme = pure_ooze.examine_theme
 	else if(pref)
 		char_examine_theme = pref.examine_theme
 	// Validate — reject meme themes and unknown keys, fall back to default
 	if(char_examine_theme)
-		var/list/valid_themes = get_tgui_themes()
-		if(!(char_examine_theme in valid_themes) || char_examine_theme == "trey_liam")
+		if(!(char_examine_theme in GLOB.tgui_themes) || char_examine_theme == "trey_liam")
 			char_examine_theme = "azure_default"
 
 	var/list/data = list(
 		// Identity
 		"character_name" = obscured ? "Unknown" : char_name,
 		"headshot" = headshot,
+		"artist_credit" = artist_credit,
+		"artist_link" = artist_link,
 		"obscured" = obscured ? TRUE : FALSE,
 		// Descriptions
 		"flavor_text" = flavor_text,
@@ -193,9 +234,11 @@
 		"ooc_notes_nsfw" = ooc_notes_nsfw,
 		"img_gallery" = img_gallery,
 		"nsfw_img_gallery" = nsfw_img_gallery,
+		"ooc_extra_image" = ooc_extra_image,
+		"nsfw_ooc_extra_image" = nsfw_ooc_extra_image,
 		"has_song" = has_song,
 		"is_vet" = is_vet,
-		"is_donator" = is_donator(holder.ckey),
+		"is_donator" = is_donator(holder?.ckey),
 		"is_naked" = is_naked,
 		"examine_theme" = char_examine_theme,
 		"song_title" = has_song ? song_title : null

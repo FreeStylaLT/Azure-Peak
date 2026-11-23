@@ -58,7 +58,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 
 	var/list/major_aspects
 	var/list/minor_aspects
-	/// Mage aspect system config from subclass. Keys: "mastery", "major", "minor", "utilities". Optional: "locked_aspects" (list of type paths).
+	/// Mage aspect system config from subclass. Keys: "mastery", "major", "minor", "utilities". Optional: "locked_aspects", "unlocked_aspects" (lists of type paths).
 	var/list/mage_aspect_config
 	/// Aspect reset budget used. Major costs 2, Minor/Utility costs 1. Max 2. Resets on sleep.
 	var/aspect_resets_used = 0
@@ -142,6 +142,9 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	/// Triumph discount for donators
 	var/triumph_discount_remaining = 0
 
+	/// Copy of role subprefs cached at roundstart
+	var/list/job_subprefs = list()
+
 /datum/mind/New(key)
 	key = key
 	soulOwner = src
@@ -190,6 +193,9 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 			known_people[H.real_name] = list()
 		known_people[H.real_name]["VCOLOR"] = H.voice_color
 		var/used_title = H.get_role_title()
+		var/datum/job/J = SSjob.GetJob(H.job)
+		if(J && J.wanderer_examine && !(HAS_TRAIT(src, TRAIT_RESIDENT)))
+			used_title = "Wanderer"
 		if(!used_title)
 			used_title = "unknown"
 		known_people[H.real_name]["FJOB"] = used_title
@@ -229,6 +235,9 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 					M.known_people[H.real_name] = list()
 				M.known_people[H.real_name]["VCOLOR"] = H.voice_color
 				var/used_title = H.get_role_title()
+				var/datum/job/J = SSjob.GetJob(H.job)
+				if(J && J.wanderer_examine && !(HAS_TRAIT(src, TRAIT_RESIDENT)))
+					used_title = "Wanderer"
 				if(!used_title)
 					used_title = "unknown"
 				M.known_people[H.real_name]["FJOB"] = used_title
@@ -295,10 +304,23 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 		var/fage = known_people[P]["FAGE"]
 		var/fspecies = known_people[P]["FSPECIES"]
 		var/fheresy = known_people[P]["FHERESY"]
+		var/link
+		var/rumors
+		var/mob/living/carbon/human/H
+		for(var/mob/living/carbon/human/cand in GLOB.player_list)
+			if(cand.real_name == P)
+				H = cand
+				break
+		if(H)
+			link = (H.flavortext || H.headshot_link || H.ooc_notes)
+			rumors = (length(H.rumour_cached) || length(H.noble_gossip_cached))
+			if(fjob == "unknown") // this can be 'unknown' if people are added to our known list too soon in roundstart; so we want to refresh the cache here
+				known_people[P]["FJOB"] = (H.get_role_title() || "unknown")
+				fjob = known_people[P]["FJOB"]
 		if(fcolor && fjob)
 			if (fheresy)
 				contents +="<B><font color=#f1d669>[fheresy]</font></B> "
-			contents += "<B><font color=#[fcolor];text-shadow:0 0 10px #8d5958, 0 0 20px #8d5958, 0 0 30px #8d5958, 0 0 40px #8d5958, 0 0 50px #e60073, 0 0 60px #8d5958, 0 0 70px #8d5958;>[P]</font></B><BR>[fjob], [capitalize(fgender)], [fspecies], [fage]"
+			contents += "<B>[link ? "<a style='margin: 0px; padding: 0px;' href='?src=[REF(H)];task=view_headshot;overridevisible=1'>" : ""]<font color=#[fcolor];text-shadow:0 0 10px #8d5958, 0 0 20px #8d5958, 0 0 30px #8d5958, 0 0 40px #8d5958, 0 0 50px #e60073, 0 0 60px #8d5958, 0 0 70px #8d5958;>[P]</font>[link ? "</a>" : ""]</B>[rumors ? " <a style='margin: 0px; padding: 0px;' href='?src=[REF(H)];task=view_rumours_gossip;'>?</a>" : ""]<BR>[fjob], [capitalize(fgender)], [fspecies], [fage]"
 			contents += "<BR>"
 
 	var/datum/browser/popup = new(user, "PEOPLEIKNOW", "", 260, 400)
@@ -361,13 +383,15 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 	transfer_antag_huds(hud_to_transfer)				//inherit the antag HUD
 	transfer_actions(new_character)
 	transfer_martial_arts(new_character)
-	if(old_current.skills)
+	if(old_current?.skills)
 		old_current.skills.set_current(new_character)
 
-	RegisterSignal(new_character, COMSIG_MOB_DEATH, PROC_REF(set_death_time))
+	RegisterSignal(new_character, COMSIG_MOB_DEATH, PROC_REF(set_death_time), TRUE)
 	if(active || force_key_move)
 
 		new_character.key = key		//now transfer the key to link the client to our new body
+	if(new_character.client)
+		LAZYCLEARLIST(new_character.client.recent_examines)
 	new_character.update_fov_angles()
 
 	SEND_SIGNAL(src, COMSIG_MIND_TRANSFERRED, old_current)
@@ -497,6 +521,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 			RemoveSpell(existing)
 	aspect.chosen_spell = new_choice
 	if(has_spell(new_path, specific = TRUE))
+		aspect.claim_utility_spell(src, new_path)
 		rebuild_action_order()
 		return TRUE
 	var/datum/action/cooldown/spell/new_spell = new new_path
@@ -552,6 +577,9 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 		A.on_gain(TRUE)
 	else
 		A.on_gain()
+	if(A.overrides_forlorne_vice)
+		var/datum/charflaw/forlorne/forlorne_vice = current?.get_flaw(/datum/charflaw/forlorne)
+		forlorne_vice?.antag_override(current)
 	log_game("[key_name(src)] has gained antag datum [A.name]([A.type])")
 	var/client/picked_client = current?.client
 	picked_client?.mob?.mind.picking = FALSE
@@ -644,20 +672,6 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 		recipient << browse(output,"window=memory")
 	else if(all_objectives.len || memory || personal_objectives.len)
 		to_chat(recipient, "<i>[output]</i>")
-
-/// output current targets to the player
-/datum/mind/proc/recall_targets(mob/recipient, window=1)
-	var/output = "<B>[recipient.real_name]'s Hitlist:</B><br>"
-	for(var/mob/living/carbon in GLOB.mob_living_list) // Iterate through all mobs in the world
-		if((carbon.real_name != recipient.real_name) && (carbon.has_flaw(/datum/charflaw/targeted) && (!istype(carbon, /mob/living/carbon/human/dummy)))) //To be on the list they must be targeted, not the user and not a dummy (There is a dummy that has all vices for some reason)
-			output += "<br>[carbon.real_name]"
-			output += "<br>[carbon.real_name]"
-			if (carbon.job)
-				output += " - [carbon.job]"
-	output += "<br>Your creed is blood, your faith is steel. You will not rest until these souls are yours. Use the profane dagger to trap their souls for Graggar."
-
-	if(window)
-		recipient << browse(output,"window=memory")
 
 // Graggar culling event - tells people where the other is.
 /datum/mind/proc/recall_culling(mob/recipient, window=1)
@@ -999,7 +1013,7 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 
 /datum/mind/proc/show_spell_tip()
 	if(current)
-		to_chat(current, span_nicegreen("Tip: Ctrl-Click any spell button to enter rearrangement mode. Your bar will glow gree, spells cannot be cast and you can drag one button onto another to swap them in place. Ctrl-Click again to lock in and re-enable casting. Hotkeys are bound left to right (Alt 1 to Alt 9 default), matching the numbers shown on the buttons. Shift-click a spell to learn more about it."))
+		to_chat(current, span_nicegreen("Tip: Ctrl-Click any spell button to enter rearrangement mode. Your bar will glow green, spells cannot be cast and you can drag one button onto another to swap them in place. Ctrl-Click again to lock in and re-enable casting. Hotkeys are bound left to right (Alt 1 to Alt 9 default), matching the numbers shown on the buttons. Shift-click a spell to learn more about it."))
 
 /datum/mind/proc/setup_mage_aspects(list/config, grant_attunement = TRUE)
 	mage_aspect_config = config
@@ -1423,8 +1437,8 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 						user.put_in_hands(I)
 						if(!LI?.triumph_cost)
 							I.special_item = TRUE
-							I.smeltresult = /obj/item/ash
-							I.salvage_result = /obj/item/ash
+							I.smeltresult = /obj/item/natural/ash
+							I.salvage_result = /obj/item/natural/ash
 						var/list/metadata = user.mind.special_items_metadata[base_name]
 						if(islist(metadata))
 							if(metadata["color"])
@@ -1433,8 +1447,12 @@ GLOBAL_LIST_EMPTY(personal_objective_minds)
 								I.detail_color = metadata["detail_color"]
 							if(metadata["altdetail_color"] && I.altdetail_tag)
 								I.altdetail_color = metadata["altdetail_color"]
-							if(metadata["custom_name"])
+							if(metadata["custom_name_parsed"])
+								I.name = metadata["custom_name_parsed"] // this is sanitized when we apply the markdown procesor
+							else if(metadata["custom_name"])
 								I.name = sanitize(metadata["custom_name"])
-							if(metadata["custom_desc"])
+							if(metadata["custom_desc_parsed"])
+								I.desc = metadata["custom_desc_parsed"] // this is sanitized when we apply the markdown procesor
+							else if(metadata["custom_desc"])
 								I.desc = html_encode(metadata["custom_desc"])
 							I.update_icon()

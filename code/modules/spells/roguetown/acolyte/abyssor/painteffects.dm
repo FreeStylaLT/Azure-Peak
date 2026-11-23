@@ -7,8 +7,8 @@
 #define INK_HEAL_BASE				1
 #define INK_HEAL_PER_STACK			0.5
 #define INK_SPIKE_MINDLESS_DAMAGE 60
-#define INK_SPIKE_CONSCIOUS_DAMAGE 20
-#define INK_SPIKE_AFFINITY_DAMAGE 8
+#define INK_SPIKE_CONSCIOUS_DAMAGE 30
+#define INK_SPIKE_AFFINITY_DAMAGE 6
 
 /obj/effect/ink_trail
 	name = "paint trail"
@@ -122,6 +122,27 @@
 			L.apply_status_effect(debuff_payload)
 		if(deny_buff)
 			consume()
+
+/obj/effect/ink_trail/proc/apply_custom_effect(
+	new_buff = buff_payload,
+	new_debuff = debuff_payload,
+	new_icon_state = icon_state,
+	new_color = color,
+	consume = consume_buff,
+	deny = deny_buff,
+	new_duration = duration,
+	to_pulled = apply_to_pulled
+)
+	buff_payload = new_buff
+	debuff_payload = new_debuff
+	if(new_icon_state)
+		icon_state = new_icon_state
+	if(new_color)
+		color = new_color
+	consume_buff = consume
+	deny_buff = deny
+	apply_to_pulled = to_pulled
+	refresh_lifetime(new_duration)
 
 // ==========================================
 // STATUS EFFECT DEFINITIONS
@@ -416,6 +437,7 @@
 
 			// If unarmored, stab whoever walked on us.
 			if(!armor_tier)
+				hit_part.receive_damage(brute = damage_to_deal)
 				hit_part.bodypart_attacked_by(
 					bclass = bclass_to_use,
 					dam = damage_to_deal,

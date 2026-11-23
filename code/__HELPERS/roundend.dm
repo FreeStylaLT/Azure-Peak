@@ -107,12 +107,9 @@
 	Stun(6000, 1, 1)
 	ADD_TRAIT(src, TRAIT_MUTE, TRAIT_GENERIC)
 	walk(src, 0) //stops them mid pathing even if they're stunimmune
-	if(isanimal(src))
-		var/mob/living/simple_animal/S = src
-		S.toggle_ai(AI_OFF)
-	if(ishostile(src))
-		var/mob/living/simple_animal/hostile/H = src
-		H.LoseTarget()
+	if(isanimal(src) && ai_controller)
+		ai_controller.CancelActions()
+		ai_controller.PauseAi(6000)
 
 /client/proc/show_game_over()
 	var/atom/movable/screen/splash/credits/S = new(src, FALSE)
@@ -142,6 +139,8 @@
 		if(H.stat != DEAD)
 			if(H.get_triumphs() < 0)
 				H.adjust_triumphs(1)
+			if(HAS_TRAIT(H, TRAIT_DNR)) //3 triumphs for surviving the round with DNR pref.
+				H.adjust_triumphs(3)
 		if(GLOB.round_join_times[H.ckey] && H.job && H.allmig_reward)
 			if((GLOB.round_join_times[H.ckey] + 45 MINUTES) < world.time)
 				var/datum/job/job = SSjob.GetJob(H.job)

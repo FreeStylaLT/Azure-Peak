@@ -30,15 +30,10 @@
 	AddComponent(/datum/component/adjustable_clothing, NECK, null, null, 'sound/foley/equip/cloak (3).ogg', null, (UPD_HEAD|UPD_MASK))	//Standard hood
 
 /obj/item/clothing/head/roguetown/roguehood/MiddleClick(mob/user)
+	..()
 	if(!ishuman(user))
 		return
-	if(flags_inv & HIDEHAIR)
-		flags_inv &= ~HIDEHAIR
-	else
-		flags_inv |= HIDEHAIR
-	persist_inv_flags(HIDEHAIR)
 	user.update_inv_wear_mask()
-	user.update_inv_head()
 
 /obj/item/clothing/head/roguetown/roguehood/AltRightClick(mob/user)
 	. = ..()
@@ -56,11 +51,24 @@
 /obj/item/clothing/head/roguetown/roguehood/get_mechanics_examine(mob/user)
 	. = ..()
 	. += span_info("Right click to adjust the hood's coverage. Most fully-drawn hoods will hide the wearer's identity.")
-	. += span_info("Middle click to toggle hair.")
 	. += span_info("Alt Right click to move hood layer under or above hair.")
+
+/obj/item/clothing/head/roguetown/roguehood/white
+	color = CLOTHING_WHITE
 
 /obj/item/clothing/head/roguetown/roguehood/red
 	color = CLOTHING_RED
+
+/obj/item/clothing/head/roguetown/roguehood/bogman
+	name = "bogman's hood"
+	desc = "A head's best friend, worn and proven by aeon's grip, its once-vibrant colors long worn out after its former owner deserted their post."
+	color = "#7a8138"
+
+/obj/item/clothing/head/roguetown/roguehood/bogman/black
+	color = CLOTHING_BLACK
+
+/obj/item/clothing/head/roguetown/roguehood/bogman/brown
+	color = "#997C4F"
 
 /obj/item/clothing/head/roguetown/roguehood/black
 	color = CLOTHING_BLACK
@@ -133,6 +141,22 @@
 	item_state = "hijab"
 	icon_state = "hijab"
 	naledicolor = TRUE
+
+/obj/item/clothing/head/roguetown/roguehood/shalal/hijab/pyro
+	name = "darksooted headscarf"
+	desc = "A headscarf anointed in cursed soot and drenched in the blood of infernals. The foul mixture has seeped deep into its fibers, leaving behind a strange, smoldering quality that only those with a true fondness for fire can endure."
+	slot_flags = ITEM_SLOT_HEAD
+	max_integrity = 350 // 50 less dura for better visibility
+	armor = ARMOR_INSULATED_LEATHER
+	item_state = "hijab"
+	icon_state = "hijab"
+	naledicolor = FALSE
+	color = COLOR_ALMOST_BLACK
+	aura_color = "#ffa76d"
+
+/obj/item/clothing/head/roguetown/roguehood/shalal/hijab/pyro/Initialize(mapload)
+	. = ..()
+	AddComponent(/datum/component/cursed_item, list(TRAIT_BOMBER_EXPERT), src)
 
 /obj/item/clothing/head/roguetown/roguehood/shalal/heavyhood
 	name = "heavy hood"
@@ -456,7 +480,7 @@
 	icon_state = "confessorhood"
 	item_state = "confessorhood"
 	color = null
-	body_parts_covered = NECK | HEAD | HAIR
+	body_parts_covered = NECK | HEAD | HAIR | EARS
 	slot_flags = ITEM_SLOT_HEAD|ITEM_SLOT_MASK
 	flags_inv = HIDEEARS|HIDEFACE|HIDEHAIR|HIDEFACIALHAIR
 	armor = ARMOR_LEATHER
@@ -492,7 +516,7 @@
 
 /obj/item/clothing/head/roguetown/roguehood/studded
 	name = "studded hood"
-	desc = "A padded hood splinted across creating a cocooon for whoever wears it - won't protect your face however."
+	desc = "A padded hood splinted across creating a cocoon for whoever wears it - won't protect your face however."
 	icon_state = "studhood"
 	item_state = "studhood"
 	body_parts_covered = NECK | HEAD | HAIR
@@ -513,7 +537,7 @@
 
 /obj/item/clothing/head/roguetown/roguehood/studded/retinue //For skirmisher
 	name = "guard studded hood"
-	desc = "A padded hood splinted across creating a cocooon for whoever wears it - won't protect your face however. This one bears the heraldry of the local lord."
+	desc = "A padded hood splinted across creating a cocoon for whoever wears it - won't protect your face however. This one bears the heraldry of the local lord."
 	detail_tag = "_detail"
 	color = CLOTHING_AZURE
 	detail_color = CLOTHING_WHITE

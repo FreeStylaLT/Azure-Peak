@@ -18,13 +18,13 @@
 	if(!istype(user))
 		return FALSE
 	var/mob/living/carbon/human/species/familiar/familiar
-	for(var/mob/living/carbon/human/species/familiar/familiar_check in GLOB.player_list)
+	for(var/mob/living/carbon/human/species/familiar/familiar_check in GLOB.human_list)
 		if(familiar_check.familiar_summoner == user)
 			familiar = familiar_check
 	if(!familiar || !familiar.mind)
 		to_chat(user, "You cannot sense your familiar's mind.")
 		return FALSE
-	if(familiar.health<=0)
+	if(familiar.stat == DEAD)
 		// they're dead; track the vestige
 		return track_vestige(user,familiar)
 	var/message = sanitize(input(user, "You make a connection. What are you trying to say?"))
@@ -339,12 +339,16 @@
 	base_implement_name = "\improper Bound Staff" // will become "Bound Staff of Frost" etc
 	desc = "A mage's staff crowned with the spirit-gem of a familiar. The gem captures excess energy dissipated into the air when a spell is cast, giving a generous share of it back to the wielder."
 	icon_state = "sapphirestaff"
+	gem_socketable = FALSE
+	implement_upgradable = FALSE
 
 /obj/item/rogueweapon/woodstaff/implement/greater/infernal
 	name = "\improper Staff of the Daemonbinder"
 	base_implement_name = "\improper Infernal Staff" // "Infernal Staff of Flame" etc
 	desc = "A mage's staff that shimmers with eternal malice. It is perpetually warm to the touch; holding it inspires an urge to unleash one's most powerful magic. Merely a touch from it is enough to spark flame. It captures excess energy dissipated into the air when a spell is cast, giving a generous share of it back to the wielder."
 	icon_state = "rubystaff"
+	gem_socketable = FALSE
+	implement_upgradable = FALSE
 	var/sparkcd = 0
 
 /obj/item/rogueweapon/woodstaff/implement/greater/infernal/afterattack(atom/movable/A, mob/user, proximity)
@@ -368,7 +372,7 @@
 
 /datum/action/cooldown/spell/earthen_forge
 	name = "Earthen Forge"
-	desc = "Shape your earthen form into a tool or weapon. When the item breaks, you will revert to your original form. Cast again to manually revert."
+	desc = "Shape your earthen form into a tool or weapon. When the item breaks, you will revert to your original form. Resist to manually revert."
 
 	button_icon = 'icons/mob/actions/mage_conjure.dmi'
 	button_icon_state = "arcyne_forge"
@@ -409,6 +413,7 @@
 		"Bowl" = /obj/item/reagent_containers/glass/bowl,
 		"Fork" = /obj/item/kitchen/fork/iron,
 		"Spoon" = /obj/item/kitchen/spoon/iron,
+		"Chisel Set" = /obj/item/rogueweapon/chisel/assembly/arcyne,
 		"Needle" = /obj/item/needle
 	)
 	cooldown_time = 30 SECONDS
@@ -456,7 +461,7 @@
 		I.fiber_salvage = FALSE
 
 		// Conjured glow
-		I.AddComponent(/datum/component/conjured_item, GLOW_COLOR_EARTHEN)
+		I.AddComponent(/datum/component/conjured_item, GLOW_COLOR_EARTHEN, do_not_decay = TRUE)
 	RegisterSignal(R, COMSIG_ITEM_BROKEN, PROC_REF(revert))
 	RegisterSignal(H, COMSIG_LIVING_RESIST, PROC_REF(revert))
 	RegisterSignal(R, COMSIG_ITEM_DROPPED, PROC_REF(revert_perspective))
@@ -504,7 +509,7 @@
 
 /datum/action/cooldown/spell/earthen_forge/void // lmao
 	name = "Void Forge"
-	desc = "Shape your ever-malleable form into a tool or weapon. When the item breaks, you will revert to your original form. Cast again to manually revert."
+	desc = "Shape your ever-malleable form into a tool or weapon. When the item breaks, you will revert to your original form. Resist to manually revert."
 
 /datum/action/cooldown/spell/arcyne_forge/elementalt2
 	name = "Greater Earthen Shaping"
@@ -540,6 +545,7 @@
 		"Bowl" = /obj/item/reagent_containers/glass/bowl,
 		"Fork" = /obj/item/kitchen/fork/iron,
 		"Spoon" = /obj/item/kitchen/spoon/iron,
+		"Chisel Set" = /obj/item/rogueweapon/chisel/assembly/arcyne,
 		"Needle" = /obj/item/needle
 	)
 	cooldown_time = 30 SECONDS
@@ -639,13 +645,16 @@
 		QDEL_NULL(target)
 		return TRUE
 
-/obj/effect/proc_holder/spell/invoked/fire_obelisk_beam/drakeling
-	name = "Abberant Beam"
+/obj/effect/proc_holder/spell/invoked/drakeling_beam
+	name = "Aberrant Beam"
 	desc = "Show these fools the power of the void!"
 	recharge_time = 30 SECONDS
+	overlay_state = "regression"
 	overlay_icon = 'icons/mob/actions/mage_shared.dmi'
 	overlay_icon_state = "soulshot"
+	chargetime = 0
 	range = 4
+	antimagic_allowed = TRUE
 
 /obj/effect/obeliskbeam/drakeling
 	name = "drakeling beam"
@@ -653,12 +662,12 @@
 // nerfed damage down to one-fifth the original value - still fucks up simples though
 /obj/effect/obeliskbeam/drakeling/damage(mob/living/hit_mob)
 	if(issimple(hit_mob))
-		hit_mob.apply_damage(damage = 10, damagetype = BURN)
+		hit_mob.apply_damage(damage = SPELL_DMG_VS(hit_mob, SPELL_DMG(10)), damagetype = BURN)
 	else
-		hit_mob.apply_damage(damage = 3, damagetype = BURN)
+		hit_mob.apply_damage(damage = SPELL_DMG_VS(hit_mob, SPELL_DMG(3)), damagetype = BURN)
 	to_chat(hit_mob, span_danger("You're damaged by [src]!"))
 
-/obj/effect/proc_holder/spell/invoked/fire_obelisk_beam/drakeling/cast(list/targets, mob/living/carbon/human/species/familiar/void/user)
+/obj/effect/proc_holder/spell/invoked/drakeling_beam/cast(list/targets, mob/living/carbon/human/species/familiar/void/user)
 	user.face_atom(targets[1])
 	user.move_resist = MOVE_FORCE_VERY_STRONG
 	if(do_after(user,1 SECONDS, target=user))
@@ -683,9 +692,9 @@
 			new_obeliskbeam.assign_creator(user)
 			for(var/mob/living/hit_mob in affected_turf.contents)
 				if(issimple(hit_mob))
-					hit_mob.apply_damage(damage = 15, damagetype = BURN)
+					hit_mob.apply_damage(damage = SPELL_DMG_VS(hit_mob, SPELL_DMG(15)), damagetype = BURN)
 				else
-					hit_mob.apply_damage(damage = 5, damagetype = BURN) // this is literally one-fifth of the normal abberant beam you will not be fragging with this
+					hit_mob.apply_damage(damage = SPELL_DMG_VS(hit_mob, SPELL_DMG(5)), damagetype = BURN) // this is literally one-fifth of the normal aberrant beam you will not be fragging with this
 				to_chat(hit_mob, span_userdanger("You're blasted by [user]'s aberrant beam!"))
 		if(!length(user.beam_parts))
 			return FALSE

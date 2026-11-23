@@ -22,7 +22,7 @@
 	break_sound = 'sound/foley/cloth_rip.ogg'
 	drop_sound = 'sound/foley/dropsound/cloth_drop.ogg'
 	body_parts_covered = COVERAGE_ALL_BUT_HANDFEET
-	armor = ARMOR_PADDED
+	armor = ARMOR_LEATHER
 	max_integrity = ARMOR_INT_CHEST_LIGHT_MEDIUM
 	blocksound = SOFTHIT
 	sewrepair = TRUE
@@ -112,6 +112,7 @@
 	desc = "An assembly of thickly woven trunk, bound together by ancient song and tool of the oldest elven druids. It still creaks and weeps with forlorn reminiscence of a bygone era. It looks like only Elves can fit in it."
 	allowed_race = list(/datum/species/elf/wood, /datum/species/human/halfelf, /datum/species/elf/dark)
 	armor = ARMOR_BLACKOAK
+	armor_class = ARMOR_CLASS_MEDIUM
 	body_parts_covered = COVERAGE_ALL_BUT_HANDFEET
 	icon = 'icons/roguetown/clothing/special/race_armor.dmi'
 	mob_overlay_icon = 'icons/roguetown/clothing/special/onmob/race_armor.dmi'

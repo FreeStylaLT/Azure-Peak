@@ -20,9 +20,6 @@
 		else
 			return "000"
 
-/proc/random_backpack()
-	return pick(GLOB.backpacklist)
-
 /proc/random_features()
 	return MANDATORY_FEATURE_LIST
 
@@ -262,7 +259,6 @@ GLOBAL_LIST_EMPTY(species_list)
 		return FALSE
 
 	user.doing = TRUE
-	SEND_SIGNAL(user, COMSIG_DO_AFTER_BEGAN)
 
 	var/atom/Tloc = null
 	if(target && !isturf(target))
@@ -323,7 +319,6 @@ GLOBAL_LIST_EMPTY(species_list)
 				. = FALSE
 				break
 	user.doing = FALSE
-	SEND_SIGNAL(user, COMSIG_DO_AFTER_ENDED)
 	if (progress)
 		qdel(progbar)
 
@@ -340,7 +335,6 @@ GLOBAL_LIST_EMPTY(species_list)
 	if(user.doing)
 		return 0
 	user.doing = 1
-	SEND_SIGNAL(user, COMSIG_DO_AFTER_BEGAN)
 
 	var/atom/Tloc = null
 	if(target && !isturf(target))
@@ -404,7 +398,6 @@ GLOBAL_LIST_EMPTY(species_list)
 				. = 0
 				break
 	user.doing = 0
-	SEND_SIGNAL(user, COMSIG_DO_AFTER_ENDED)
 	if (progress)
 		qdel(progbar)
 
@@ -543,16 +536,6 @@ GLOBAL_LIST_EMPTY(species_list)
 			continue
 		if(M.stat != DEAD && !override)
 			continue
-		if(speaker_key && (speaker_key in prefs.ignoring))
-			continue
-
-		switch(message_type)
-			if(DEADCHAT_DEATHRATTLE)
-				if(prefs.toggles & DISABLE_DEATHRATTLE)
-					continue
-			if(DEADCHAT_ARRIVALRATTLE)
-				if(prefs.toggles & DISABLE_ARRIVALRATTLE)
-					continue
 
 		if(isobserver(M))
 			var/rendered_message = message
@@ -631,7 +614,6 @@ GLOBAL_LIST_EMPTY(species_list)
 
 		if(QDELETED(src) || !client || choice != "Yes")
 			lobbyer.ready = PLAYER_NOT_READY
-			src << browse(null, "window=playersetup") //closes the player setup window
 			lobbyer.new_player_panel()
 			return FALSE
 	else
@@ -691,6 +673,8 @@ GLOBAL_LIST_EMPTY(species_list)
 	for(var/obj/item/thing as anything in equipped_items)
 		if (thing.flags_inv)
 			new_flags |= thing.flags_inv
+			if((thing.flags_inv & HIDE_HEADTOP) && !(thing.flags_inv & SHOWHORNS))
+				new_flags |= HIDEHORNS
 
 	if(new_flags == obscured_flags)
 		return
@@ -698,3 +682,6 @@ GLOBAL_LIST_EMPTY(species_list)
 	if(ishuman(src))
 		var/mob/living/carbon/human/H = src
 		H.update_body_parts()
+
+/mob/proc/should_hear_dsay()
+	return FALSE

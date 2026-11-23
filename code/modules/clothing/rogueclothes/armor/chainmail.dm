@@ -60,6 +60,7 @@
 /obj/item/clothing/suit/roguetown/armor/chainmail/ComponentInitialize()
 	. = ..()
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FREEBLADEDEXTERITY)
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/iron
 	icon_state = "ihaubergeon"
@@ -84,7 +85,7 @@
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/aalloy
 	name = "decrepit haubergeon"
-	desc = "Frayed bronze rings and rotting leather, woven together to form a short maille-atekon. There's a breach along the rings, \
+	desc = "Rotted metal rings and rotting leather, woven together to form a short maille-atekon. There's a breach along the rings, \
 	where the leather is wet with blackness: the aftermath of a mortal wound, delivered centuries ago."
 	icon_state = "ancientchain"
 	max_integrity = ARMOR_INT_CHEST_MEDIUM_DECREPIT
@@ -148,10 +149,11 @@
 	item_state = "bhauberk"
 	smeltresult = /obj/item/ingot/bronze
 	max_integrity = ARMOR_INT_CHEST_MEDIUM_BRONZE
+	armor = ARMOR_BRONZE
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/aalloy
 	name = "decrepit hauberk"
-	desc = "Frayed bronze rings and rotting leather, woven together to form a sleeved maille-atekon. Once, the armored vestments of a \
+	desc = "Rotted metal rings and rotting leather, woven together to form a sleeved maille-atekon. Once, the armored vestments of a \
 	paladin: now, the withered veil of Zizo's undying legionnaires."
 	icon_state = "ancienthauberk"
 	max_integrity = ARMOR_INT_CHEST_MEDIUM_DECREPIT
@@ -200,27 +202,31 @@
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/aalloy/heavy
 	name = "decrepit plate-and-maille"
-	desc = "Frayed bronze rings and rotting leather, woven together to form a sleeved maille-atekon; one that's been uncomfortably \
+	desc = "Rotted metal rings and rotting leather, woven together to form a sleeved maille-atekon; one that's been uncomfortably \
 	tucked beneath a matching cuirass. Such are the last remains of those who've dared to march against the undying legions, be it \
 	yils or centuries prior."
+	slot_flags = ITEM_SLOT_ARMOR
 	icon_state = "ancientcuirasshauberk"
 	item_state = "ancientcuirasshauberk"
+	armor_class = ARMOR_CLASS_HEAVY
 	max_integrity = ARMOR_INT_CHEST_PLATE_DECREPITLIGHT // 200 INT.
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/paalloy/heavy
 	name = "ancient plate-and-maille"
 	desc = "Polished gilbranze rings and silk, woven together to form a sleeved maille-atekon; one that's been uncomfortably tucked \
-	beneath a matching cuirass. It eminates an unfamiliar sensation, rarely seen amongst rot-and-undeath - elegance. In the worlds to \
+	beneath a matching cuirass. It emanates an unfamiliar sensation, rarely seen amongst rot-and-undeath - elegance. In the worlds to \
 	come, do you suppose Her death knights would bear such a mantle?"
+	slot_flags = ITEM_SLOT_ARMOR
 	icon_state = "ancientcuirasshauberk"
 	item_state = "ancientcuirasshauberk"
+	armor_class = ARMOR_CLASS_HEAVY
 	max_integrity = ARMOR_INT_CHEST_PLATE_STEELLIGHT
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/fluted
+	name = "fluted plate-and-maille"
 	slot_flags = ITEM_SLOT_ARMOR
 	armor_class = ARMOR_CLASS_HEAVY
 	armor = ARMOR_PLATE
-	name = "fluted plate-and-maille"
 	desc = "A beautiful steel cuirass, decorated with fluting and worn atop thick chainmaille. While it falters against \
 	arrows and bolts, these interlinked layers are superb at warding off the blows of swords and axes."
 	icon_state = "ornatehauberk"
@@ -228,22 +234,22 @@
 	max_integrity = ARMOR_INT_CHEST_PLATE_STEELLIGHT
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/ornate
+	name = "psydonic plate-and-maille"
 	slot_flags = ITEM_SLOT_ARMOR
 	armor_class = ARMOR_CLASS_HEAVY
 	armor = ARMOR_PLATE
-	name = "psydonic plate-and-maille"
 	desc = "A beautiful steel cuirass, decorated with blessed silver fluting and worn atop thick chainmaille. While it falters against \
-	arrows and bolts, these interlinked layers are superb at warding off the blows of inhumen claws and axes. </br>‎	</br>'..the \
-	knowledge of evil, and the burden of carrying Psydonia's hope upon thine shoulders..'"
+	arrows and bolts, these interlinked layers are superb at warding off the blows of inhumen claws and axes."
 	icon_state = "ornatehauberk"
 	item_state = "ornatehauberk"
-	max_integrity = ARMOR_INT_CHEST_PLATE_PSYDON + 50
+	max_integrity = ARMOR_INT_CHEST_PLATE_PSYDON
 	smeltresult = /obj/item/ingot/silverblessed
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/ornate/get_mechanics_examine(mob/user)
 	. = ..()
 	. += span_info("With more blessed silver and an armorsmith's hammer, this armor can be further upgraded.")
 	. += span_info("If a character has the 'Maille Training' trait and has Psydon as their selected patron, they can comfortably wear Psydonic plate armor without suffering any downsides.")
+	. += span_hypnophrase("'..the knowledge of evil, and the burden of carrying Psydonia's hope upon thine shoulders..'")
 
 /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk/heavy/decorated
 	name = "decorated plate-and-maille"

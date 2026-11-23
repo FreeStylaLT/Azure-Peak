@@ -40,6 +40,9 @@
 /mob/living/proc/start_sex_session(mob/living/target)
 	if(!target)
 		return
+	if(cmode && (client?.prefs?.combat_toggles & CMODE_ERP_BLOCK))
+		to_chat(src, span_warning("There's a time and place for everything, but not in middle of a fight."))
+		return
 	var/datum/sex_session/old_session = get_sex_session(src, target)
 	if(old_session)
 		old_session.ui_interact(src)
@@ -50,11 +53,11 @@
 	session.ui_interact(src)
 	return session
 
-/mob/living/carbon/human/proc/make_sucking_noise()
+/mob/living/carbon/human/proc/make_sucking_noise(do_subtle = FALSE)
 	if(gender == FEMALE)
-		playsound(src, pick('sound/misc/mat/girlmouth (1).ogg','sound/misc/mat/girlmouth (2).ogg'), 25, TRUE, ignore_walls = FALSE)
+		playsound(src, pick('sound/misc/mat/girlmouth (1).ogg','sound/misc/mat/girlmouth (2).ogg'), 25, TRUE, (do_subtle ? -6 : 0), ignore_walls = FALSE)
 	else
-		playsound(src, pick('sound/misc/mat/guymouth (2).ogg','sound/misc/mat/guymouth (3).ogg','sound/misc/mat/guymouth (4).ogg','sound/misc/mat/guymouth (5).ogg'), 35, TRUE, ignore_walls = FALSE)
+		playsound(src, pick('sound/misc/mat/guymouth (2).ogg','sound/misc/mat/guymouth (3).ogg','sound/misc/mat/guymouth (4).ogg','sound/misc/mat/guymouth (5).ogg'), 35, TRUE, (do_subtle ? -6 : 0), ignore_walls = FALSE)
 
 /mob/living/carbon/human/proc/try_impregnate(mob/living/carbon/human/wife)
 	var/obj/item/organ/testicles/testes = getorganslot(ORGAN_SLOT_TESTICLES)
@@ -96,7 +99,8 @@
 		return
 
 	if(!user.start_sex_session(target))
-		to_chat(user, "<span class='warning'>I'm already sexing.</span>")
+		if(!user.cmode)
+			to_chat(user, "<span class='warning'>I'm already sexing.</span>")
 		return
 
 /proc/get_sex_session(mob/giver, mob/taker)

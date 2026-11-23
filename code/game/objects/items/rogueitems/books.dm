@@ -77,7 +77,7 @@
 	..()
 	user.update_inv_hands()
 
-/obj/item/book/rogue/rmb_self(mob/user)
+/obj/item/book/rogue/rmb_self(mob/user, keybind = FALSE)
 	attack_right(user)
 	return
 
@@ -226,6 +226,10 @@
 /obj/item/book/rogue/bibble/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
 	. = ..()
 	if(user.mind?.assigned_role == "Bishop" && isitem(target) && user.used_intent?.type == /datum/intent/bless)
+		if(istype(target, /obj/item/rogueweapon/huntingknife/idagger/steel/profane))
+			var/obj/item/rogueweapon/huntingknife/idagger/steel/profane/zevil_dagger = target
+			zevil_dagger.attempt_to_break(zevil_dagger, user, 1)
+			return
 		var/datum/component/silverbless/CP = target.GetComponent(/datum/component/silverbless)
 		if(!CP)
 			to_chat(user, span_info("\The [target] can not be blessed."))
@@ -246,6 +250,10 @@
 	. += span_info("Exclusive to the Bishop is the ability to anoint items and people, by left-clicking the chosen recipient.")
 	. += span_info("Anointing a silver weapon will bless it, greatly increasing the power of its critical hits and debuffs against sunderable opponents.")
 	. += span_info("Anointing a person will bless them, imparting a temporary bonus to their Fortune.")
+	. += span_info("Profane daggers can be destroyed by blessing them.")
+
+
+
 
 //Psydonic Bible
 /obj/item/book/rogue/bibble/psy
@@ -253,7 +261,7 @@
 	desc = "'And He weeps. Not for you, not for me, but for it all.' </br>A leatherbound tome, chronicling the \
 	beliefs held by the Orthodoxy; the largest Psydonic denomination in the world. The 'Harlaus Press', a recent \
 	invention by Otava's clergymen, has ensured that no corner of Psydonia would remain unlit by His teachings. Inside \
-	are three seperate testaments, each marked with a velvet strap.. </br>PSALMS - TESTAMENTS OF CLERICAL WISDOM, COMMANDING \
+	are three separate testaments, each marked with a velvet strap.. </br>PSALMS - TESTAMENTS OF CLERICAL WISDOM, COMMANDING \
 	INTERPRETATION. </br>GENESIS - TESTAMENTS OF PSYDONIA'S CREATION, FOR WHAT ONCE WAS. </br>INVOCATIONS - TESTAMENTS OF WILL, TO EXORCISE AND CHANT."
 	icon_state = "psyble_0"
 	base_icon_state = "psyble"
@@ -302,7 +310,7 @@
 
 /obj/item/book/rogue/bibble/psy/get_mechanics_examine(mob/user)
 	. = ..()
-	. += span_info("It can be used in-hand to preach from three seperate testaments.")
+	. += span_info("It can be used in-hand to preach from three separate testaments.")
 	. += span_info("Use middle-mouse button to switch between testaments of the book.")
 
 //Zizonic Bible
@@ -313,7 +321,7 @@
 	chronicling the beliefs held throughout the collective of the Cabal which could mutually agree on the same matters; \
 	such tomes are often considered major contraband in most of Psydonia and oft burned, even by followers of Noc. \
 	Even to this dae its unknown how such tomes keep circulating, presumably from some unknown printing press or two somewhere; \
-	but they are seldom found outside of the black market. Inside are two seperate testaments. </br> \
+	but they are seldom found outside of the black market. Inside are two separate testaments. </br> \
 	</br>PROGRESS - TESTAMENTS OF PROGRESS, HER TRUTH, FAITH. \
 	</br>SACRIFICE - TESTAMENTS OF UNDEATH, NECROMANCY, ASCENSION."
 	icon_state = "zible_0"
@@ -356,7 +364,7 @@
 
 /obj/item/book/rogue/bibble/zizo/get_mechanics_examine(mob/user)
 	. = ..()
-	. += span_info("It can be used in-hand to preach from two seperate testaments.")
+	. += span_info("It can be used in-hand to preach from two separate testaments.")
 	. += span_info("Use middle-mouse button to switch between testaments of the book.")
 
 /obj/item/book/rogue/bibble/zizo/Initialize(mapload)
@@ -565,6 +573,12 @@
 	base_icon_state = "book6"
 	bookfile = "naledi4.json"
 
+/obj/item/book/rogue/lamplighter
+	name = "Roadsman's Codex"
+	desc = "By Lampsmith Arlniss"
+	icon_state = "lawtome_0"
+	base_icon_state = "lawtome"
+	bookfile = "lamplighter.json"
 
 /obj/item/book/rogue/playerbook
 	var/player_book_text
@@ -589,7 +603,7 @@
 	base_icon_state = "basic_book"
 	override_find_book = TRUE
 
-/obj/item/book/rogue/playerbook/Initialize(mapload, loc, in_round_player_generated, mob/living/in_round_player_mob, text)
+/obj/item/book/rogue/playerbook/Initialize(mapload, in_round_player_generated, mob/living/in_round_player_mob, text)
 	. = ..()
 	is_in_round_player_generated = in_round_player_generated
 	if(is_in_round_player_generated)

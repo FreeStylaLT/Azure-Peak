@@ -13,12 +13,29 @@
 	plane = HUD_PLANE
 	appearance_flags = APPEARANCE_UI
 	var/obj/master = null	//A reference to the object in the slot. Grabs or items, generally.
+	/// A reference to the object in the slot. Grabs or items, generally, but any datum will do.
+	var/datum/weakref/master_ref = null
 	var/datum/hud/hud = null // A reference to the owner HUD, if any.
 	var/lastclick
 	var/category
 
+	/**
+	 * Map name assigned to this object.
+	 * Automatically set by /client/proc/add_obj_to_map.
+	 */
+	var/assigned_map
+	/**
+	 * Mark this object as garbage-collectible after you clean the map
+	 * it was registered on.
+	 *
+	 * This could probably be changed to be a proc, for conditional removal.
+	 * But for now, this works.
+	 */
+	var/del_on_map_removal = TRUE
+
 /atom/movable/screen/Destroy()
 	master = null
+	master_ref = null
 	hud = null
 	return ..()
 
@@ -106,9 +123,13 @@
 						to_chat(M, "<span class='warning'>I don't know any languages.</span>")
 					to_chat(M, "*----*")
 		for(var/X in GLOB.roguetraits)
-			if(HAS_TRAIT(L, X))
-				to_chat(L, "[X] - <span class='info'>[GLOB.roguetraits[X]]</span>")
-				ht = TRUE
+			if(!HAS_TRAIT(L, X))
+				continue
+			ht = TRUE
+			if(X == TRAIT_BADTRAINER && HAS_TRAIT_FROM(L, X, PROTEGE_TRAIT))
+				to_chat(L, "Protégé - <span class='info'>A veteran has taken me under their wing and can teach me up to one skill level below their own. I am too green to pass it on, though.</span>")
+				continue
+			to_chat(L, "[X] - <span class='info'>[GLOB.roguetraits[X]]</span>")
 		if(!ht)
 			to_chat(L, "<span class='warning'>I have no special traits.</span>")
 		to_chat(L, "*----*")
@@ -376,6 +397,7 @@
 /atom/movable/screen/close/Click()
 	var/datum/component/storage/S = master
 	S.hide_from(usr)
+	SEND_SIGNAL(S.parent, COMSIG_STORAGE_CLOSED, usr)
 	return TRUE
 
 /atom/movable/screen/drop
@@ -400,23 +422,20 @@
 	usr.a_intent_change(INTENT_HOTKEY_RIGHT)
 
 /atom/movable/screen/act_intent/segmented/Click(location, control, params)
-	if(usr.client.prefs.toggles & INTENT_STYLE)
-		var/_x = text2num(params2list(params)["icon-x"])
-		var/_y = text2num(params2list(params)["icon-y"])
+	var/_x = text2num(params2list(params)["icon-x"])
+	var/_y = text2num(params2list(params)["icon-y"])
 
-		if(_x<=16 && _y<=16)
-			usr.a_intent_change(INTENT_HARM)
+	if(_x<=16 && _y<=16)
+		usr.a_intent_change(INTENT_HARM)
 
-		else if(_x<=16 && _y>=17)
-			usr.a_intent_change(INTENT_HELP)
+	else if(_x<=16 && _y>=17)
+		usr.a_intent_change(INTENT_HELP)
 
-		else if(_x>=17 && _y<=16)
-			usr.a_intent_change(INTENT_GRAB)
+	else if(_x>=17 && _y<=16)
+		usr.a_intent_change(INTENT_GRAB)
 
-		else if(_x>=17 && _y>=17)
-			usr.a_intent_change(INTENT_DISARM)
-	else
-		return ..()
+	else if(_x>=17 && _y>=17)
+		usr.a_intent_change(INTENT_DISARM)
 
 /atom/movable/screen/act_intent/proc/switch_intent(index as num)
 	return
@@ -557,50 +576,16 @@
 
 	user.playsound_local(user, 'sound/misc/click.ogg', 100)
 
-	if(usr.client.prefs.toggles & INTENT_STYLE)
-		var/_x = text2num(params2list(params)["icon-x"])
-		var/_y = text2num(params2list(params)["icon-y"])
-		var/clicked = get_index_at_loc(_x, _y)
-		if(!clicked)
+	var/_x = text2num(params2list(params)["icon-x"])
+	var/_y = text2num(params2list(params)["icon-y"])
+	var/clicked = get_index_at_loc(_x, _y)
+	if(!clicked)
+		return
+	if(modifiers["left"])
+		if(modifiers["shift"])
+			user.examine_intent(clicked, FALSE)
 			return
-/*		if(_x<=64)
-			if(user.active_hand_index == 2)
-				if(modifiers["right"])
-					if(clicked != user.l_index)
-						user.rog_intent_change(clicked,1)
-					else
-						if(user.oactive)
-							user.oactive = FALSE
-//						else
-//							user.oactive = TRUE
-						switch_intent(user.r_index, user.l_index, user.oactive)
-					return
-				if(!user.swap_hand(1))
-					return
-			if(modifiers["left"])
-				if(modifiers["shift"])
-					user.examine_intent(clicked, FALSE)
-					return
-			user.rog_intent_change(clicked)
-		else*/
-//			if(user.active_hand_index == 1)
-//				if(modifiers["right"])
-//					if(clicked != user.r_index)
-//						user.rog_intent_change(clicked,1)
-//					else
-//						if(user.oactive)
-//							user.oactive = FALSE
-//						else
-//							user.oactive = TRUE
-//						switch_intent(user.r_index, user.l_index, user.oactive)
-//					return
-//				if(!user.swap_hand(2))
-//					return
-		if(modifiers["left"])
-			if(modifiers["shift"])
-				user.examine_intent(clicked, FALSE)
-				return
-		user.rog_intent_change(clicked)
+	user.rog_intent_change(clicked)
 
 /atom/movable/screen/act_intent/rogintent/proc/get_index_at_loc(xl, yl)
 /*	if(xl<=64)
@@ -871,12 +856,16 @@
 		var/mob/living/L = hud.mymob
 		if(L.eyesclosed)
 			L.eyesclosed = 0
+			if(L.stat < UNCONSCIOUS && L.m_intent != MOVE_INTENT_SNEAK)
+				L.visible_message(span_info("[L] opens [L.p_their()] eyes."), vision_distance = 3)
 			L.cure_blind("eyelids")
 
 	if(modifiers["left"])
 		if(_y>=29 || _y<=4)
 			if(isliving(hud.mymob))
 				var/mob/living/L = hud.mymob
+				if(L.stat < UNCONSCIOUS && L.m_intent != MOVE_INTENT_SNEAK)
+					L.visible_message(span_info("[L] closes [L.p_their()] eyes."), vision_distance = 3)
 				L.eyesclosed = 1
 				L.become_blind("eyelids")
 		else
@@ -2179,14 +2168,6 @@
 	layer = 24
 	plane = 24
 	blend_mode = BLEND_MULTIPLY
-
-/atom/movable/screen/char_preview
-	name = "Me."
-	icon_state = ""
-//	var/list/prevcolors = list("background-color=#000000","background-color=#242f28","background-color=#302323","background-color=#999a63","background-color=#7e7e7e")
-
-//atom/movable/screen/char_preview/Click()
-//	winset(usr.client, "preferencess_window.character_preview_map", pick(prevcolors))
 
 #define READ_RIGHT 1
 #define READ_LEFT 2

@@ -151,6 +151,23 @@ GLOBAL_LIST_INIT(atc_positions, list( //Azurian Trading Company - Merchant's cha
 /proc/is_townfolk_job(job)
 	return (job in GLOB.burgher_positions) || (job in GLOB.atc_positions)
 
+// Jobs whose crafting/skill access plausibly supplies Standing Order categories (rations,
+// textiles, smithed goods, alchemical, arcane). Used to scale the Rural Subsidy - more producers
+// on deck means the Steward is expected to lean on real trade instead of the lowpop safety net.
+GLOBAL_LIST_INIT(producer_positions, list(
+	"Soilson",
+	"Tailor",
+	"Guildsman",
+	"Guildmaster",
+	"Apothecary",
+	"Head Physician",
+	"Magicians Associate",
+	"Court Magician",
+))
+
+/proc/is_producer_job(job)
+	return job in GLOB.producer_positions
+
 GLOBAL_LIST_INIT(bathhouse_positions, list(
 	"Bathmaster",
 	"Bathhouse Attendant",
@@ -184,6 +201,7 @@ GLOBAL_LIST_INIT(wanderer_positions, list( //Homeless
 	"Adventurer",
 	"Court Agent",
 	"Trader",
+	"Lamplighter",
 ))
 
 GLOBAL_LIST_INIT(antagonist_positions, list( //Mostly lesser antagonists
@@ -264,7 +282,7 @@ GLOBAL_LIST_INIT(exp_jobsmap, list(
 
 GLOBAL_LIST_INIT(exp_specialmap, list(
 	EXP_TYPE_LIVING = list(), // all living mobs
-	EXP_TYPE_ANTAG = list(ROLE_MANIAC, ROLE_PREBEL, ROLE_REBEL_LEADER, ROLE_BANDIT, ROLE_ASPIRANT, ROLE_WEREWOLF, ROLE_NBEAST, ROLE_VAMPIRE, ROLE_LICH, ROLE_DREAMWALKER, ROLE_GNOLL, ROLE_ASSASSIN, ROLE_HAG),
+	EXP_TYPE_ANTAG = list(ROLE_MANIAC, ROLE_PREBEL, ROLE_REBEL_LEADER, ROLE_BANDIT, ROLE_ASPIRANT, ROLE_WEREWOLF, ROLE_NBEAST, ROLE_VAMPIRE, ROLE_LICH, ROLE_DREAMWALKER, ROLE_GNOLL, ROLE_ASSASSIN, ROLE_HAG, ROLE_RENEGADE),
 	EXP_TYPE_SPECIAL = list("Lifebringer","Ash Walker","Exile","Servant Golem","Free Golem","Hermit","Translocated Vet","Escaped Prisoner","Hotel Staff","SuperFriend","Space Syndicate","Ancient Crew","Space Doctor","Space Bartender","Beach Bum","Skeleton","Zombie","Space Bar Patron","Lavaland Syndicate","Ghost Role"), // Ghost roles
 	EXP_TYPE_GHOST = list() // dead people, observers
 ))

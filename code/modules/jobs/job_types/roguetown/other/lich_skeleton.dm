@@ -9,7 +9,7 @@ LICH SKELETONS
 	tutorial = "You are bygone. Your will belongs to your master. Fulfil and kill."
 
 	outfit = /datum/outfit/job/roguetown/greater_skeleton/lich
-	vice_restrictions = list(/datum/charflaw/hunted, /datum/charflaw/targeted, /datum/charflaw/wanted)
+	vice_restrictions = list(/datum/charflaw/hunted, /datum/charflaw/targeted, /datum/charflaw/wanted, /datum/charflaw/forlorne)
 
 /datum/outfit/job/roguetown/greater_skeleton/lich
 
@@ -18,6 +18,8 @@ LICH SKELETONS
 	REMOVE_TRAIT(H, TRAIT_HEAVYARMOR, TRAIT_GENERIC)
 	ADD_TRAIT(H, TRAIT_LICHLAIR, TRAIT_GENERIC) //Ability to leave/enter the lich's lair without being softlocked inside.
 	H.taints_loot = TRUE
+
+	change_origin(H, /datum/virtue/origin/unselectable/skeleton, "Legion")
 
 // Melee goon w/ sidearm picks like javs/sling/knife/single use net. All-rounder.
 /datum/advclass/greater_skeleton/lich/legionnaire
@@ -178,23 +180,23 @@ LICH SKELETONS
 		/obj/item/storage/belt/rogue/pouch/coins/aalloy = 1 //Hilarious
 	)
 	H.adjust_blindness(-3)
-	var/weapons = list("Bow & 20 Arrows", "Bow & 20 Broadheads", "Longbow & 20 Arrows", "Longbow & 20 Broadheads", "Crossbow & 16 Bolts", "Sling + Ancient Shield")
+	var/weapons = list("Bow & 24 Arrows", "Bow & 24 Broadheads", "Longbow & 24 Arrows", "Longbow & 24 Broadheads", "Crossbow & 16 Bolts", "Sling + Ancient Shield")
 	var/weapon_choice = input(H, "Choose your MISSILE.", "CONDEMN THE LYVING FROM AFAR.") as anything in weapons
 	H.set_blindness(0)
 	switch(weapon_choice)
-		if("Bow & 20 Arrows")
-			l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+		if("Bow & 24 Arrows")
+			l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow
 			beltl = /obj/item/quiver/paalloy
 			H.adjust_skillrank(/datum/skill/combat/bows, 1, TRUE)
-		if("Bow & 20 Broadheads")
-			l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+		if("Bow & 24 Broadheads")
+			l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow
 			beltl = /obj/item/quiver/broadhead_aalloy
 			H.adjust_skillrank(/datum/skill/combat/bows, 1, TRUE)
-		if("Longbow & 20 Arrows")
+		if("Longbow & 24 Arrows")
 			l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow
 			beltl = /obj/item/quiver/paalloy
 			H.adjust_skillrank(/datum/skill/combat/bows, 1, TRUE)
-		if("Longbow & 20 Broadheads")
+		if("Longbow & 24 Broadheads")
 			l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow
 			beltl = /obj/item/quiver/broadhead_aalloy
 			H.adjust_skillrank(/datum/skill/combat/bows, 1, TRUE)
@@ -224,7 +226,7 @@ LICH SKELETONS
 	H.energy = H.max_energy
 
 // Heavy/Tanky goon. Heavy armor but without an armaments rite, their skill is locked at journeyman. Death knights perform better than them and thus lich is encouraged to arm those first.
-// This one specialises in 3 different playstyles (disiplines) which your statline changes around the weapon choice, all choices are intended to have a noticable flaw as these are disposable goons.
+// This one specialises in 3 different playstyles (disiplines) which your statline changes around the weapon choice, all choices are intended to have a noticeable flaw as these are disposable goons.
 /datum/advclass/greater_skeleton/lich/bulwark
 	name = "Ancient Death Bulwark"
 	tutorial = "All throughout, you've borne the brunt. And even in death, will you continue. Shrug off terrible blows and deliver crushing sweeps with your greatweapons, in order to see your master's will done."
@@ -368,7 +370,7 @@ LICH SKELETONS
 	ADD_TRAIT(H, TRAIT_TRAINED_SMITH, TRAIT_GENERIC)
 	ADD_TRAIT(H, TRAIT_ARCYNE, TRAIT_GENERIC)
 
-	H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 4))
+	H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 5))
 	//For summoning rocks or whatever, or utility like mending/mindlink
 
 	// Sapper-exclusive self-exploding spell
@@ -399,7 +401,6 @@ LICH SKELETONS
 	H.adjust_skillrank(/datum/skill/labor/mining, 4, TRUE)
 	H.adjust_skillrank(/datum/skill/labor/lumberjacking, 6, TRUE) //Get up a deathfort, very fast by maximal yields from logs.
 
-	head = /obj/item/clothing/head/roguetown/helmet/kettle/minershelm
 	mask = /obj/item/clothing/mask/rogue/spectacles/golden //Structure inspection
 	shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/artificer/lich
 	pants = /obj/item/clothing/under/roguetown/trou/artipants/lich
@@ -415,7 +416,7 @@ LICH SKELETONS
 		/obj/item/rogueweapon/tongs/paalloy = 1,
 		/obj/item/rogueweapon/hammer/wood = 1,
 		/obj/item/storage/belt/rogue/pouch/coins/aalloy = 1, //Hilarious
-		/obj/item/rogueweapon/chisel = 1, //avoiding a dupe glitch I have no idea how to fix atm
+		/obj/item/rogueweapon/chisel/bronze = 1,
 		/obj/item/rogueweapon/handsaw/bronze = 1,
 		/obj/item/dye_brush = 1
 	)
@@ -436,6 +437,14 @@ LICH SKELETONS
 			cloak = /obj/item/clothing/cloak/half/lich
 		if("Black Toga")
 			cloak = /obj/item/clothing/cloak/tabard/toga/lich
+
+	var/hats = list("Function (Gilbranze Helmet)", "Form (Sapper Cap)")
+	var/hat_choice = input(H, "Choose your HAT.", "ARMOR OR STYLE.") as anything in hats
+	switch(hat_choice)
+		if("Function (Gilbranze Helmet)")
+			head = /obj/item/clothing/head/roguetown/helmet/kettle/minershelm
+		if("Form (Sapper Cap)")
+			head = /obj/item/clothing/head/roguetown/articap/lich
 
 	H.energy = H.max_energy
 
@@ -606,7 +615,7 @@ LICH SKELETONS
 			cloak = /obj/item/clothing/cloak/tabard/toga/lich
 
 	if(H.mind) //2 slot, irreplacable skeletons.
-		H.mind.AddSpell(new /datum/action/cooldown/spell/mending) //Gets replaced w/weaker version w/ritual armor. it balances out.
+		H.mind.AddSpell(new /datum/action/cooldown/spell/mending) //Gets replaced w/weaker version w/rituos armor, balances out.
 		H.mind.AddSpell(new /datum/action/cooldown/spell/bonemend)
 
 	H.energy = H.max_energy
@@ -621,15 +630,6 @@ LICH SKELETONS
 	category_tags = list(CTAG_LSKELETON)
 
 /datum/outfit/job/roguetown/greater_skeleton/lich/spellblade
-	var/subclass_selected
-
-/datum/outfit/job/roguetown/greater_skeleton/lich/spellblade/Topic(href, href_list)
-	. = ..()
-	if(href_list["subclass"])
-		subclass_selected = href_list["subclass"]
-	else if(href_list["close"])
-		if(!subclass_selected)
-			subclass_selected = "blade"
 
 /datum/outfit/job/roguetown/greater_skeleton/lich/spellblade/pre_equip(mob/living/carbon/human/H)
 	..()
@@ -680,95 +680,57 @@ LICH SKELETONS
 
 	to_chat(H, span_warning("You start with Bind Weapon. Remember to Bind your weapon so you can use your abilities and build up Arcyne Momentum."))
 
-	subclass_selected = null
-	var/selection_html = get_spellblade_chant_html(src, H, "undead")
-	H << browse(selection_html, "window=spellblade_chant;size=1100x900")
-	onclose(H, "spellblade_chant", src)
-
-	var/open_time = world.time
-	while(!subclass_selected && world.time - open_time < 5 MINUTES)
-		stoplag(1)
-	H << browse(null, "window=spellblade_chant")
-
-	if(!subclass_selected)
-		subclass_selected = "blade"
-
-	var/datum/status_effect/buff/arcyne_momentum/momentum = H.apply_status_effect(/datum/status_effect/buff/arcyne_momentum)
-	if(momentum)
-		momentum.chant = subclass_selected
+	var/spellblade_chant_selected = prompt_spellblade_choice(H, get_spellblade_chant_html(src, H, "undead"))
+	var/datum/spellblade_chant/chant = GLOB.spellblade_chants[spellblade_chant_selected]
+	chant.apply_chant(H)
 
 	if(H.mind)
-		switch(subclass_selected)
-			if("blade")
-				H.mind.AddSpell(new /datum/action/cooldown/spell/caedo)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/air_strike)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/leyline_anchor)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/blade_storm)
-			if("phalangite")
-				H.mind.AddSpell(new /datum/action/cooldown/spell/azurean_phalanx)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/projectile/azurean_pilum)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/advance)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/gate_of_reckoning)
-			if("macebearer")
-				H.mind.AddSpell(new /datum/action/cooldown/spell/telegraphed_strike/spellblade/shatter)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/telegraphed_strike/spellblade/tremor)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/charge)
-				H.mind.AddSpell(new /datum/action/cooldown/spell/cataclysm)
-
-		H.mind.AddSpell(new /datum/action/cooldown/spell/recall_weapon)
-		H.mind.AddSpell(new /datum/action/cooldown/spell/empower_weapon)
-		H.mind.AddSpell(new /datum/action/cooldown/spell/bind_weapon)
 		H.mind.AddSpell(new /datum/action/cooldown/spell/bonemend) //So you don't die from damaging yourself by your own gameplay loop.
-		H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 4))
+		H.mind.setup_mage_aspects(list("mastery" = FALSE, "major" = 0, "minor" = 0, "utilities" = 5))
 
 	H.adjust_blindness(-3)
-	switch(subclass_selected)
+	// used to handle skill assignment automatically
+	var/obj/item/rogueweapon/granted_weapon = null
+	switch(spellblade_chant_selected)
 		if("blade")
-			var/weapons = list("Ancient Khopesh", "Ancient Dagger")
+			var/weapons = list("Ancient Khopesh", "Ancient Longsword", "Ancient Dagger")
 			var/weapon_choice = input(H, "Choose your BLADE.", "RAGE AGAINST THE LYVING.") as anything in weapons
 			switch(weapon_choice)
 				if("Ancient Khopesh")
-					beltr = /obj/item/rogueweapon/sword/sabre/palloy
+					beltr = granted_weapon = /obj/item/rogueweapon/sword/sabre/palloy
+				if("Ancient Longsword")
+					beltr = granted_weapon = /obj/item/rogueweapon/sword/long/palloy //role unique
 				if("Ancient Dagger")
-					beltr = /obj/item/rogueweapon/huntingknife/idagger/steel/padagger
-			if(weapon_choice == "Ancient Dagger")
-				H.adjust_skillrank_up_to(/datum/skill/combat/knives, 4, TRUE)
-			else
-				H.adjust_skillrank_up_to(/datum/skill/combat/swords, 4, TRUE)
+					beltr = granted_weapon = /obj/item/rogueweapon/huntingknife/idagger/steel/padagger
 		if("phalangite")
 			var/weapons = list("Ancient Spear", "Ancient Bardiche")
 			var/weapon_choice = input(H, "Choose your SPEAR.", "RAGE AGAINST THE LYVING.") as anything in weapons
 			switch(weapon_choice)
 				if("Ancient Spear")
-					r_hand = /obj/item/rogueweapon/spear/paalloy
+					r_hand = granted_weapon = /obj/item/rogueweapon/spear/paalloy
 					backr = /obj/item/rogueweapon/scabbard/gwstrap
 				if("Ancient Bardiche")
-					r_hand = /obj/item/rogueweapon/halberd/bardiche/paalloy
+					r_hand = granted_weapon = /obj/item/rogueweapon/halberd/bardiche/paalloy
 					backr = /obj/item/rogueweapon/scabbard/gwstrap
-			H.adjust_skillrank_up_to(/datum/skill/combat/polearms, 4, TRUE)
 		if("macebearer")
 			var/weapons = list("Ancient Mace", "Ancient Warhammer", "Ancient Grand Mace", "Ancient Alloy Axe", "Steel Greataxe")
 			var/weapon_choice = input(H, "Choose your WEAPON.", "RAGE AGAINST THE LYVING.") as anything in weapons
-			var/picked_axe = FALSE
 			switch(weapon_choice)
 				if("Ancient Mace")
-					beltr = /obj/item/rogueweapon/mace/steel/palloy
+					beltr = granted_weapon = /obj/item/rogueweapon/mace/steel/palloy
 				if("Ancient Warhammer")
-					beltr = /obj/item/rogueweapon/mace/warhammer/steel/paalloy
+					beltr = granted_weapon = /obj/item/rogueweapon/mace/warhammer/steel/paalloy
 				if("Ancient Grand Mace")
-					r_hand = /obj/item/rogueweapon/mace/goden/steel/paalloy
+					r_hand = granted_weapon = /obj/item/rogueweapon/mace/goden/steel/paalloy
 					backr = /obj/item/rogueweapon/scabbard/gwstrap
 				if("Ancient Alloy Axe")
-					beltr = /obj/item/rogueweapon/stoneaxe/woodcut/steel/paaxe
-					picked_axe = TRUE
+					beltr = granted_weapon = /obj/item/rogueweapon/stoneaxe/woodcut/steel/paaxe
 				if("Steel Greataxe")
-					r_hand = /obj/item/rogueweapon/greataxe/steel
+					r_hand = granted_weapon = /obj/item/rogueweapon/greataxe/steel
 					backr = /obj/item/rogueweapon/scabbard/gwstrap
-					picked_axe = TRUE
-			if(picked_axe)
-				H.adjust_skillrank_up_to(/datum/skill/combat/axes, 4, TRUE)
-			else
-				H.adjust_skillrank_up_to(/datum/skill/combat/maces, 4, TRUE)
+	if(granted_weapon)
+		H.adjust_skillrank_up_to(granted_weapon::associated_skill, SKILL_LEVEL_EXPERT, TRUE)
+
 	H.set_blindness(0)
 
 	// Hack for ordering
@@ -800,7 +762,7 @@ LICH SKELETONS
 //Yes the name is a bitter irony because Sectarian means a closed-minded us vs them, mindset. Aka limited or bigoted, but this fits the "slaughter the living so they may walk with her" mindset of skeletons.
 /datum/advclass/greater_skeleton/lich/sectarian
 	name = "Ancient Zizite Sectarian"
-	tutorial = "'Progress. Ascension. Destiny. A mandate, commanded by God, to be fufilled by Man.' - Amongst the many fallen, few not only take their place not only in reverence but through faith and channeling divinity. No matter how far you've fallen, your faith will be that which shall peirce the heavens - Let Progress be your chariot, let her will be your guide and let your master's vision become reality."
+	tutorial = "'Progress. Ascension. Destiny. A mandate, commanded by God, to be fulfilled by Man.' - Amongst the many fallen, few not only take their place not only in reverence but through faith and channeling divinity. No matter how far you've fallen, your faith will be that which shall pierce the heavens - Let Progress be your chariot, let her will be your guide and let your master's vision become reality."
 	outfit = /datum/outfit/job/roguetown/greater_skeleton/lich/sectarian
 	maximum_possible_slots = 3 //don't want too many healers for skeletons in a round but we want leniency for when they die and get replaced
 
@@ -898,7 +860,7 @@ LICH SKELETONS
 /////////////////////////////
 /obj/item/clothing/suit/roguetown/armor/vestments_padded/lich //Zizo acolyte esc-robes, armor is meant to be the same as padded vestaments
 	name = "decrepit unholy undervestaments"
-	desc = "Roughspan fabrics, silks and burlap from beyond your lyfetyme, wrapped and coiled around the waist uncomfortably tight.</br>Its adorned with inverted psycrosses in the stitchwork, a sworn unbreakable promise against the orders that bind this world to stagnation.</br></br>‎<font color='FF0000'>..Just looking at the fabric makes you feel like you're being watched..</font>"
+	desc = "Roughspun fabrics, silks and burlap from beyond your lyfetyme, wrapped and coiled around the waist uncomfortably tight.</br>Its adorned with inverted psycrosses in the stitchwork, a sworn unbreakable promise against the orders that bind this world to stagnation.</br></br>‎<font color='FF0000'>..Just looking at the fabric makes you feel like you're being watched..</font>"
 	icon_state = "monkvestments" //placeholdery as fuck
 	item_state = "monkvestments"
 	icon = 'icons/roguetown/clothing/armor.dmi'
@@ -913,7 +875,7 @@ LICH SKELETONS
 
 /obj/item/clothing/wrists/roguetown/bracers/cloth/lich
 	name = "decrepit padded wrappings"
-	desc = "Roughspan fabrics and burlap from beyond your lyfetyme, wrapped and coiled around the wrists by those who have embraced what they've truly become."
+	desc = "Roughspun fabrics and burlap from beyond your lyfetyme, wrapped and coiled around the wrists by those who have embraced what they've truly become."
 	color = "#5c5a55"
 
 /obj/item/clothing/gloves/roguetown/bandages/weighted/lich
@@ -921,7 +883,7 @@ LICH SKELETONS
 
 /obj/item/clothing/head/roguetown/roguehood/lich_sectarian
 	name = "decrepit unholy hood"
-	desc = "A padded and reinforced hood of roughspun fabrics, silks and worn leather from beyond your lyfetime, splinted across creating a cocooon to shroud the face. It bares the sigil of the inverted Psycross upon its crest in defiance to the world.</br></br>‎<font color='FF0000'>..Should you stare too long into it, you could almost glimpse something staring back with eternal malice..</font>"
+	desc = "A padded and reinforced hood of roughspun fabrics, silks and worn leather from beyond your lyfetime, splinted across creating a cocoon to shroud the face. It bares the sigil of the inverted Psycross upon its crest in defiance to the world.</br></br>‎<font color='FF0000'>..Should you stare too long into it, you could almost glimpse something staring back with eternal malice..</font>"
 	color = CLOTHING_BLACK
 	max_integrity = ARMOR_INT_HELMET_HARDLEATHER //to encourage keeping it
 	armor = ARMOR_LEATHER
@@ -942,6 +904,13 @@ LICH SKELETONS
 /obj/item/clothing/suit/roguetown/armor/leather/jacket/artijacket/lich
 	name = "decrepit sapper jacket"
 	desc = "A jacket of rugged leather with some scraps of fur and roughspun fabrics from beyond your lyfetime, donned by those who are condemned to toil forevermore."
+	color = "#d6bbbb"
+
+//Do not make this craftable, please. Role Specific. ^
+
+/obj/item/clothing/head/roguetown/articap/lich
+	name = "decrepit sapper cap"
+	desc = "A cap of decrepit leather from beyond your lyfetime, donned by those who are condemned forever to restless toil. </br>It holds an eerie resemblence to those worn by artificers of this dae and yil."
 	color = "#d6bbbb"
 
 //Do not make this craftable, please. Role Specific. ^
@@ -992,24 +961,26 @@ LICH SKELETONS
 	name = "decrepit toga"
 	desc = "Roughspun fabrics from beyond your lyfetime, donned by those who fight a war without reason."
 	color = CLOTHING_BLACK
+	detail_color = "#bb9696"
+	open_wear = FALSE
 
 /obj/item/clothing/cloak/tabard/toga/lich/alt
-	name = "opened decrepit toga"
+	name = "decrepit bared toga"
 	desc = "Roughspun fabrics from beyond your lyfetime, donned by those who fight a war without reason, parted to reveal what remains beneath its cloth."
 	body_parts_covered = GROIN
-	icon_state = "whitepsydontabardalt"
-	item_state = "whitepsydontabardalt"
+	icon_state = "togaalt"
+	item_state = "togaalt"
 	flags_inv = HIDECROTCH
 	open_wear = TRUE
 
 /obj/item/clothing/cloak/tabard/toga/lich/attack_right(mob/user)
 	switch(open_wear)
 		if(FALSE)
-			name = "opened decrepit toga"
+			name = "decrepit bared toga"
 			desc = "Roughspun fabrics from beyond your lyfetime, donned by those who fight a war without reason, parted to reveal what remains beneath its cloth."
 			body_parts_covered = GROIN
-			icon_state = "whitepsydontabardalt"
-			item_state = "whitepsydontabardalt"
+			icon_state = "togaalt"
+			item_state = "togaalt"
 			open_wear = TRUE
 			flags_inv = HIDECROTCH // BARE YOUR CHEST, NOT YOUR WEEN! Not urm, you have one, you're a fucking skeleton sire.
 			to_chat(usr, span_warning("You pull back the roughspun fabric, baring what remains to Psydonia's eyes."))
@@ -1017,8 +988,8 @@ LICH SKELETONS
 			name = "decrepit toga"
 			desc = "Roughspun fabrics from beyond your lyfetime, donned by those who fight a war without reason.."
 			body_parts_covered = CHEST|GROIN
-			icon_state = "whitepsydontabard"
-			item_state = "whitekpsydontabard"
+			icon_state = "toga"
+			item_state = "toga"
 			flags_inv = HIDECROTCH|HIDEBOOB
 			open_wear = FALSE
 			to_chat(usr, span_warning("You cloak yourself in the roughspun fabric, veiling what remains from Psydonia's eyes."))
@@ -1042,7 +1013,7 @@ LICH SKELETONS
 
 /obj/item/rogueweapon/greatsword/grenz/flamberge/aalloy
 	name = "decrepit flamberge"
-	desc = "Tarnished bronze and decaying bogleather, meticulously woven together to fashion a flame-bladed swan song for Psydonia's final descendants. </br>'Oh, how valiant His sacrifice was! But now He lies, sleeping and witless to the world-anew.' </br>'And now, He sleeps. And now, He weeps.'"
+	desc = "Rotted metal and decaying bogleather, meticulously woven together to fashion a flame-bladed swan song for Psydonia's final descendants. </br>'Oh, how valiant His sacrifice was! But now He lies, sleeping and witless to the world-anew.' </br>'And now, He sleeps. And now, He weeps.'"
 	icon_state = "ancientflamb"
 	smeltresult = /obj/item/ingot/aaslag
 	max_integrity = 150
@@ -1052,11 +1023,10 @@ LICH SKELETONS
 	color = "#bb9696"
 	smeltresult = /obj/item/ingot/aaslag
 	anvilrepair = null
-	randomize_blade_int_on_init = TRUE
 
 /obj/item/rogueweapon/greatsword/grenz/flamberge/paalloy
 	name = "ancient flamberge"
-	desc = "Polished gilbranze and velvety saigaleather, masterfully bound together to hewn a greatsword of archaic opulance. One must remember that even the undying aren't consigned to the Archdevil's grasp; for those of true faith and nobleheartedness can persist in penitence."
+	desc = "Polished gilbranze and velvety saigaleather, masterfully bound together to hewn a greatsword of archaic opulence. One must remember that even the undying aren't consigned to the Archdevil's grasp; for those of true faith and nobleheartedness can persist in penitence."
 	icon_state = "ancientflamb"
 	smeltresult = /obj/item/ingot/aaslag
 
@@ -1095,7 +1065,7 @@ LICH SKELETONS
 
 /obj/item/rogueweapon/shield/bronze/paalloy
 	name = "ancient hoplon shield"
-	desc = "The finest companion to a javelin and gladius, in Her name; a deceptively thin-yet-sturdy shield of gilbronze. This alloy even this thin, used to once surpass steel yet despite aeon's grip being lyfted, it never will regain its former strength."
+	desc = "The finest companion to a javelin and gladius, in Her name; a deceptively thin-yet-sturdy shield of gilbranze. This alloy even this thin, used to once surpass steel yet despite aeon's grip being lyfted, it never will regain its former strength."
 	icon_state = "ancientlegionshield"
 	force = 15
 	throwforce = 25 // DO NOT GIVE ANYTHING; BUT TAKE FROM THEM.. EVERYTHING!
@@ -1105,7 +1075,7 @@ LICH SKELETONS
 
 /obj/item/rogueweapon/shield/bronze/aalloy
 	name = "decrepit hoplon shield"
-	desc = "A near-paradoxally thin-yet-somehow-intact shield of fraying bronze, impossibly remaining barely intact; yet in spite of this, a mere press of the thumb alone will bend a dent into it irreversably."
+	desc = "A near-paradoxically thin-yet-somehow-intact shield of fraying bronze, impossibly remaining barely intact; yet in spite of this, a mere press of the thumb alone will bend a dent into it irreversibly."
 	icon_state = "ancientlegionshield"
 	force = 10
 	throwforce = 8 // Its basically a chunk of crumbling metal

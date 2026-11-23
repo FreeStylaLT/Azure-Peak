@@ -6,6 +6,8 @@ GLOBAL_LIST_EMPTY(antagonists)
 	var/show_in_roundend = TRUE								//Set to false to hide the antagonists from roundend report
 	var/prevent_roundtype_conversion = TRUE		//If false, the roundtype will still convert with this antag active
 	var/datum/mind/owner						//Mind that owns this datum
+	/// Gaining this antag datum cancels the Forlorne vice (no teleport, no triumph)
+	var/overrides_forlorne_vice = FALSE
 	var/silent = FALSE							//Silent will prevent the gain/lose texts to show
 	var/can_coexist_with_others = TRUE			//Whether or not the person will be able to have more than one datum
 	var/list/typecache_datum_blacklist = list()	//List of datums this type can't coexist with
@@ -23,7 +25,7 @@ GLOBAL_LIST_EMPTY(antagonists)
 	var/antagpanel_category = "Uncategorized"	//Antagpanel will display these together, REQUIRED
 	var/show_name_in_check_antagonists = FALSE //Will append antagonist name in admin listings - use for categories that share more than one antag type
 	var/increase_votepwr = TRUE
-	var/rogue_enabled = FALSE
+	var/rogue_enabled = FALSE // this also determines whether it shows up in the panel! i dont know why!
 
 	///flags used by storytellers
 	var/antag_flags = NONE
@@ -33,6 +35,8 @@ GLOBAL_LIST_EMPTY(antagonists)
 	var/storyteller_slot_default_cap = 0
 	var/list/storyteller_maxcaps
 	var/storyteller_min_players = 0
+	/// To disable a particular antag
+	var/storyteller_blacklisted = FALSE
 	var/override_candidatereq = FALSE
 
 /datum/antagonist/New()

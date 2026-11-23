@@ -29,7 +29,6 @@
 		/datum/skill/misc/medicine = SKILL_LEVEL_APPRENTICE, // Sew up the countless holes you will be receiving
 		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE, //bare minimum so they can use silverfaces and the like
 	)
-	adv_stat_ceiling = list(STAT_STRENGTH = 12) // I'm sorry but you're not grabbing muscular and aiming chest with 12 speed 17 strength swift intent spam.
 
 /datum/outfit/job/roguetown/mercenary/trollslayer
 	allowed_patrons = ALL_SLAYER_PATRONS
@@ -47,8 +46,7 @@
 		backpack_contents = list(
 			/obj/item/rogueweapon/huntingknife = 1,
 			/obj/item/roguekey/mercenary = 1,
-			/obj/item/rope/chain = 1,
-			/obj/item/natural/head/troll = 1 // will spawn inside of the belt but I can't be bothered to make it spawn in the headhook
+			/obj/item/rope/chain = 1
 		)
 		var/weapons = list("Hatchets", "Greataxe")
 		var/weapon_choice = input(H, "Choose your weapon", "How will you channel your rage?") as anything in weapons
@@ -60,6 +58,14 @@
 				beltl = /obj/item/rogueweapon/stoneaxe/woodcut/steel/slayer
 				ADD_TRAIT(H, TRAIT_DUALWIELDER, TRAIT_GENERIC)
 
+/datum/outfit/job/roguetown/mercenary/trollslayer/post_equip(mob/living/carbon/human/H, visualsOnly = FALSE)
+	. = ..()
+	if(visualsOnly || !H.mind)
+		return
+	var/obj/item/natural/head/troll/trophy = new(H)
+	var/obj/item/hook = H.get_item_by_slot(SLOT_BELT_R)
+	if(!hook || !SEND_SIGNAL(hook, COMSIG_TRY_STORAGE_INSERT, trophy, null, TRUE, TRUE))
+		H.put_in_hands(trophy)
 
 /obj/item/clothing/suit/roguetown/armor/manual/pushups/slayer
 	name = "rough skin"

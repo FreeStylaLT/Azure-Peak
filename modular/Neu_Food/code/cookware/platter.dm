@@ -36,7 +36,7 @@ What it does:
 		if(do_after(user, 0.5 SECONDS))
 			attack(user, user, user.zone_selected)
 
-	var/found_table = locate(/obj/structure/table) in (loc)
+	var/found_table = has_table_surface(loc)
 	if(istype(I, /obj/item/reagent_containers/food/snacks/))
 		if(isturf(loc)&& (found_table))
 			if (contents.len == 0)
@@ -106,7 +106,7 @@ What it does:
 
 /obj/item/cooking/platter/aalloy
 	name = "decrepit platter"
-	desc = "Wrought bronze, flattened to serve. The edge remains wet with red; spilled merlot, meaty juices, or blood?"
+	desc = "Rotted metal, flattened to serve. The edge remains wet with red; spilled merlot, meaty juices, or blood?"
 	icon_state = "aplatter"
 	color = "#bb9696"
 

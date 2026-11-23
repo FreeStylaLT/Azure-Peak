@@ -131,8 +131,6 @@
 		if(SLOT_GLASSES)
 			glasses = I
 			var/obj/item/clothing/glasses/G = I
-			if(G.glass_colour_type)
-				update_glasses_color(G, 1)
 			if(G.tint)
 				update_tint()
 			if(G.vision_correction)
@@ -276,8 +274,6 @@
 	else if(I == glasses)
 		glasses = null
 		var/obj/item/clothing/glasses/G = I
-		if(G.glass_colour_type)
-			update_glasses_color(G, 0)
 		if(G.tint)
 			update_tint()
 		if(G.vision_correction)
@@ -412,6 +408,12 @@
 			continue
 		I.mark_as_looted()
 
+/mob/living/carbon/human/proc/flag_gear_as_worn()
+	for(var/obj/item/I in get_all_gear())
+		if(!istype(I, /obj/item/clothing) && !istype(I, /obj/item/rogueweapon) && !istype(I, /obj/item/gun) && !istype(I, /obj/item/storage))
+			continue
+		I.mark_as_worn()
+
 
 //delete all equipment without dropping anything
 /mob/living/carbon/human/proc/delete_equipment()
@@ -425,6 +427,14 @@
 		return
 	var/obj/item/thing = get_active_held_item()
 	var/obj/item/equipped_back = get_item_by_slot(slot_id)
+	if(istype(thing, /obj/item/gun/ballistic/revolver/grenadelauncher) && istype(equipped_back, /obj/item/quiver)) // nock straight from the quiver
+		var/obj/item/quiver/Q = equipped_back
+		var/obj/item/gun/ballistic/revolver/grenadelauncher/launcher = thing
+		if(launcher.chambered)
+			to_chat(src, span_notice("There's already [launcher.cartridge_articles] [launcher.cartridge_wording] in \the [launcher]."))
+			return
+		Q.try_quick_load(launcher, src)
+		return
 	if(equip_scabbard(thing, equipped_back, slot_id))
 		return
 	if(!equipped_back) // We also let you equip a backpack like this

@@ -5,7 +5,6 @@
 	button_icon = 'icons/mob/actions/mage_fulgurmancy.dmi'
 	name = "Bolt of Lightning"
 	desc = "Emit a bolt of lightning that burns a target, slowing them down and impairing their accuracy for 6 seconds. \
-	Damage is increased by 100% versus simple-minded creechurs. \
 	The CC effects cannot be reapplied to the same target within 15 seconds."
 	button_icon_state = "lightning_bolt"
 	sound = 'sound/magic/lightning.ogg'
@@ -27,7 +26,7 @@
 	charge_time = CHARGETIME_MAJOR
 	hold_drain = 1
 	charge_slowdown = CHARGING_SLOWDOWN_MEDIUM
-	charge_swingdelay_type = SWINGDELAY_CANCEL
+	charge_swingdelay_type = SWINGDELAY_PENALTY
 	charge_sound = 'sound/magic/charging.ogg'
 	cooldown_time = 15 SECONDS
 
@@ -46,8 +45,9 @@
 	guard_deflectable = TRUE
 	expose_caster_on_deflect = TRUE
 	light_color = LIGHT_COLOR_WHITE
-	damage = 60
-	npc_simple_damage_mult = 2
+	damage = SPELL_DMG(60)
+	intdamfactor = SPELL_INTDAM(1)
+	spell_damage_scaled = TRUE
 	damage_type = BURN
 	nodamage = FALSE
 	speed = 0.3

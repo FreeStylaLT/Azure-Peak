@@ -5,7 +5,7 @@
 	mob_overlay_icon = null
 	icon_state = "pouch"
 	item_state = "pouch"
-	slot_flags = ITEM_SLOT_HIP|ITEM_SLOT_NECK
+	slot_flags = ITEM_SLOT_HIP|ITEM_SLOT_NECK|ITEM_SLOT_CLOAK
 	w_class = WEIGHT_CLASS_NORMAL
 	attack_verb = list("whips", "lashes")
 	max_integrity = 300
@@ -35,6 +35,9 @@
 
 	var/datum/component/storage/storage_comp = GetComponent(/datum/component/storage)
 	if(!storage_comp)
+		return
+
+	if(target_coin.loc == storage_comp.real_location())
 		return
 
 	var/original_target_quantity = target_coin.quantity	// Store original quantity for verification
@@ -318,20 +321,20 @@
 	new /obj/item/reagent_containers/food/snacks/rogue/crackerscooked(src)
 
 /obj/item/storage/belt/rogue/pouch/healing
-
-/obj/item/storage/belt/rogue/pouch/healing/PopulateContents()
-	new /obj/item/reagent_containers/glass/bottle/alchemical/healthpot(src)
-	new /obj/item/reagent_containers/glass/bottle/alchemical/healthpot(src)
-	new /obj/item/reagent_containers/glass/bottle/alchemical/water(src)
-	new /obj/item/needle(src)
+	populate_contents = list(
+	/obj/item/reagent_containers/glass/bottle/alchemical/healthpot,
+	/obj/item/reagent_containers/glass/bottle/alchemical/healthpot,
+	/obj/item/reagent_containers/glass/bottle/alchemical/water,
+	/obj/item/needle
+	)
 
 /obj/item/storage/belt/rogue/pouch/alchemy
-
-/obj/item/storage/belt/rogue/pouch/alchemy/PopulateContents()
-	new /obj/item/reagent_containers/glass/bottle/alchemical(src)
-	new /obj/item/reagent_containers/glass/bottle/alchemical(src)
-	new /obj/item/reagent_containers/glass/bottle/alchemical(src)
-	new /obj/item/needle(src)
+	populate_contents = list(
+	/obj/item/reagent_containers/glass/bottle/alchemical,
+	/obj/item/reagent_containers/glass/bottle/alchemical,
+	/obj/item/reagent_containers/glass/bottle/alchemical,
+	/obj/item/needle
+	)
 
 /obj/item/storage/belt/rogue/pouch/zigarrete
 	name = "zig box"
@@ -339,30 +342,27 @@
 	icon_state = "smokebox"
 	item_state = "smokebox"
 	component_type = /datum/component/storage/concrete/roguetown/zig_box
+	dropshrink = 0.5
 
-/obj/item/storage/belt/rogue/pouch/zigarrete/nicotine/PopulateContents()
-	new /obj/item/clothing/mask/cigarette/rollie/nicotine(src)
-	new /obj/item/clothing/mask/cigarette/rollie/nicotine(src)
-	new /obj/item/clothing/mask/cigarette/rollie/nicotine(src)
-	new /obj/item/clothing/mask/cigarette/rollie/nicotine(src)
-	new /obj/item/clothing/mask/cigarette/rollie/nicotine(src)
-	new /obj/item/clothing/mask/cigarette/rollie/nicotine(src)
+/obj/item/storage/belt/rogue/pouch/zigarrete/nicotine
+	populate_contents = list(
+	/obj/item/clothing/mask/cigarette/rollie/nicotine,
+	/obj/item/clothing/mask/cigarette/rollie/nicotine,
+	/obj/item/clothing/mask/cigarette/rollie/nicotine,
+	/obj/item/clothing/mask/cigarette/rollie/nicotine,
+	/obj/item/clothing/mask/cigarette/rollie/nicotine,
+	/obj/item/clothing/mask/cigarette/rollie/nicotine
+	)
 
-/obj/item/storage/belt/rogue/pouch/zigarrete/trippy/PopulateContents()
-	new /obj/item/clothing/mask/cigarette/rollie/trippy(src)
-	new /obj/item/clothing/mask/cigarette/rollie/trippy(src)
-	new /obj/item/clothing/mask/cigarette/rollie/trippy(src)
-	new /obj/item/clothing/mask/cigarette/rollie/trippy(src)
-	new /obj/item/clothing/mask/cigarette/rollie/trippy(src)
-	new /obj/item/clothing/mask/cigarette/rollie/trippy(src)
-
-/obj/item/storage/belt/rogue/pouch/zigarrete/cannabis/PopulateContents()
-	new /obj/item/clothing/mask/cigarette/rollie/cannabis(src)
-	new /obj/item/clothing/mask/cigarette/rollie/cannabis(src)
-	new /obj/item/clothing/mask/cigarette/rollie/cannabis(src)
-	new /obj/item/clothing/mask/cigarette/rollie/cannabis(src)
-	new /obj/item/clothing/mask/cigarette/rollie/cannabis(src)
-	new /obj/item/clothing/mask/cigarette/rollie/cannabis(src)
+/obj/item/storage/belt/rogue/pouch/zigarrete/cannabis
+	populate_contents = list(
+	/obj/item/clothing/mask/cigarette/rollie/cannabis,
+	/obj/item/clothing/mask/cigarette/rollie/cannabis,
+	/obj/item/clothing/mask/cigarette/rollie/cannabis,
+	/obj/item/clothing/mask/cigarette/rollie/cannabis,
+	/obj/item/clothing/mask/cigarette/rollie/cannabis,
+	/obj/item/clothing/mask/cigarette/rollie/cannabis
+	)
 
 /obj/item/storage/belt/rogue/pouch/triumphlunch
 	name = "pouched luncheon"
@@ -375,10 +375,11 @@
 
 /obj/item/storage/belt/rogue/pouch/bombs
 
-/obj/item/storage/belt/rogue/pouch/bombs/PopulateContents()
-	new /obj/item/bomb/noshard(src)
-	new /obj/item/bomb/noshard(src)
-	new /obj/item/bomb/noshard(src)
+	populate_contents = list(
+	/obj/item/explosive/fused/bottle,
+	/obj/item/explosive/fused/bottle,
+	/obj/item/explosive/fused/bottle
+	)
 
 /obj/item/storage/belt/rogue/pouch/tailorscrap
 	name = "pouch of tailorscrap"

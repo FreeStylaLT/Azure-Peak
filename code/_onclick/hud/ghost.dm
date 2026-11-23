@@ -20,7 +20,7 @@
 
 /atom/movable/screen/ghost/orbit/Click()
 	var/mob/dead/observer/G = usr
-	G.follow()
+	G.open_orbit_menu()
 //skull
 /atom/movable/screen/ghost/orbit/rogue
 	name = "AFTER LIFE"
@@ -32,10 +32,10 @@
 	var/mob/dead/observer/G = usr
 	var/paramslist = params2list(params)
 	if(paramslist["right"]) // screen objects don't do the normal Click() stuff so we'll cheat
-		G.follow()
+		G.open_orbit_menu()
 	else
 		if(G.client)
-			if(isscryeye(G) || G.trapped)
+			if(isscryeye(G))
 				return
 			if(alert(usr, "Travel with the boatman?", "", "Yes", "No") == "Yes")
 				G.returntolobby(0)
@@ -55,6 +55,22 @@
 /atom/movable/screen/ghost/teleport/Click()
 	var/mob/dead/observer/G = usr
 	G.dead_tele()
+
+/atom/movable/screen/ghost/hermes
+	name = "HERMES"
+	icon_state = "hermes"
+
+/atom/movable/screen/ghost/hermes/Click()
+	var/mob/dead/observer/G = usr
+	GLOB.ghost_hermes.open(G)
+
+/atom/movable/screen/ghost/character
+	name = "Character Creator"
+	icon_state = "character"
+
+/atom/movable/screen/ghost/character/Click()
+	var/mob/dead/observer/G = usr
+	G.client?.prefs?.ShowChoices(G, PREFERENCE_TAB_CHARACTER_CREATOR)
 
 /atom/movable/screen/ghost/moveup
 	name = "Move Up"
@@ -99,6 +115,14 @@
 	using.hud = src
 	static_inventory += using
 
+	using = new /atom/movable/screen/ghost/hermes(null, src)
+	using.screen_loc = ui_ghost_hermes
+	static_inventory += using
+
+	using = new /atom/movable/screen/ghost/character(null, src)
+	using.screen_loc = ui_ghost_character
+	static_inventory += using
+
 	using = new /atom/movable/screen/ghost/moveup(null, src)
 	using.screen_loc = ui_ghost_moveup
 	static_inventory += using
@@ -139,6 +163,14 @@
 	using.screen_loc = ui_ghost_teleport
 	static_inventory += using
 
+	using = new /atom/movable/screen/ghost/hermes(null, src)
+	using.screen_loc = ui_ghost_hermes
+	static_inventory += using
+
+	using = new /atom/movable/screen/ghost/character(null, src)
+	using.screen_loc = ui_ghost_character
+	static_inventory += using
+
 	using = new /atom/movable/screen/ghost/moveup(null, src)
 	using.screen_loc = ui_ghost_moveup
 	static_inventory += using
@@ -161,10 +193,7 @@
 	if(!.)
 		return
 	var/mob/screenmob = viewmob || mymob
-	if(!screenmob.client.prefs.ghost_hud)
-		screenmob.client.screen -= static_inventory
-	else
-		screenmob.client.screen += static_inventory
+	screenmob.client.screen += static_inventory
 
 /datum/hud/eye/New(mob/owner)
 	..()
@@ -197,10 +226,7 @@
 	if(!.)
 		return
 	var/mob/screenmob = viewmob || mymob
-	if(!screenmob.client.prefs.ghost_hud)
-		screenmob.client.screen -= static_inventory
-	else
-		screenmob.client.screen += static_inventory
+	screenmob.client.screen += static_inventory
 
 /datum/hud/obs/New(mob/owner)
 	..()

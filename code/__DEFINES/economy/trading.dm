@@ -65,7 +65,7 @@
 #define TRADE_MERCHANT_MIDDLEMAN_CUT_PERCENT 25
 #define TRADE_MERCHANT_LEVY_DEFAULT_PERCENT 15
 #define TRADE_MERCHANT_LEVY_CAP_PERCENT 50
-#define TRADE_CULTURAL_SHIP_DISCOUNT_PERCENT 50
+#define TRADE_CULTURAL_SHIP_DISCOUNT_PERCENT 70
 
 // For any upgrades you can buy
 #define ADDITIONAL_PIER_FAVOR 1250
@@ -73,6 +73,7 @@
 #define AUTO_HAILER_FAVOR 500
 #define ROSAWOOD_ARSENAL_FAVOR 750
 #define UNDERDARK_CARAVAN_FAVOR 500
+#define SEND_FOR_SHIP_FAVOR 250
 #define CATALOG_KIN_BUY_MULT 0.8
 
 #define AUTO_HAILER_TICK_INTERVAL (5 MINUTES)
@@ -86,6 +87,9 @@
 #define FAVOR_SEND_CLEAN_MULT 1.0
 #define FAVOR_SEND_PARTIAL_MULT 0.5
 #define FAVOR_SEND_FAILURE_PENALTY 250
+#define MERCHANT_FUND_LOG_MAX 12
+#define NAVIGATOR_EXPORT_TIME (1 MINUTES)
+#define NAVIGATOR_EXPORT_TIME_TESTING (5 SECONDS)
 
 #define FAVOR_OUTCOME_HONORED "honored"
 #define FAVOR_OUTCOME_PARTIAL "partial"
@@ -102,6 +106,7 @@
 
 #define TRADE_SHIP_STATE_AVAILABLE "available"
 #define TRADE_SHIP_STATE_DOCKED "docked"
+#define TRADE_SHIP_STATE_DEPARTING "departing"
 
 #define TRADE_VICTUALLING_FRESH_LINES_MIN 2
 #define TRADE_VICTUALLING_FRESH_LINES_MAX 4
@@ -157,3 +162,27 @@
 #define CONDITION_QTY_LIGHT 1.15
 #define CONDITION_QTY_LOW 0.7
 #define CONDITION_QTY_VERY_LOW 0.4
+
+#define NAVIGATOR_SMUGGLER_FEE 0.5
+#define NAVIGATOR_SMUGGLER_FACILITATOR_RANGE 7
+#define GOLDFACE_PUBLIC_FEE 0.5
+#define VHESLIE_CATEGORIES list(\
+	"Apparel (Ascendant Amulets)",\
+	"Illicit Medical Supplies",\
+	"Illicit Utility Supplies",\
+	"Apparel",\
+	"Adventuring Supplies",\
+	"Instruments",\
+	"Wardrobe",\
+	"Alcohols",\
+	"Consumable",\
+	"Armor (Light)",\
+	"Armor (Iron)",\
+	"Weapons (Ranged)",\
+	"Weapons (Iron and Shields)",\
+	"Weapons (Bronze)",\
+)
+#define ESCROW_DEFAULT_PERCENT_MARGIN 70
+#define ESCROW_DEFAULT_FLAT_MARGIN 5
+#define SCRAPPER_SEED_BUDGET 50
+#define MARKET_REFRESH_COOLDOWN (5 SECONDS)

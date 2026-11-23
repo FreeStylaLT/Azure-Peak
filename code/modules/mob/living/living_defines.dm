@@ -46,6 +46,9 @@
 
 	var/last_special = 0 //Used by the resist verb, likely used to prevent players from bypassing next_move by logging in/out.
 	var/timeofdeath = 0
+	var/last_logout_time = 0
+	var/disconnected_admin_alert_timer
+	var/disconnected_admin_alert_sent = FALSE
 
 	var/infected = FALSE //Used to tell if the mob is in progress of turning into deadite
 
@@ -146,6 +149,11 @@
 	var/ambushable = 0
 	var/threat_point = 0 // Threat Point cost for the ambush budget system. Set on NPC subtypes.
 	var/ambush_faction = "" // Faction tag for ambush same/wrong-faction purchasing. Separate from mob faction list.
+	var/boss_class
+	var/gm_name // Display label in the game master panel. Unset derives one from the type path.
+	var/gm_category // Filter category in the game master panel. Unset uses the primary faction.
+	var/gm_hidden = FALSE // Keep this type out of the game master panel entirely.
+	var/datum/npc_archetype/npc_archetype // NPC Archetype that is composed from multiple components to make them more reusable
 
 	var/datum/fellowship/current_fellowship
 	var/list/incoming_fellowship_invites = list() // list of /datum/weakref to /datum/fellowship; kept in sync with fellowship.pending_invites
@@ -157,6 +165,7 @@
 	var/compliance = 0
 
 	var/defprob = 50 //base chance to defend against this mob's attacks, for simple mob combat
+	var/pack_swing_ready_at = 0
 	var/encumbrance = 0
 
 	var/eyesclosed = 0
@@ -165,6 +174,10 @@
 
 	var/bleed_rate = 0 //how much are we bleeding
 	var/bleedsuppress = 0 //for stopping bloodloss, eventually this will be limb-based like bleeding
+	/// Bloody prints a large creature has left to leave after stepping in fresh blood
+	var/bloodsteps = 0
+	/// Colour of the blood those prints are made with
+	var/stepcolour
 
 	var/list/next_attack_msg = list()
 
@@ -180,8 +193,6 @@
 	var/obj/item/grabbing/l_grab = null
 
 	var/datum/sex_controller/sexcon
-
-	var/slowdown
 
 	var/last_integ_sound
 
@@ -250,3 +261,12 @@
 
 	/// "In Combat" timer that is used to prevent stealth and a few other mechanics while active.
 	var/in_combat_until
+
+	/// Bypasses positioning and exposure checks entirely
+	var/freeuse = FALSE
+
+	/// ass list [id] = /datum/status_effect.
+	var/alist/status_effects_by_id // Now hopefully /living will lead to this again.
+
+	/// i hate this, AKA, grace window against wake/sleep spam
+	var/sleep_wake_timer

@@ -7,7 +7,7 @@
 	cant_hold = list(
 		/obj/item/storage,
 		/obj/item/rogueweapon,
-		/obj/item/bomb,
+		/obj/item/explosive/fused/bottle,
 		/obj/item/flashlight,
 		/obj/item/recipe_book,
 	)
@@ -35,8 +35,8 @@
 		parent_mob.update_inv_armor()
 
 /datum/component/storage/concrete/roguetown/armor/can_be_inserted(obj/item/storing, stop_messages, mob/user, worn_check = FALSE, params, storage_click = FALSE)
-	// we only want aesthetically armor/cloak items, like tabards and shirts, to be addable
-	if(!(storing.slot_flags & (ITEM_SLOT_CLOAK|ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT)))
+	// we only want aesthetically armor/cloak items, like tabards and shirts, to be addable - undies count too, worn as a peek-over layer
+	if(!(storing.slot_flags & (ITEM_SLOT_CLOAK|ITEM_SLOT_ARMOR|ITEM_SLOT_SHIRT)) && !istype(storing, /obj/item/undies))
 		return FALSE
 	// any sort of armoured item is forbidden, it's aesthetic only
 	if(storing.armor?.stab > 0 || storing.armor?.blunt > 0)
@@ -133,7 +133,7 @@
 					else
 						C.item_flags |= NOT_SHOW_IN_STORAGE
 					to_chat(user, span_info("[C] will be [(C.item_flags & NOT_SHOW_IN_STORAGE) ? "hidden" : "visible"] \the [src]"))
-				user.update_inv_head()
+				user.update_inv_armor()
 
 
 /obj/item/clothing/suit/roguetown/armor/build_worn_icon(default_layer = 0, default_icon_file = null, isinhands = FALSE, femaleuniform = NO_FEMALE_UNIFORM, override_state = null, female = FALSE, customi = null, sleeveindex, boobed_overlay = FALSE, icon/clip_mask = null)
@@ -145,6 +145,48 @@
 			for(var/obj/item/thing as anything in our_component.item_to_grid_coordinates)
 				if(thing.item_flags & NOT_SHOW_IN_STORAGE)
 					continue
+
+//-------- Undies Code Starts here
+				if(istype(thing, /obj/item/undies))
+					var/mob/living/carbon/human/wearer = loc
+					if(!istype(wearer))
+						continue
+					var/obj/item/undies/undies = thing
+					var/datum/sprite_accessory/underwear/accessory = undies.sprite_acc ? SPRITE_ACCESSORY(undies.sprite_acc) : null
+					var/obj/item/bodypart/chest_bp = wearer.get_bodypart(BODY_ZONE_CHEST)
+					if(!accessory || !chest_bp)
+						continue
+
+					var/icon_state_to_use = accessory.get_icon_state(null, chest_bp, wearer)
+					if(!icon_state_to_use)
+						continue
+					var/list/undies_appearances = accessory.get_overlay(icon_state_to_use, undies.color)
+					accessory.adjust_appearance_list(undies_appearances, null, chest_bp, wearer)
+					if(!undies_appearances)
+						continue
+					for(var/piece in undies_appearances)
+						var/image/undies_piece = piece
+						undies_piece.pixel_x += standing.pixel_x
+						undies_piece.pixel_y += standing.pixel_y
+						standing.add_overlay(undies_piece)
+					continue
+//-------- Undies Code finishes here
+
+//-------- Taur Tabard Code Starts here
+				if(istype(thing, /obj/item/clothing/cloak/tabard))
+					var/mob/living/carbon/human/wearer = loc
+					if(istype(wearer))
+						var/obj/item/bodypart/taur/taur = wearer.get_taur_tail()
+						if(taur?.taur_clothing_category)
+							var/obj/item/clothing/cloak/tabard/stored_tabard = thing
+							var/list/taur_tabard_layers = wearer.build_taur_tabard_overlay(taur, stored_tabard)
+							if(taur_tabard_layers)
+								for(var/mutable_appearance/tabard_piece as anything in taur_tabard_layers)
+									tabard_piece.pixel_x += standing.pixel_x
+									tabard_piece.pixel_y += standing.pixel_y
+									standing.add_overlay(tabard_piece)
+								continue
+//-------- Taur Tabard Code finishes here
 				var/mutable_appearance/thing_appearance = thing.build_worn_icon(default_layer, default_icon_file, isinhands, femaleuniform, override_state, female, customi, sleeveindex, boobed_overlay, clip_mask)
 				thing_appearance.appearance_flags = RESET_COLOR
 				thing_appearance.pixel_x += standing.pixel_x

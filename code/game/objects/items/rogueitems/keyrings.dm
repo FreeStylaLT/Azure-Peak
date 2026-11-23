@@ -23,7 +23,7 @@
 
 /obj/item/storage/keyring/get_mechanics_examine(mob/user)
 	. = ..()
-	. += span_info("Left-click an locked door to unlock it.")
+	. += span_info("Left-click a locked door to unlock it.")
 	. += span_info("Right-click an unlocked door to lock it.")
 	. += span_info("Keyrings can manipulate a wide variety of doors, depending on how many keys - and what kinds of keys - are stowed on its circumference.")
 	. += span_info("Individual keys can be plucked off the keyring by either right-clicking it, or by shift-clicking its inventory open and taking a specific key out of it.")
@@ -262,7 +262,7 @@
 	keys = list(/obj/item/roguekey/manor, /obj/item/roguekey/apothecary, /obj/item/roguekey/mage, /obj/item/roguekey/university, /obj/item/roguekey/university_secure)
 
 /obj/item/storage/keyring/seneschal //Housekeeper, more of a reason to attack them too by antags
-	keys = list(/obj/item/roguekey/manor, /obj/item/roguekey/royal, /obj/item/roguekey/heir, /obj/item/roguekey/garrison)
+	keys = list(/obj/item/roguekey/manor, /obj/item/roguekey/royal, /obj/item/roguekey/heir, /obj/item/roguekey/garrison, /obj/item/roguekey/seneschal)
 
 /obj/item/storage/keyring/jester //Might infact be hilarious, might be horrid, who knows
 	keys = list(/obj/item/roguekey/manor, /obj/item/roguekey/university, /obj/item/roguekey/walls)

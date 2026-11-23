@@ -115,7 +115,7 @@
 	inherent_traits = list(
 		TRAIT_STEELHEARTED,
 		TRAIT_NOFALLDAMAGE1,
-		TRAIT_TINYPAWS,
+		TRAIT_PACIFISM,
 		TRAIT_INFINITE_STAMINA,
 		TRAIT_NOMOOD,
 		TRAIT_NOHUNGER,
@@ -130,6 +130,7 @@
 		TRAIT_UNLYCKERABLE,
 		TRAIT_ZOMBIE_IMMUNE,
 		TRAIT_UNCONVERTIBLE,
+		TRAIT_NONAMESTEAL,
 	)
 	inherent_biotypes = MOB_HUMANOID
 	no_equip = list(SLOT_SHIRT, SLOT_HEAD, SLOT_WEAR_MASK, SLOT_ARMOR, SLOT_GLOVES, SLOT_SHOES, SLOT_PANTS, SLOT_CLOAK, SLOT_BELT, SLOT_BACK_R, SLOT_BACK_L, SLOT_S_STORE, SLOT_BELT_L, SLOT_BELT_R, SLOT_WRISTS, SLOT_RING)
@@ -146,6 +147,7 @@
 		ORGAN_SLOT_LIVER = /obj/item/organ/liver,
 		ORGAN_SLOT_STOMACH = /obj/item/organ/stomach,
 		ORGAN_SLOT_APPENDIX = /obj/item/organ/appendix,
+		ORGAN_SLOT_GUTS = /obj/item/organ/guts,
 		)
 
 	languages = list( // we're pAI equivalent extraplanar beings and this avoids weird edge cases like infernals not speaking infernal
@@ -180,10 +182,6 @@
 	H.base_intents = list(INTENT_HELP, INTENT_DISARM, INTENT_GRAB)
 	H.update_damage_overlays()
 	return TRUE
-
-/datum/species/familiar/on_species_gain(mob/living/carbon/C, datum/species/old_species)
-	. = ..()
-	RegisterSignal(C, COMSIG_MOB_SAY, PROC_REF(handle_speech))
 
 /datum/species/familiar/update_damage_overlays(mob/living/carbon/human/H)
 	H.remove_overlay(DAMAGE_LAYER)

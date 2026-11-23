@@ -32,7 +32,7 @@
 					held_item.melee_attack_chain(user, src, params)
 		return
 	if(user == src)
-		if(get_num_arms(FALSE) < 1)
+		if(get_num_arms(FALSE) < 1 || cmode)
 			return
 		if(user.zone_selected == BODY_ZONE_PRECISE_GROIN)
 			if(get_location_accessible(src, BODY_ZONE_PRECISE_GROIN, skipundies = TRUE))
@@ -59,10 +59,11 @@
 		if(user.zone_selected == BODY_ZONE_CHEST)
 			if(!piercings_item)
 				return
-			var/under_clothes = get_location_accessible(src, BODY_ZONE_CHEST, skipundies = TRUE)
-			src.visible_message(span_notice("[src] begins to take off [piercings_item][under_clothes ? " from under their clothes" : ""]..."))
-			var/delay = under_clothes ? 25 : 40
-			if(do_after(user, delay, target = src))
+			if(!get_location_accessible(src, BODY_ZONE_CHEST))
+				to_chat(src, span_warning("My chest is covered."))
+				return
+			src.visible_message(span_notice("[src] begins to take off [piercings_item]..."))
+			if(do_after(user, 25, target = src))
 				var/obj/item/bodypart/chest = get_bodypart(BODY_ZONE_CHEST)
 				chest.remove_bodypart_feature(piercings_item.piercings_feature)
 				piercings_item.forceMove(get_turf(src))
@@ -93,6 +94,9 @@
 	AddComponent(/datum/component/footstep, footstep_type, 1, 2)
 	GLOB.human_list += src
 	unarmed_special = new /datum/special_intent/upper_cut()
+
+	if(npc_archetype)
+		init_npc_archetype()
 
 /mob/living/carbon/human/Login()
 	. = ..()
@@ -155,6 +159,7 @@
 		SScity_assembly.notify_alderman_lost_ref(departing_name, departing_job, "disconnected")
 	QDEL_NULL(physiology)
 	QDEL_NULL(sunder_light_obj)
+	QDEL_NULL(devotion)
 	GLOB.human_list -= src
 	if(current_fellowship)
 		current_fellowship.remove_member(src, reason = FELLOWSHIP_REASON_DESTROYED)
@@ -727,7 +732,7 @@
 
 /mob/living/carbon/human/vv_get_dropdown()
 	. = ..()
-	VV_DROPDOWN_OPTION("", "---------")
+	VV_DROPDOWN_OPTION("", "--- /human ---")
 	VV_DROPDOWN_OPTION(VV_HK_REAPPLY_PREFS, "Reapply Preferences")
 	VV_DROPDOWN_OPTION(VV_HK_SET_SPECIES, "Set Species")
 	VV_DROPDOWN_OPTION(VV_HK_PURGE_PARTOF_SLOT, "Purge Part of Slot")
@@ -982,13 +987,26 @@
 
 	updateappearance(mutcolor_update = TRUE)
 
-	job = target.job // NOT assigned_role
+	// 9/22 edit : adding "advjob" to whats stolen bc otherwise assassins keep showing up as "poisoner" or whatever on examine.
+	// our examine code doesent allow for fake jobs very well & i cant be bothered to snowflake it so we're gonna do this. this MIGHT
+	// break something..????
+	job = target.job
+	advjob = target.advjob
 	faction = target.faction
 	deathsound = target.deathsound
 	gender = target.gender
+	pronouns = target.pronouns
 	real_name = target.real_name
+	vocal_bark = target.vocal_bark
+	vocal_bark_id = target.vocal_bark_id
+	vocal_current_bark = target.vocal_current_bark
+	vocal_pitch = target.vocal_pitch
+	vocal_pitch_range = target.vocal_pitch_range
+	vocal_speed = target.vocal_speed
+	vocal_volume = target.vocal_volume
 	voice_color = target.voice_color
 	voice_pitch = target.voice_pitch
+	voice_type = target.voice_type
 	detail_color = target.detail_color
 	skin_tone = target.skin_tone
 	lip_style = target.lip_style
@@ -999,14 +1017,36 @@
 	socks = target.socks
 	has_stubble = target.has_stubble
 	headshot_link = target.headshot_link
-	flavortext = target.flavortext
-
+	headshot_artist_credit = target.headshot_artist_credit
+	headshot_artist_link = target.headshot_artist_link
+	// i dont want NPCs to make you a guy w/ no flavortext
+	if(flavortext)
+		flavortext = target.flavortext
+	if(flavortext_cached)
+		// this might be a bad idea. i dont know.
+		flavortext_cached = target.flavortext_cached
+	if(target.rumour)
+		rumour = target.rumour
+	if(target.rumour_cached)
+		rumour_cached = target.rumour_cached
+	if(noble_gossip)
+		noble_gossip = target.noble_gossip
+	if(noble_gossip_cached)
+		noble_gossip_cached = target.noble_gossip_cached
+	copy_descriptors(target)
 	var/obj/item/bodypart/head/target_head = target.get_bodypart(BODY_ZONE_HEAD)
 	if(!isnull(target_head))
 		var/obj/item/bodypart/head/user_head = get_bodypart(BODY_ZONE_HEAD)
 		user_head.bodypart_features = target_head.bodypart_features
 
 	regenerate_icons()
+
+
+/mob/living/carbon/human/proc/copy_descriptors(mob/living/carbon/human/target)
+	if(!ishuman(target))
+		return
+	mob_descriptors = target.mob_descriptors?.Copy()
+	custom_descriptors = target.custom_descriptors.Copy()
 
 
 /mob/living/carbon/human/proc/copy_bodyparts(mob/living/carbon/human/target)
@@ -1090,8 +1130,9 @@
 /mob/living/carbon/human/update_mobility()
 	. = ..()
 	if(!(mobility_flags & MOBILITY_CANSTAND) && mouth?.spitoutmouth)
-		visible_message(span_warning("[src] spits out [mouth]."))
-		dropItemToGround(mouth, silent = FALSE)
+		if(stat != DEAD)
+			visible_message(span_warning("[src] spits out [mouth]."))
+			dropItemToGround(mouth, silent = FALSE)
 
 /mob/living/carbon/human/Topic(href, href_list)
 	..()
@@ -1143,3 +1184,32 @@
 	vocal_pitch_range = client.prefs.bark_variance
 	apply_voicepacks(src, client)
 	return TRUE
+
+///accounts for hag names. in general, use real_name directly when you want to use it INTERNALLY. use get_unmasked_name if you want to display someone's "real name" to players
+/mob/living/carbon/human/get_unmasked_name()
+	var/datum/component/hag_name/ID = GetComponent(/datum/component/hag_name)
+	if(ID)
+		return ID.identity.name
+	return real_name
+
+// mood penalties for poor equipment as a noble: if they're not spawn equipment and are poor quality, mood debuff. if you're covered in blood, mood debuff
+/mob/living/carbon/human/check_equipment_mood_penalty()
+	if(HAS_TRAIT(src, TRAIT_NOBLE_UNLANDED))
+		var/any_bad = FALSE
+		var/any_bloody = FALSE
+		for(var/obj/item/I in get_equipped_items())
+			if((I.item_quality != ITEM_QUALITY_WORN) && (I.item_quality < ITEM_QUALITY_STANDARD))
+				any_bad = TRUE
+			if(!cmode && (HAS_BLOOD_DNA(I) || I.GetComponent(/datum/component/decal/blood)))
+				any_bloody = TRUE
+			if(any_bad && (cmode || any_bloody))
+				break
+		if(any_bad && !has_stress_event(/datum/stressevent/unlanded_noble_shitty_equipment))
+			add_stress(/datum/stressevent/unlanded_noble_shitty_equipment)
+		else if(!any_bad && has_stress_event(/datum/stressevent/unlanded_noble_shitty_equipment))
+			remove_stress(/datum/stressevent/unlanded_noble_shitty_equipment)
+
+		if(any_bloody && !has_stress_event(/datum/stressevent/unlanded_noble_bloody_equipment))
+			add_stress(/datum/stressevent/unlanded_noble_bloody_equipment)
+		else if(!any_bloody && has_stress_event(/datum/stressevent/unlanded_noble_bloody_equipment))
+			remove_stress(/datum/stressevent/unlanded_noble_bloody_equipment)

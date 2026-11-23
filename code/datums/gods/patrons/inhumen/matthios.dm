@@ -13,7 +13,7 @@
 					/datum/action/cooldown/spell/matthios/transact				= CLERIC_T2,
 					/datum/action/cooldown/spell/matthios/barter				= CLERIC_T2,
 					/datum/action/cooldown/spell/matthios/equalize				= CLERIC_T3,
-					/obj/effect/proc_holder/spell/invoked/resurrect/matthios	= CLERIC_T3,
+					/datum/action/cooldown/spell/matthios/anastasis				= CLERIC_T3,
 					/datum/action/cooldown/spell/matthios/churn					= CLERIC_T4
 	)
 	confess_lines = list(
@@ -42,7 +42,7 @@
 	// Allows prayer near EEEVIL psycross
 	for(var/obj/structure/fluff/psycross/cross in view(4, get_turf(follower)))
 		if(cross.divine == TRUE)
-			to_chat(follower, span_danger("That acсursed cross interupts my prayers!"))
+			to_chat(follower, span_danger("That accursed cross interrupts my prayers!"))
 			return FALSE
 		return TRUE
 	// Allows prayer if the user has more than 100 mammon on them.

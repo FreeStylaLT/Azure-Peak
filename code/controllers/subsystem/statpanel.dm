@@ -52,6 +52,8 @@ SUBSYSTEM_DEF(statpanels)
 			var/time_left = SSgamemode.round_ends_at - world.time
 			global_data += "Round End: [DisplayTimeText(time_left, 1)]"
 
+		global_data += "Round Type: [SSgamemode.current_storyteller ? SSgamemode.current_storyteller.name : "Unknown"]"
+
 		if(SSticker.ready_for_reboot)
 			global_data += "Reboot: DELAYED"
 
@@ -84,8 +86,11 @@ SUBSYSTEM_DEF(statpanels)
 			target.update_listed_turf()
 
 		if(!target.holder)
-			target.stat_panel.send_message("remove_admin_tabs")
+			if(target.statbrowser_admin_tabs_shown)
+				target.stat_panel.send_message("remove_admin_tabs")
+				target.statbrowser_admin_tabs_shown = FALSE
 		else
+			target.statbrowser_admin_tabs_shown = TRUE
 			if(!("MC" in target.panel_tabs) || !("Tickets" in target.panel_tabs))
 				target.stat_panel.send_message("add_admin_tabs", target.holder.href_token)
 

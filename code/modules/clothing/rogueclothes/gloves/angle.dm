@@ -38,7 +38,7 @@
 
 /obj/item/clothing/gloves/roguetown/bandages/pontifex
 	name = "rune-scrybed wrappings"
-	desc = "Paper and cloth bandages enscrybed with powerful naledian runes. They do an ample job of protecting their user's hands in combat."
+	desc = "Paper and cloth bandages inscrybed with powerful naledian runes. They do an ample job of protecting their user's hands in combat."
 	color = "#ffffff"
 	unarmed_bonus = 5
 
@@ -62,6 +62,11 @@
 	desc = "And when he woke up, his whole skeleton was missing, and the physicker was never heard of again! </br>Ah, anyways; that's how I lost my writ of practice."
 	icon_state = "feldgloves"
 	item_state = "feldgloves"
+
+/obj/item/clothing/gloves/roguetown/angle/phys/cleric
+	name = "thin physicker's gloves"
+	armor = ARMOR_LEATHER
+	max_integrity = ARMOR_INT_SIDE_LEATHER
 
 /obj/item/clothing/gloves/roguetown/angle/phys
 	name = "physicker's gloves"

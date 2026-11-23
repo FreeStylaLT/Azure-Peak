@@ -21,6 +21,7 @@
 	min_pq = 4 //High potential for abuse, lovepotion/killersice/greater fireball is not for the faint of heart
 	max_pq = null
 	round_contrib_points = 2
+	quest_claim_barred = TRUE
 	cmode_music = 'sound/music/cmode/nobility/combat_courtmage.ogg'
 	advclass_cat_rolls = list(CTAG_COURTMAGE = 2)
 
@@ -42,7 +43,7 @@
 		of the mundane body, whereas you have authority over all things arcane."
 	outfit = /datum/outfit/job/roguetown/magician/basic
 
-	subclass_mage_aspects = list("mastery" = TRUE, "major" = 2, "minor" = 3, "utilities" = 9, "ward" = TRUE)
+	subclass_mage_aspects = list("mastery" = TRUE, "major" = 2, "minor" = 3, "utilities" = 13, "ward" = TRUE)
 	category_tags = list(CTAG_COURTMAGE)
 	traits_applied = list(TRAIT_BADTRAINER)
 	subclass_stats = list(
@@ -67,7 +68,7 @@
 		/datum/skill/craft/crafting = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/medicine = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_LEGENDARY,
-		/datum/skill/craft/alchemy = SKILL_LEVEL_EXPERT,
+		/datum/skill/craft/alchemy = SKILL_LEVEL_MASTER,
 		/datum/skill/magic/arcane = SKILL_LEVEL_MASTER,
 		/datum/skill/craft/cooking = SKILL_LEVEL_NOVICE,
 	)
@@ -120,7 +121,7 @@
 		/obj/item/reagent_containers/glass/bottle/rogue/poison,
 		/obj/item/reagent_containers/glass/bottle/rogue/healthpot,
 		/obj/item/rogueweapon/spellbook/grand,
-		/obj/item/rogueweapon/huntingknife/idagger/silver/arcyne,
+		/obj/item/rogueweapon/huntingknife/idagger/steel/silver/arcyne,
 		/obj/item/chalk
 	)
 	if(H.mind)

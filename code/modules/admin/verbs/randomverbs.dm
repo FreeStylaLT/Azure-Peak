@@ -143,23 +143,24 @@
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Modify Player Quality") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_admin_world_narrate()
-	set category = "Admin.Special"
+	set category = "Game Master.Narration"
 	set name = "Narrate - Global"
 
 	if(!check_rights(R_ADMIN))
 		return
 
-	var/msg = input(usr, "Message:", text("Enter the text you wish to appear to everyone:")) as text|null
+	var/msg = input(usr, "Message:", text("Enter the text you wish to appear to everyone:")) as message|null
 
 	if (!msg)
 		return
-	to_world("[msg]")
+	msg = parse_admin_spans(msg)
+	to_world(msg)
 	log_admin("GlobalNarrate: [key_name(usr)] : [msg]")
 	message_admins(span_adminnotice("[key_name_admin(usr)] Sent a global narrate"))
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Global Narrate") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_admin_direct_narrate(mob/M)
-	set category = "Admin.Special"
+	set category = "Game Master.Narration"
 	set name = "Narrate - Direct"
 
 	if(!check_rights(R_ADMIN))
@@ -171,20 +172,21 @@
 	if(!M)
 		return
 
-	var/msg = input(usr, "Message:", text("Enter the text you wish to appear to your target:")) as text|null
+	var/msg = input(usr, "Message:", text("Enter the text you wish to appear to your target:")) as message|null
 
 	if( !msg )
 		return
 
+	msg = parse_admin_spans(msg)
 	to_chat(M, msg)
-	log_admin("DirectNarrate: [key_name(usr)] to ([M.name]/[M.key]): [msg]")
-	msg = span_adminnotice("<b> DirectNarrate: [key_name(usr)] to ([M.name]/[M.key]):</b> [msg]<BR>")
+	log_admin("DirectNarrate: [key_name(usr)] to ([M.name]/[M.key]) at [AREACOORD(M)]: [msg]")
+	msg = span_adminnotice("<b> DirectNarrate: [key_name(usr)] to ([M.name]/[M.key]) at [ADMIN_VERBOSEJMP(M)]:</b> [msg]<BR>")
 	message_admins(msg)
 	admin_ticket_log(M, msg)
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Direct Narrate") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_admin_local_narrate(atom/A)
-	set category = "Admin.Special"
+	set category = "Game Master.Narration"
 	set name = "Narrate - Local"
 
 	if(!check_rights(R_ADMIN))
@@ -194,15 +196,65 @@
 	var/range = input(usr, "Range:", "Narrate to mobs within how many tiles:", 7) as num|null
 	if(!range)
 		return
-	var/msg = input(usr, "Message:", text("Enter the text you wish to appear to everyone within view:")) as text|null
+	var/msg = input(usr, "Message:", text("Enter the text you wish to appear to everyone within view:")) as message|null
 	if (!msg)
 		return
+	msg = parse_admin_spans(msg)
 	for(var/mob/M in view(range,A))
 		to_chat(M, msg)
 
 	log_admin("LocalNarrate: [key_name(usr)] at [AREACOORD(A)]: [msg]")
 	message_admins(span_adminnotice("<b> LocalNarrate: [key_name_admin(usr)] at [ADMIN_VERBOSEJMP(A)]:</b> [msg]<BR>"))
 	SSblackbox.record_feedback("tally", "admin_verb", 1, "Local Narrate") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+/client/proc/cmd_admin_narrate_inview()
+	set category = "Game Master.Narration"
+	set name = "Narrate - In View"
+
+	if(!check_rights(R_ADMIN))
+		return
+
+	var/msg = input(usr, "Message:", text("Enter the text you wish to appear to everyone in your view:")) as message|null
+	if(!msg)
+		return
+	msg = parse_admin_spans(msg)
+
+	for(var/mob/M in view(usr.client))
+		to_chat(M, msg)
+
+	log_admin("NarrateInView: [key_name(usr)] at [AREACOORD(usr)]: [msg]")
+	message_admins(span_adminnotice("<b> NarrateInView: [key_name_admin(usr)] at [ADMIN_VERBOSEJMP(usr)]:</b> [msg]<BR>"))
+	SSblackbox.record_feedback("tally", "admin_verb", 1, "Narrate In View") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+/client/proc/cmd_admin_narrate_object(obj/selected in world)
+	set category = "Game Master.Narration"
+	set name = "Narrate - Object"
+
+	if(!check_rights(R_ADMIN))
+		return
+	if(!selected)
+		return
+
+	var/type = tgui_input_list(usr, "What type of narration?", "Narration", list("Say", "Me", "Direct"))
+	if(!type)
+		return
+
+	var/msg = input(usr, "What should it say?", "Narrating as [selected.name]") as message|null
+	if(!msg)
+		return
+	msg = parse_admin_spans(msg)
+
+	switch(type)
+		if("Say")
+			selected.say(msg)
+		if("Me")
+			selected.visible_message("<b>[selected]</b> [msg]")
+		if("Direct")
+			selected.visible_message(msg)
+
+	log_admin("ObjectNarrate: [key_name(usr)] as [selected] at [AREACOORD(selected)] ([type]): [msg]")
+	message_admins(span_adminnotice("<b> ObjectNarrate: [key_name_admin(usr)] as [selected] at [ADMIN_VERBOSEJMP(selected)] ([type]):</b> [msg]<BR>"))
+	SSblackbox.record_feedback("tally", "admin_verb", 1, "Object Narrate") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
 /client/proc/cmd_admin_godmode(mob/M in GLOB.mob_list)
 	set category = "Admin.Special"
@@ -218,6 +270,25 @@
 	message_admins(msg)
 	admin_ticket_log(M, msg)
 	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Godmode", "[M.status_flags & GODMODE ? "Enabled" : "Disabled"]")) //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
+
+/client/proc/cmd_admin_godmode_targetable(mob/M in GLOB.mob_list)
+	set category = null
+	set name = "Toggle Godmode"
+	if(!check_rights(R_ADMIN))
+		return
+
+	if(M.status_flags & GODMODE_TARGETABLE)
+		M.status_flags &= ~(GODMODE|GODMODE_TARGETABLE)
+	else
+		M.status_flags |= (GODMODE|GODMODE_TARGETABLE)
+	var/enabled = (M.status_flags & GODMODE_TARGETABLE)
+	to_chat(usr, span_adminnotice("Toggled GODMODE [enabled ? "ON" : "OFF"]"))
+
+	log_admin("[key_name(usr)] has toggled [key_name(M)]'s targetable nodamage to [enabled ? "On" : "Off"]")
+	var/msg = "[key_name_admin(usr)] has toggled [ADMIN_LOOKUPFLW(M)]'s targetable nodamage to [enabled ? "On" : "Off"]"
+	message_admins(msg)
+	admin_ticket_log(M, msg)
+	SSblackbox.record_feedback("nested tally", "admin_toggle", 1, list("Godmode Targetable", "[enabled ? "Enabled" : "Disabled"]"))
 
 
 /proc/cmd_admin_mute(whom, mute_type, automute = 0)
@@ -328,6 +399,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 	//Ok, it's not a xeno or a monkey. So, spawn a human.
 	var/mob/living/carbon/human/new_character = new//The mob being spawned.
+	new_character.flags_1 |= ANTAGOOC_ACCESS_1
 	SSjob.SendToLateJoin(new_character)
 
 	var/datum/data/record/record_found			//Referenced to later to either randomize or not randomize the character.
@@ -445,7 +517,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 	log_admin("[key_name(src)] has changed the Central Command name to: [input]")
 
 /client/proc/cmd_admin_delete(atom/A as obj|mob|turf in world)
-	set category = "Game Master"
+	set category = "Game Master.Misc"
 	set name = "Delete..."
 
 	if(!check_rights(R_SPAWN|R_DEBUG))
@@ -551,7 +623,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 /client/proc/cmd_admin_gib_self()
 	set name = "Gibself"
-	set category = "Game Master"
+	set category = "Game Master.Misc"
 
 	var/confirm = alert(src, "You sure?", "Confirm", "Yes", "No")
 	if(confirm == "Yes")
@@ -693,7 +765,7 @@ Traitors and the like can also be revived with the previous role mostly intact.
 
 /client/proc/smite(mob/living/target as mob)
 	set name = "Smite"
-	set category = "Game Master"
+	set category = "Game Master.Misc"
 	if(!check_rights(R_ADMIN) || !check_rights(R_FUN))
 		return
 	var/static/list/punishment_list = list(
@@ -709,6 +781,9 @@ Traitors and the like can also be revived with the previous role mostly intact.
 		ADMIN_PUNISHMENT_PSYDON,
 		ADMIN_PUNISHMENT_DIVINE_WRATH,
 		ADMIN_PUNISHMENT_CHANDELIER,
+		ADMIN_PUNISHMENT_ANNOYING_VOICE,
+		ADMIN_PUNISHMENT_NECKBOLT,
+		ADMIN_PUNISHMENT_NECKBOLT_LETHAL,
 	)
 
 	var/punishment = input(usr, "Choose a punishment", "DIVINE SMITING") as null|anything in sortList(punishment_list)
@@ -841,7 +916,75 @@ Traitors and the like can also be revived with the previous role mostly intact.
 			playsound(get_turf(humie), 'sound/combat/hits/blunt/frying_pan(4).ogg', 100, FALSE)
 			affecting.add_wound(/datum/wound/fracture/head)
 			humie.visible_message(span_userdanger("There is a sickening CRUNCH as a chandelier crashes down onto [humie]!"))
+		if(ADMIN_PUNISHMENT_ANNOYING_VOICE)
+			if(!ishuman(target))
+				to_chat(usr,span_warning("Target must be human!"))
+				return
+			var/mob/living/carbon/human/humie = target
+			var/datum/component/annoying_voice/prev_voice = humie.GetComponent(/datum/component/annoying_voice)
+			if(prev_voice)
+				qdel(prev_voice)
+				message_admins("[humie] has been freed from their annoying voice!")
+				return
+			humie.AddComponent(/datum/component/annoying_voice)
+			message_admins("[humie] has been given an annoying voice!")
+		if(ADMIN_PUNISHMENT_NECKBOLT, ADMIN_PUNISHMENT_NECKBOLT_LETHAL)
+			var/angle = rand(0, 359)
+			var/dx = sin(angle)
+			var/dy = cos(angle)
+			var/dist = 8 / max(abs(dx), abs(dy)) // one tile past the 15x15 view edge
+			var/turf/start = locate(CLAMP(target.x + round(dx * dist), 1, world.maxx), CLAMP(target.y + round(dy * dist), 1, world.maxy), target.z)
+			var/obj/projectile/bullet/reusable/bolt/smite/bolt = new(start)
+			bolt.lethal = (punishment == ADMIN_PUNISHMENT_NECKBOLT_LETHAL)
+			bolt.def_zone = BODY_ZONE_PRECISE_NECK
+			bolt.preparePixelProjectile(target, start)
+			bolt.fire()
 	punish_log(target, punishment)
+
+/obj/projectile/bullet/reusable/bolt/smite
+	armor_penetration = PEN_BSTEEL
+	pass_flags = PASSTABLE | PASSMOB
+	steady_aim = TRUE
+	aim_peak = 110 // offsets the -10 farsight penalty at 8 tiles
+	var/lethal = FALSE
+
+// Phase through walls, doors and anything else that isn't the target
+/obj/projectile/bullet/reusable/bolt/smite/Bump(atom/A)
+	if(A == original)
+		return ..()
+	trajectory_ignore_forcemove = TRUE
+	forceMove(trajectory.return_turf())
+	trajectory_ignore_forcemove = FALSE
+	if(can_hit_target(original, permutated))
+		return ..(original)
+
+/obj/projectile/bullet/reusable/bolt/smite/on_hit(atom/target, blocked = FALSE)
+	. = ..()
+	if(lethal && target == original && isliving(target))
+		var/mob/living/L = target
+		L.death()
+
+// ANNOYING VOICE DATUM TO HANDLE ANNOYING VOICE.
+/datum/component/annoying_voice
+	var/sans_or_papyrus
+
+/datum/component/annoying_voice/Initialize()
+	sans_or_papyrus = rand(0,1) // 1 = sans 0 = payprus
+	RegisterSignal(parent, COMSIG_MOB_SAY, PROC_REF(handle_speech))
+	ADD_TRAIT(parent, TRAIT_ANNOYINGVOICE, ADMIN_TRAIT)
+
+
+/datum/component/annoying_voice/Destroy()
+	UnregisterSignal(parent, COMSIG_MOB_SAY)
+	if(HAS_TRAIT_FROM(parent, TRAIT_ANNOYINGVOICE, ADMIN_TRAIT))
+		REMOVE_TRAIT(parent, TRAIT_ANNOYINGVOICE, ADMIN_TRAIT)
+	return ..()
+
+/datum/component/annoying_voice/proc/handle_speech(mob/living/speaker, list/speech_args)
+	if(sans_or_papyrus)
+		speech_args[SPEECH_SPANS] |= SPAN_SANS
+	else
+		speech_args[SPEECH_SPANS] |= SPAN_PAPYRUS
 
 /client/proc/punish_log(whom, punishment)
 	var/msg = "[key_name_admin(usr)] punished [key_name_admin(whom)] with [punishment]."

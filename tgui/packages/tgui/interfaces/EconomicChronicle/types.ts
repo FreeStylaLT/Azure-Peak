@@ -8,9 +8,14 @@ export type PollSnapshot = {
   guilds: number;
   merchant: number;
   burgher: number;
+  scholar: number;
   adventurer: number;
   mercenary: number;
   peasant: number;
+  levies: number;
+  arrears: number;
+  forgiven: number;
+  recovered: number;
 };
 
 export type RoyalSnapshot = {
@@ -19,6 +24,7 @@ export type RoyalSnapshot = {
   headeater_levy: number;
   import_tariff: number;
   export_duty: number;
+  recovered_spoils: number;
   other_fees: number;
 };
 
@@ -29,7 +35,7 @@ export type ExemptSnapshot = {
   import: number;
   export: number;
   fines: number;
-  poll_tax: number;
+  poll_levy: number;
 };
 
 export type StandingSnapshot = {
@@ -53,6 +59,7 @@ export type TreasurySnapshot = {
   standing: StandingSnapshot;
   shortages_ended: number;
   banditry_owed: number;
+  banditry_hoard: number;
   treasury_debt_repaid: number;
   treasury_debt_owed: number;
   bankruptcy_count: number;
@@ -142,9 +149,37 @@ export type ContractsSnapshot = {
   completed_defense: number;
   abandoned: number;
   rerolled: number;
+  lapse_refunded: number;
+  withdrawn: number;
   mammons_paid: number;
   mammons_taxed: number;
   mammons_forfeited: number;
+  mammons_refunded: number;
+  guild_cut: number;
+  lapsed_pool: number;
+  lapsed_rumor: number;
+  lapsed_defense: number;
+  players_total: number;
+  types: ContractStatRow[];
+  regions: ContractStatRow[];
+  groups: ContractStatRow[];
+};
+
+export type ContractStatRow = {
+  name: string;
+  posted: number;
+  taken: number;
+  lapsed: number;
+  players: number;
+  completed: number;
+  failed: number;
+  abandoned: number;
+  withdrawn: number;
+  paid: number;
+  wait_ds: number;
+  run_ds: number;
+  party: number;
+  deaths: number;
 };
 
 export type RoyalFavorsSnapshot = {
@@ -206,7 +241,7 @@ export type CrownExpenseSnapshot = {
   total: number;
 };
 
-export type ChronicleTab = 'realm' | 'trade' | 'materials';
+export type ChronicleTab = 'realm' | 'trade' | 'materials' | 'contracts';
 
 export type EconomicChronicleData = {
   treasury_balance: number;

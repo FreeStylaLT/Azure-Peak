@@ -35,7 +35,6 @@
 		/datum/skill/combat/shields = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/reading = SKILL_LEVEL_MASTER,
 		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
-		/datum/skill/misc/stealing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/misc/riding = SKILL_LEVEL_JOURNEYMAN,
 	)
 
@@ -86,7 +85,6 @@
 		STATKEY_PER = 1,
 	)
 	subclass_skills = list(
-		/datum/skill/misc/stealing = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/sneaking = SKILL_LEVEL_NOVICE,
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/swimming = SKILL_LEVEL_APPRENTICE,
@@ -129,7 +127,7 @@
 
 /datum/migrant_role/ranesheni/janissary
 	name = "Janissary"
-	greet_text = "You are a dilligent soldier in employ of the Emir for protection and to assure that their mission goes as planned."
+	greet_text = "You are a diligent soldier in employ of the Emir for protection and to assure that their mission goes as planned."
 	allowed_sexes = list(MALE, FEMALE)
 	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED)
 	advclass_cat_rolls = list(CTAG_RANESHENI_JANISSARY = 20)
@@ -212,12 +210,16 @@
 /datum/advclass/ranesheni_advisor
 	name = "Advisor"
 	outfit = /datum/outfit/job/roguetown/ranesheni/advisor
-	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_DODGEEXPERT, TRAIT_SLEUTH, TRAIT_PERFECT_TRACKER, TRAIT_STEELHEARTED)
+	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_DODGEEXPERT, TRAIT_PERFECT_TRACKER, TRAIT_STEELHEARTED)
 	category_tags = list(CTAG_RANESHENI_ADVISOR)
 	subclass_stats = list(
 		STATKEY_SPD = 2,
 		STATKEY_PER = 2,
 		STATKEY_INT = 2,
+	)
+	subclass_stashed_items = list(
+		"Wax Putty I" = /obj/item/waxputty,
+		"Wax Putty II" = /obj/item/waxputty,
 	)
 	subclass_skills = list(
 		/datum/skill/misc/tracking = SKILL_LEVEL_LEGENDARY,
@@ -231,7 +233,6 @@
 		/datum/skill/misc/climbing = SKILL_LEVEL_LEGENDARY,
 		/datum/skill/misc/reading = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/sneaking = SKILL_LEVEL_EXPERT,
-		/datum/skill/misc/stealing = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_EXPERT,
 		/datum/skill/craft/traps = SKILL_LEVEL_EXPERT,
 	)

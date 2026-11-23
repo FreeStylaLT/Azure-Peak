@@ -33,7 +33,7 @@
 
 /obj/item/carvedwood/cameo
 	name = "wooden cameo"
-	desc = "A cameo carved out of wood depicting depicting someone's grandest features in greater detail; a memoir, perhaps."
+	desc = "A cameo carved out of wood depicting someone's grandest features in greater detail; a memoir, perhaps."
 	icon_state = "cameo_wood"
 
 /obj/item/carvedwood/plinth
@@ -53,7 +53,7 @@
 /obj/item/carvedwood/shrine
 	name = "wooden shrine"
 	desc = "A humble, portable shrine carved out of wood. It is dedicated to no deity in particular. Could also be used to keep one's books upright on a shelf."
-	icon_state = "shrine_wood"
+	icon_state = "wood_shrine"
 	grid_height = 64
 	grid_width = 32
 
@@ -77,7 +77,7 @@
 	desc = "A quaint fish figurine carved out of wood."
 	icon_state = "fish_wood"
 
-/obj/item/carvedwood/figurine
+/obj/item/carvedwood/frog
 	name = "wooden frog figurine"
 	desc = "A humorous frog figurine carved out of wood."
 	icon_state = "frog_wood"
@@ -88,8 +88,8 @@
 	icon_state = "prism_wood"
 
 /obj/item/carvedwood/gameboard
-	name = "wooden game board"
-	desc = "A versatile game board carved out of wood."
+	name = "ornamental game table"
+	desc = "A ornamental game table carved out of wood. It is far too small to play on."
 	icon_state = "board_wood"
 
 /obj/item/carvedwood/box

@@ -15,7 +15,7 @@
 	min_pq = 10
 	max_pq = null
 
-	obsfuscated_job = TRUE
+	obfuscated_job = TRUE
 	class_categories = TRUE
 
 	advclass_cat_rolls = list(CTAG_WRETCH = 20)
@@ -28,12 +28,12 @@
 	always_show_on_latechoices = TRUE
 	job_reopens_slots_on_death = FALSE
 	same_job_respawn_delay = 1 MINUTES
-	virtue_restrictions = list(/datum/virtue/heretic/zchurch_keyholder, /datum/virtue/combat/second_chance) //all wretch classes automatically get this /// oh boi incoming a massive tsunami of hatemails for this
+	virtue_restrictions = list(/datum/virtue/utility/zchurch_keyholder) //all wretch classes automatically get this ///
 	job_traits = list(TRAIT_STEELHEARTED, TRAIT_OUTLAW, TRAIT_HERESIARCH, TRAIT_SELF_SUSTENANCE, TRAIT_ZURCH)
 	job_subclasses = list(
 		/datum/advclass/wretch/licker,
+		/datum/advclass/wretch/deserter_knight,
 		/datum/advclass/wretch/deserter,
-		/datum/advclass/wretch/deserter/generic,
 		/datum/advclass/wretch/berserker,
 		/datum/advclass/wretch/roguemage,
 		/datum/advclass/wretch/necromancer,
@@ -47,11 +47,13 @@
 		/datum/advclass/wretch/vigilante,
 		/datum/advclass/wretch/munitioneer,
 		/datum/advclass/wretch/pariah,
+		/datum/advclass/wretch/profane_champion,
 		/datum/advclass/wretch/heretic_spellblade,
 		/datum/advclass/wretch/ancient_spellblade,
 		/datum/advclass/wretch/ancient_deathknight,
 		/datum/advclass/wretch/slasher,
-		/datum/advclass/wretch/maestro
+		/datum/advclass/wretch/maestro,
+		/datum/advclass/wretch/freeblade
 	)
 	has_subprefs = TRUE
 	default_subprefs = list("bounty_poster_key" = null, "bounty_severity_key" = null, "my_crime" = null, "favorite_advclass" = null)
@@ -170,7 +172,7 @@
 
 	var/list/sev_data = GLOB.wretch_bounty_severities[bounty_severity_key]
 	var/bounty_total = rand(sev_data["min"], sev_data["max"])
-	if(bounty_severity_key == "ATROCITY")
+	if(bounty_severity_key == "ATROCITY" || bounty_severity_key == "UNFORGIVABLE")
 		if(bounty_poster_key == "AZURIA")
 			GLOB.outlawed_players += H.real_name
 		else
@@ -193,7 +195,7 @@
 	var/descriptor_voice = build_coalesce_description_nofluff(
 		d_list, H, list(MOB_DESCRIPTOR_SLOT_VOICE), "%DESC1%"
 	)
-	add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, bounty_total, FALSE, my_crime, bounty_poster)
+	add_bounty(H.real_name, race, gender, descriptor_height, descriptor_body, descriptor_voice, bounty_total, my_crime, bounty_poster, null, TRUE)
 	if(H.has_flaw(/datum/charflaw/wanted))
 		to_chat(H, span_danger("You are wanted; you have a price on your head. Expect conflict to find you whether you seek it or not."))
 	else

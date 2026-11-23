@@ -23,6 +23,7 @@
 	AddComponent(/datum/component/item_equipped_movement_rustle, SFX_CHAIN_STEP, 7)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_HONORBOUND)
+	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FREEBLADEDEXTERITY)
 
 /obj/item/clothing/under/roguetown/brigandinelegs
 	name = "brigandine chausses"
@@ -50,6 +51,7 @@
 	. = ..()
 	AddComponent(/datum/component/item_equipped_movement_rustle, SFX_PLATE_COAT_STEP, 10)
 	AddComponent(/datum/component/armour_filtering/negative, TRAIT_FENCERDEXTERITY)
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FREEBLADEDEXTERITY)
 
 /obj/item/clothing/under/roguetown/splintlegs
 	name = "splinted leggings"
@@ -68,6 +70,9 @@
 	//resistance_flags = FIRE_PROOF // these ones should be burning since is cloth + metal
 	sewrepair = FALSE
 	smeltresult = /obj/item/ingot/iron
+
+/obj/item/clothing/under/roguetown/splintlegs/ComponentInitialize()
+	AddComponent(/datum/component/armour_filtering/positive, TRAIT_FREEBLADEDEXTERITY)
 
 /obj/item/clothing/under/roguetown/brayette
 	name = "brayette"
@@ -221,7 +226,7 @@
 
 /obj/item/clothing/under/roguetown/chainlegs/kilt/aalloy
 	name = "decrepit chain kilt"
-	desc = "Frayed bronze rings, linked together with bindings of rotting leather to form a waist's drape. The maille jingles with every step, singing the hymn to a cadence once savored by marching legionnaires."
+	desc = "Rotted metal rings, linked together with bindings of rotting leather to form a waist's drape. The maille jingles with every step, singing the hymn to a cadence once savored by marching legionnaires."
 	icon_state = "achainkilt"
 	sleevetype = "achainkilt"
 	max_integrity = ARMOR_INT_LEG_DECREPIT_CHAIN

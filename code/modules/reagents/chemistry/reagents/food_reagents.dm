@@ -8,7 +8,7 @@
 
 
 /datum/reagent/consumable
-	name = "Consumable"
+	name = "consumable"
 	taste_description = "generic food"
 	taste_mult = 4
 	metabolization_rate = REAGENTS_METABOLISM
@@ -36,7 +36,7 @@
 	return ..()
 
 /datum/reagent/consumable/nutriment
-	name = "Nutriment"
+	name = "nutriment"
 	description = "All the vitamins, minerals, and carbohydrates the body needs in pure form."
 	reagent_state = SOLID
 	nutriment_factor = BASE_NUTRIMENT_NUTRITION //EVERY 1 NUTRIMENT RESTORES 35 NUTRITION
@@ -86,7 +86,7 @@
 	data = taste_amounts
 
 /datum/reagent/consumable/nutriment/vitamin
-	name = "Vitamin"
+	name = "vitamin"
 	description = "All the best vitamins, minerals, and carbohydrates the body needs in pure form."
 
 	brute_heal = 1
@@ -98,7 +98,7 @@
 	. = ..()
 
 /datum/reagent/consumable/sugar
-	name = "Sugar"
+	name = "sugar"
 	description = "The organic compound commonly known as table sugar and sometimes called saccharose. This white, odorless, crystalline powder has a pleasing, sweet taste."
 	reagent_state = SOLID
 	color = "#FFFFFF" // rgb: 255, 255, 255
@@ -119,11 +119,15 @@
 	. = 1
 
 /datum/reagent/consumable/sugar/molasses
-	name = "Molasses"
+	name = "molasses"
 	color = "#835c5c"
 
+/datum/reagent/consumable/maizewash
+	name = "maize wash"
+	color = "#7e7d70"
+
 /datum/reagent/consumable/sodiumchloride
-	name = "Table Salt"
+	name = "table salt"
 	description = "A salt made of sodium chloride. Commonly used to season food."
 	reagent_state = SOLID
 	color = "#FFFFFF" // rgb: 255,255,255
@@ -137,21 +141,21 @@
 	new/obj/effect/decal/cleanable/food/salt(T)
 
 /datum/reagent/consumable/blackpepper
-	name = "Black Pepper"
+	name = "black pepper"
 	description = "A powder ground from peppercorns. *AAAACHOOO*"
 	reagent_state = SOLID
 	// no color (ie, black)
 	taste_description = "pepper"
 
 /datum/reagent/consumable/allspice
-	name = "Allspice"
+	name = "allspice"
 	description = "A blend of various spices, used to liven food and stew."
 	reagent_state = SOLID
 	color = "#CE8C33"
 	taste_description = "a myriad of fragrant spices"
 
 /datum/reagent/drug/mushroomhallucinogen
-	name = "Mushroom Hallucinogen"
+	name = "mushroom hallucinogen"
 	description = "A strong hallucinogenic drug derived from certain species of mushroom."
 	color = "#E700E7" // rgb: 231, 0, 231
 	metabolization_rate = 0.2 * REAGENTS_METABOLISM
@@ -181,14 +185,14 @@
 	..()
 
 /datum/reagent/consumable/eggyolk
-	name = "Egg Yolk"
+	name = "egg yolk"
 	description = "It's full of protein."
 	nutriment_factor = 3 * REAGENTS_METABOLISM
 	color = "#FFB500"
 	taste_description = "egg"
 
 /datum/reagent/consumable/honey
-	name = "Honey"
+	name = "honey"
 	description = "Sweet sweet honey that decays into sugar. Has antibacterial and natural healing properties."
 	color = "#d3a308"
 	nutriment_factor = 15 * REAGENTS_METABOLISM
@@ -204,9 +208,43 @@
 		M.adjustToxLoss(-1	* REAGENTS_EFFECT_MULTIPLIER, 0)
 	..()
 
-/datum/reagent/consumable/oil/tallow
-	name = "Tallow"
-	description = "Oil made from rendering animal fat. Used for deep frying."
+/datum/reagent/consumable/oil
+	name = "oil"
 	nutriment_factor = 20
-	color = "#A6987B" // rgb: 48, 32, 0
+	overdose_threshold = null
+	reagent_state = LIQUID
+	hydration_factor = 2
+
+/datum/reagent/consumable/oil/seed
+	name = "seed oil"
+	description = "Tasteless, runny seed oil useful in emulsions, thickening, and deep frying."
+	color = "#FFC380"
+
+/datum/reagent/consumable/oil/tallow
+	name = "tallow"
+	description = "Oil made from rendering animal fat. Used for deep frying."
+	color = "#A6987B"
 	taste_description = "rendered fat"
+
+/datum/reagent/consumable/vinaigrette
+	cuisine = CUISINE_ETRUSCAN
+	name = "vinaigrette"
+	description = "A runny salad dressing with a strong vinegary taste."
+	color = "#EBE488"
+	taste_description = "vinegary tang"
+	nutriment_factor = 10
+	hydration_factor = 5
+
+/datum/chemical_reaction/alch/lemon_vinaigrette
+	name = "vinaigrette"
+	mix_sound = 'sound/items/fillbottle.ogg'
+	id = /datum/reagent/consumable/vinaigrette
+	results = list(/datum/reagent/consumable/vinaigrette = 5)
+	required_reagents = list(/datum/reagent/consumable/oil/seed = 3, /datum/reagent/consumable/juice/lemon = 1)
+
+/datum/chemical_reaction/alch/lime_vinaigrette
+	name = "vinaigrette"
+	mix_sound = 'sound/items/fillbottle.ogg'
+	id = /datum/reagent/consumable/vinaigrette
+	results = list(/datum/reagent/consumable/vinaigrette = 5)
+	required_reagents = list(/datum/reagent/consumable/oil/seed = 3, /datum/reagent/consumable/juice/lime = 1)

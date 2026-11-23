@@ -211,6 +211,7 @@
 
 		if(check_shields(P, P.damage, "the [P.name]", PROJECTILE_ATTACK, P.armor_penetration))
 			P.on_hit(src, 100, def_zone)
+			P.handle_drop()
 			return BULLET_ACT_HIT
 
 	return ..(P, def_zone)
@@ -277,7 +278,7 @@
 	var/obj/item/W = get_active_held_item()
 	if(!blocked && I && cmode && mind)
 		if(W && get_dir(src, AM) == turn(get_dir(AM, src), 180))	//We are directly facing the thrown item.
-			var/diceroll = (get_skill_level(W.associated_skill)) * 10
+			var/diceroll = (get_wskill(W)) * 10
 			if(projectile_parry_timer > world.time)
 				diceroll *= 2
 			diceroll = min(diceroll, 90)
@@ -348,12 +349,12 @@
 			return FALSE
 		var/zones = M.zone_selected
 		if(!M.ckey)
-			zones = pick(BODY_ZONE_HEAD, BODY_ZONE_CHEST, BODY_ZONE_PRECISE_NECK, BODY_ZONE_PRECISE_L_HAND, BODY_ZONE_PRECISE_R_HAND, BODY_ZONE_L_LEG, BODY_ZONE_R_LEG)
+			zones = M.get_attack_zone(src)
 		var/dam_zone = dismembering_strike(M, zones)
 		if(!dam_zone) //Dismemberment successful
 			return TRUE
 
-		var/obj/item/bodypart/affecting = get_bodypart(ran_zone(dam_zone))
+		var/obj/item/bodypart/affecting = get_bodypart(M.ckey ? ran_zone(dam_zone) : check_zone(dam_zone))
 		if(!affecting)
 			affecting = get_bodypart(BODY_ZONE_CHEST)
 		var/armor = run_armor_check(affecting, M.d_type, armor_penetration = M.armor_penetration, damage = damage)
@@ -364,19 +365,21 @@
 			nodmg = TRUE
 			next_attack_msg += VISMSG_ARMOR_BLOCKED
 		else
-			SEND_SIGNAL(M, COMSIG_MOB_AFTERATTACK_SUCCESS, src)
+			SEND_SIGNAL(M, COMSIG_MOB_AFTERATTACK_SUCCESS, src, affecting)
 			affecting.bodypart_attacked_by(M.a_intent.blade_class, damage - armor, M, dam_zone, crit_message = TRUE)
-		visible_message(span_danger("\The [M] [pick(M.a_intent.attack_verb)] [src]![next_attack_msg.Join()]"), \
-					span_danger("\The [M] [pick(M.a_intent.attack_verb)] me![next_attack_msg.Join()]"), null, COMBAT_MESSAGE_RANGE)
+		var/attack_verb = pick(M.a_intent.attack_verb)
+		var/hit_area = parse_zone(affecting.body_zone, affecting)
+		visible_message(span_danger("\The [M] [attack_verb] [src] in the [span_combatsecondarybp(hit_area)]![next_attack_msg.Join()]"), \
+					span_danger("\The [M] [attack_verb] me in the [span_userdanger(hit_area)]![next_attack_msg.Join()]"), null, COMBAT_MESSAGE_RANGE)
 		next_attack_msg.Cut()
 		if(nodmg)
 			return FALSE
 
-/mob/living/carbon/human/ex_act(severity, target, epicenter, devastation_range, heavy_impact_range, light_impact_range, flame_range)
+/mob/living/carbon/human/ex_act(severity, target, epicenter, extreme_impact_range, heavy_impact_range, light_impact_range, flame_range)
 	..()
 	if (!severity)
 		return
-	var/ddist = devastation_range
+	var/ddist = extreme_impact_range
 	var/hdist = heavy_impact_range
 	var/ldist = light_impact_range
 	var/fdist = flame_range
@@ -631,12 +634,6 @@
 		return
 
 	if(src == M)
-		if(has_status_effect(STATUS_EFFECT_CHOKINGSTRAND))
-			to_chat(src, span_notice("I attempt to remove the durathread strand from around my neck."))
-			if(do_after(src, 35, null, src))
-				to_chat(src, span_notice("I succesfuly remove the durathread strand."))
-				remove_status_effect(STATUS_EFFECT_CHOKINGSTRAND)
-			return
 		check_for_injuries(M)
 		return
 

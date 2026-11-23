@@ -32,6 +32,18 @@
 	integer = FALSE
 	min_val = 0
 
+/datum/config_entry/flag/autostart	// Skip the lobby countdown and start the round as soon as the server is ready.
+
+/datum/config_entry/number/minimum_flavor_text	// Characters of flavor text a player needs before they can join.
+	config_entry_value = 200
+	integer = TRUE
+	min_val = 0
+
+/datum/config_entry/number/minimum_ooc_notes	// Characters of OOC notes a player needs before they can join.
+	config_entry_value = 5
+	integer = TRUE
+	min_val = 0
+
 /datum/config_entry/number/round_end_countdown	// Post round murder death kill countdown
 	config_entry_value = 25
 	integer = FALSE
@@ -86,8 +98,6 @@
 /datum/config_entry/flag/log_manifest	// log crew manifest to seperate file
 
 /datum/config_entry/flag/log_job_debug	// log roundstart divide occupations debug information to a file
-
-/datum/config_entry/flag/allow_admin_ooccolor	// Allows admins with relevant permissions to have their own ooc colour
 
 /datum/config_entry/flag/allow_admin_asaycolor //Allows admins with relevant permissions to have a personalized asay color
 
@@ -286,14 +296,6 @@
 	min_val = 0
 	integer = FALSE
 
-/datum/config_entry/flag/maprotation
-
-/datum/config_entry/number/maprotatechancedelta
-	config_entry_value = 0.75
-	min_val = 0
-	max_val = 1
-	integer = FALSE
-
 /datum/config_entry/number/soft_popcap
 	config_entry_value = null
 	min_val = 0
@@ -372,14 +374,6 @@
 
 /datum/config_entry/flag/announce_admin_login
 
-/datum/config_entry/flag/allow_map_voting
-	deprecated_by = /datum/config_entry/flag/preference_map_voting
-
-/datum/config_entry/flag/allow_map_voting/DeprecationUpdate(value)
-	return value
-
-/datum/config_entry/flag/preference_map_voting
-
 /datum/config_entry/number/client_warn_version
 	config_entry_value = null
 	min_val = 500
@@ -455,6 +449,15 @@
 	config_entry_value = null
 
 /datum/config_entry/string/chat_command_whitelist
+	config_entry_value = null
+
+/datum/config_entry/string/chat_asay
+	config_entry_value = null
+
+/datum/config_entry/string/chat_announce_notes
+	config_entry_value = null
+
+/datum/config_entry/string/chat_command_notes
 	config_entry_value = null
 
 /datum/config_entry/flag/debug_admin_hrefs

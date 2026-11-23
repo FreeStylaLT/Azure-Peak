@@ -94,7 +94,7 @@
 	if(user.has_status_effect(/datum/status_effect/debuff/ritesexpended))
 		to_chat(user,span_warning("I have performed enough rituals for the day... I must rest before communing more.")) // If you have already done a ritual in the last 30 minutes, you cannot do another.
 		return
-	var/riteselection = input(user, "Rituals of the Sun", src) as null|anything in solarrites // When you use a open hand on a rune, It'll give you a selection of all the rites available from that rune
+	var/riteselection = input(user, "Rituals of the Sun", src) as null|anything in solarrites // When you use an open hand on a rune, It'll give you a selection of all the rites available from that rune
 	switch(riteselection) // rite selection goes in this section, try to do something fluffy. Presentation is most important here, truthfully.
 		if("Guiding Light") // User selects Guiding Light, begins the stuff for it
 			if(!do_after(user, 5 SECONDS)) // just flavor stuff before activation
@@ -439,13 +439,16 @@
 		if("Bestow Blessing")
 			if(!do_after(user, 5 SECONDS))
 				return
-			user.say("Aid my craft, oh Forgefather!!")
+			user.say("I am a Wallbuilder. Let my walls endure, from season to season, year to year, and age to age.")
 			if(!do_after(user, 5 SECONDS))
 				return
-			user.say("Guide my hand unto creation!!")
+			user.say("Let my walls stand, while families toil, armies march, and empires fall.")
 			if(!do_after(user, 5 SECONDS))
 				return
-			user.say("Let it be molded within your name!!")
+			user.say("I am a Wallbuilder, and my walls will stand always as a shield against evil.")
+			if(!do_after(user, 5 SECONDS))
+				return
+			user.say("This I pray, that will the Forgefather grant.")
 			icon_state = "malum_active"
 			malumblessing(src)
 			playsound(user, 'sound/magic/magearmorup.ogg', 60, FALSE, -1)
@@ -457,13 +460,13 @@
 	var/ritualtargets = view(4, loc)
 	for(var/mob/living/carbon/human/target in ritualtargets)
 		target.apply_status_effect(/datum/status_effect/buff/malumritual)
-		to_chat(target,span_cultsmall("Malum's persistance guides me forward!"))
+		to_chat(target,span_cultsmall("Malum's persistence guides me forward!"))
 
 /obj/structure/ritualcircle/abyssor
 	name = "Rune of Storms"
 	desc = "A holy rune of <font color='3769b8'>Abyssor.</font> </br> <i>You sense your mind getting pulled into the drawn spiral.</i>"
 	icon_state = "abyssor_chalky"
-	var/stormrites = list("Rite of the Tides")
+	var/stormrites = list("Rite of the Tides", "Rite of Sea-grounds Aplenty")
 
 /obj/structure/ritualcircle/abyssor_alt
 	name = "Rune of Stirring"
@@ -518,7 +521,7 @@
 	switch(riteselection)
 		if("Rite of the Crystal Spire")
 			if(do_after(user, 50))
-				user.say("Deep Father, hear my call!")
+				user.say("Deepfather, hear my call!")
 				if(do_after(user, 50))
 					user.say("From the Abyss, split the earth!")
 					if(do_after(user, 50))
@@ -627,11 +630,11 @@
 	if(user.has_status_effect(/datum/status_effect/debuff/ritesexpended))
 		to_chat(user,span_warning("I have performed enough rituals for the day... I must rest before communing more."))
 		return
-	var/riteselection = input(user, "Rite of the Tides", src) as null|anything in stormrites
+	var/riteselection = input(user, "Which rite will you perform?", "Rune of Storms") as null|anything in stormrites
 	switch(riteselection)
 		if("Rite of the Tides")
 			if(do_after(user, 50))
-				user.say("Deep Father, hear my call!")
+				user.say("Deepfather, hear my call!")
 				if(do_after(user, 50))
 					user.say("I beg thee! A deluge upon your anointed!")
 					if(do_after(user, 50))
@@ -639,6 +642,57 @@
 						user.say("Let your waters swallow the land!")
 						to_chat(user, span_cultsmall("A crystalline shard forms at the center of the rune, humming with Abyssor's power."))
 						new /obj/item/abyssal_marker/tidal(loc)
+						user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
+						spawn(240)
+							icon_state = "abyssor_chalky"
+		if("Rite of Sea-grounds Aplenty")
+			var/list/offered = list()
+			for(var/obj/item/fishing/bait/bait in get_turf(src))
+				if(istype(bait, /obj/item/fishing/bait/deluxe))
+					continue
+				offered += bait
+				if(length(offered) >= FISHING_ENCHANT_RITE_BAITS)
+					break
+			if(!length(offered))
+				to_chat(user, span_warning("The rune needs rolled bait laid upon it before the Deepfather will bless it. It takes from one to [FISHING_ENCHANT_RITE_BAITS] at a time."))
+				return
+			to_chat(user, span_notice("The rune will bless up to [FISHING_ENCHANT_RITE_BAITS] rolled baits at once. [length(offered)] [length(offered) == 1 ? "lies" : "lie"] upon it[length(offered) >= FISHING_ENCHANT_RITE_BAITS ? ", any beyond that will be left as they are" : ""]."))
+			var/list/ale_types = get_reagent_types_by_drink_type(DRINKTYPE_ALE)
+			var/list/containers = list()
+			for(var/obj/item/reagent_containers/container in get_turf(src))
+				containers += container
+			var/list/offering = list()
+			if(!find_reagent_containers(containers, ale_types, FISHING_ENCHANT_RITE_ALE, offering))
+				var/ale_found = reagent_volume_in_containers(containers, ale_types)
+				if(!ale_found)
+					to_chat(user, span_warning("There is no ale upon the rune to offer. A full and open cup is needed for the Deepfather to answer."))
+				else
+					to_chat(user, span_warning("There is ale upon the rune, but not a full cup of it. The Deepfather asks [FISHING_ENCHANT_RITE_ALE] measures and I count [ale_found]."))
+				return
+			if(do_after(user, 50))
+				user.say("Hear! Great Deepfather! God of the depths, mover of the seas and lord of the dreams.")
+				if(do_after(user, 50))
+					user.say("Take this offering of ale! And bless us with sea-grounds aplenty, let these morsels carry your blessing!")
+					if(do_after(user, 50))
+						containers = list()
+						for(var/obj/item/reagent_containers/container in get_turf(src))
+							containers += container
+						offering = list()
+						if(!find_reagent_containers(containers, ale_types, FISHING_ENCHANT_RITE_ALE, offering))
+							to_chat(user, span_warning("The ale is no longer upon the rune. He does not answer."))
+							return
+						icon_state = "abyssor_active"
+						user.say("Pour abundance upon your anointed!")
+						playsound(loc, 'sound/foley/footsteps/FTWAT_1.ogg', 100)
+						drain_reagent_from_containers(offering, ale_types, FISHING_ENCHANT_RITE_ALE)
+						var/blessed = 0
+						for(var/obj/item/fishing/bait/bait as anything in offered)
+							if(QDELETED(bait) || get_turf(bait) != get_turf(src))
+								continue
+							qdel(bait)
+							new /obj/item/fishing/bait/deluxe(loc)
+							blessed++
+						to_chat(user, span_cultsmall("A salty fog rolls over the rune. When it clears, the ale has disappeared, and [blessed] [blessed == 1 ? "bait lies" : "baits lie"] glistening with Abyssor's blessing."))
 						user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
 						spawn(240)
 							icon_state = "abyssor_chalky"
@@ -673,6 +727,9 @@
 	effect_desc = " Use in-hand to mark a location, then activate it to break the barrier between the dream and this realm where you put a mark down earlier. This one calls forth the tidal waters of the abyss."
 	rune_type = /obj/structure/active_abyssor_rune/tidal
 	upgraded_rune_type = null
+
+/obj/item/abyssal_marker/tidal/get_examine_highlight_status()
+	return list(EXAMINEHIGHLIGHT_HERESYSEVERITY_SUSPICIOUS, "It shatters the barrier between reality and NIGHTMARE")
 
 /obj/item/abyssal_marker/volatile/Initialize(mapload)
 	. = ..()
@@ -1029,7 +1086,7 @@
 	name = "Rune of Death"
 	desc = "A holy rune of <font color='425363'>Necra.</font> Quiet acceptance stirs within you."
 	icon_state = "necra_chalky"
-	var/deathrites = list("Undermaiden's Bargain", "The Toll")
+	var/list/deathrites = list("Undermaiden's Bargain", "The Toll", "Shatter the Binds")
 	var/coinslot = 0
 
 
@@ -1053,16 +1110,20 @@
 	if((user.patron?.type) != /datum/patron/divine/necra)
 		to_chat(user,span_warning("I hear angered whispering...I probably shouldn't touch this."))
 		return
-	if(!HAS_TRAIT(user, TRAIT_RITUALIST))
+	if(!(HAS_TRAIT(user, TRAIT_RITUALIST) || HAS_TRAIT(user, TRAIT_LESSER_RITUALIST)))
 		to_chat(user,span_warning("I don't know the proper rites for this..."))
 		return
 	if(user.has_status_effect(/datum/status_effect/debuff/ritesexpended))
 		to_chat(user,span_warning("I have performed enough rituals for the day... I must rest before communing more."))
 		return
-	var/list/current_rites = deathrites
+	var/list/current_rites = deathrites.Copy()
 	if(SSevent_scheduler.fog_scheduled)
 		current_rites += "Hollow the Mist"
+	if(HAS_TRAIT(user, TRAIT_LESSER_RITUALIST)) // only The Toll for you, ser.
+		current_rites = list("The Toll")
 	var/riteselection = input(user, "Rituals of Death", src) as null|anything in current_rites
+	if(!riteselection)
+		return
 	switch(riteselection) // put ur rite selection here
 		if("Hollow the Mist")
 			loc.visible_message(span_warning("[user] begins to chant in a low, vibrating hum, their voice sounding like grinding bone..."))
@@ -1099,7 +1160,7 @@
 				icon_state = "necra_chalky"
 		if("The Toll")
 			if(!coinslot)
-				to_chat(user, "This rite requires the toll to be prepared...")
+				to_chat(user, span_warning("This rite requires the toll to be prepared..."))
 				return
 			var/onrune = view(1, loc)
 			var/list/folksonrune = list()
@@ -1122,6 +1183,43 @@
 							thetoll(target, user)
 							spawn(120)
 								icon_state = "necra_chalky"
+		if("Shatter the Binds") // hehe do you get t. Do You Get Im So Fucking FUnny
+			to_chat(user, span_info("This rite allows for the breaking of a soul-trapping assassin's dagger. Doing so will allow the spirits \
+			to return to Necra or their corpses, potentially allowing for revival. Place the dagger upon the \
+			rune and chant the verse.\nBe patient, as this will take time. The assassin must be dead for this rite."))
+			var/turf/runeturf = get_turf(src)
+			var/obj/item/rogueweapon/huntingknife/idagger/steel/profane/pissdagger
+
+			for(var/obj/item/rogueweapon/huntingknife/idagger/steel/profane/P in runeturf.contents)
+				pissdagger = P
+				break // ladies. ladies. one at a time...
+
+			if(!pissdagger)
+				to_chat(user, span_warning("This ritual requires an assassin's profane dagger to be placed upon the rune."))
+				return
+
+			if(!pissdagger.is_my_owner_dead())
+				to_chat(user, span_warning("I hear a laughing surrounding me. The assassin is not yet dead... their foul magicks still protect this dagger!"))
+				return
+
+			user.visible_message(span_warning("[user] places the dagger in the center of the rune, drawing spectral strands of Lux up through the air!"))
+			playsound(user, 'sound/vo/mobs/ghost/whisper (3).ogg', 100, FALSE, -1)
+			if(do_after(user, 10 SECONDS))
+				playsound(user, 'sound/vo/mobs/ghost/whisper (1).ogg', 100, FALSE, -1)
+				pissdagger.visible_message(span_warning("[pissdagger] is suddenly thrust up into the air! Nigh-invisible threads tear at it, beginning to bend the metal!"))
+				if(do_after(user, 10 SECONDS))
+					playsound(user, 'sound/magic/soulsteal_2.ogg', 80, TRUE)
+					pissdagger.say(span_cult("NECRA DELIVER US!!"))
+					if(do_after(user, 5 SECONDS))
+						pissdagger.visible_message(span_warning("[pissdagger] is CRUSHED and TWISTED! TERRIBLE SCREAMS sounds from within!"))
+						playsound(user, 'sound/vo/mobs/ghost/death.ogg', 100, FALSE, -1)
+						pissdagger.say(span_cult("MASTER, I DON'T WANT TO GO!!"))
+						if(do_after(user, 5 SECONDS))
+							user.say("UNDERMAIDEN, SHAKE FREE THE SOULS OF THE DAMNED!") // change this to something better thanks
+							playsound(user, 'sound/misc/carriage2.ogg', 80, TRUE)
+							pissdagger.release_profane_souls(user)
+							pissdagger.shatter_dagger()
+
 
 
 
@@ -1148,18 +1246,14 @@
 		target.dust()
 		return TRUE
 
-	if(alert(target, "A Toll is being offered for your soul, BREAK FREE?", "Revival", "I need to wake up", "Don't let me go") != "I need to wake up")
+	var/mob/dead/observer/underworld_spirit = target.get_spirit()
+	if(alert(underworld_spirit || target, "A Toll is being offered for your soul, BREAK FREE?", "Revival", "I need to wake up", "Don't let me go") != "I need to wake up")
 		target.visible_message(span_notice("Nothing happens. They are not being let go."))
 		return
 	target.adjustOxyLoss(-target.getOxyLoss()) //Ye Olde CPR
 	if(!target.revive(full_heal = FALSE))
 		to_chat(user, span_warning("Nothing happens."))
 		return
-	var/mob/living/carbon/spirit/underworld_spirit = target.get_spirit()
-	if(underworld_spirit)
-		var/mob/dead/observer/ghost = underworld_spirit.ghostize()
-		qdel(underworld_spirit)
-		ghost.mind.transfer_to(target, TRUE)
 	target.grab_ghost(force = TRUE)
 	target.emote("breathgasp")
 	target.Jitter(100)
@@ -1177,7 +1271,7 @@
 		target.visible_message(span_danger("[target] is looking on the verge of exploding again! Their core may need an extra whack from a hammer."))
 	target.add_stress(/datum/stressevent/necrarevive)
 	src.coinslot -= 1 // -1 coin, please insert more coins.
-	user.apply_status_effect(/datum/status_effect/debuff/ritesexpended) // only after a succesful revive
+	user.apply_status_effect(/datum/status_effect/debuff/ritesexpended) // only after a successful revive
 
 /obj/structure/ritualcircle/necra/proc/undermaidenbargain(src)
 	var/ritualtargets = view(7, loc)
@@ -1418,7 +1512,10 @@ More uniquely, her rites always cut out the light in the room, then proc. 10 sec
 				return
 			var/onrune = view(1, loc)
 			var/list/folksonrune = list()
+			var/is_spy = istype(user.mind?.picked_advclass, /datum/advclass/wretch/heretic/spy)
 			for(var/mob/living/carbon/human/persononrune in onrune)
+				if(is_spy && persononrune == user)
+					continue
 				if(HAS_TRAIT(persononrune, TRAIT_CABAL))
 					folksonrune += persononrune
 			var/mob/living/carbon/human/target = input(user, "Choose a host") as null|anything in folksonrune
@@ -1483,7 +1580,7 @@ More uniquely, her rites always cut out the light in the room, then proc. 10 sec
 				return
 			user.say("ZIZO! ZIZO! TRUTH TO A WORLD OF IGNORAANCE!!")
 			icon_state = "zizo_active"
-			to_chat(user,span_cultsmall("Her Inzanity although incomprehendable to the ignorant, is invaluable to the enlightened. Her darkness now guides you, for the light now spurns you."))
+			to_chat(user,span_cultsmall("Her Inzanity, although incomprehensible to the ignorant, is invaluable to the enlightened. Her darkness now guides you, for the light now spurns you."))
 			user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
 			zizolightsnuff(src)
 			spawn(10)
@@ -1505,7 +1602,7 @@ More uniquely, her rites always cut out the light in the room, then proc. 10 sec
 				return
 			user.say("ZIZO! ZIZO! PROGRESS AT AAANY COST!!")
 			icon_state = "zizo_active"
-			to_chat(user,span_cultsmall("Her Inzanity although incomprehendable to the ignorant, is invaluable to the enlightened. Her hands guide your mynd and dreamed talent to rapidly Progress."))
+			to_chat(user,span_cultsmall("Her Inzanity, although incomprehensible to the ignorant, is invaluable to the enlightened. Her hands guide your mynd and dreamed talent to rapidly Progress."))
 			user.apply_status_effect(/datum/status_effect/debuff/ritesexpended)
 			zizolightsnuff(src)
 			spawn(10)
@@ -1663,7 +1760,10 @@ More uniquely, her rites always cut out the light in the room, then proc. 10 sec
 				return
 			var/onrune = view(1, loc)
 			var/list/folksonrune = list()
+			var/is_spy = istype(user.mind?.picked_advclass, /datum/advclass/wretch/heretic/spy)
 			for(var/mob/living/carbon/human/persononrune in onrune)
+				if(is_spy && persononrune == user)
+					continue
 				if(HAS_TRAIT(persononrune, TRAIT_FREEMAN))
 					folksonrune += persononrune
 			var/mob/living/carbon/human/target = input(user, "Choose a host") as null|anything in folksonrune
@@ -1842,7 +1942,10 @@ More uniquely, her rites always cut out the light in the room, then proc. 10 sec
 				return
 			var/onrune = view(1, loc)
 			var/list/folksonrune = list()
+			var/is_spy = istype(user.mind?.picked_advclass, /datum/advclass/wretch/heretic/spy)
 			for(var/mob/living/carbon/human/persononrune in onrune)
+				if(is_spy && persononrune == user)
+					continue
 				if(HAS_TRAIT(persononrune, TRAIT_HORDE))
 					folksonrune += persononrune
 			var/mob/living/carbon/human/target = input(user, "Choose a host") as null|anything in folksonrune

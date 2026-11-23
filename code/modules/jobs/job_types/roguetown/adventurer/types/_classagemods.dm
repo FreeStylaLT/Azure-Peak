@@ -10,7 +10,7 @@
 	if(H.age == target_age)
 		if(length(stat_mods))
 			for(var/stat in stat_mods)
-				H.change_stat(stat_mods[stat])
+				H.change_stat(stat, stat_mods[stat])
 		if(length(skill_mods))
 			for(var/S in skill_mods)
 				var/datum/skill/skill = S
@@ -141,7 +141,6 @@
 		/datum/skill/combat/knives = SKILL_LEVEL_MASTER,
 		/datum/skill/combat/bows = SKILL_LEVEL_MASTER,
 		/datum/skill/misc/climbing = SKILL_LEVEL_MASTER,
-		/datum/skill/misc/stealing = SKILL_LEVEL_MASTER,
 		/datum/skill/combat/swords = SKILL_LEVEL_EXPERT
 	)
 	stat_mods = list(
@@ -178,7 +177,6 @@
 	target_age = AGE_OLD
 	skill_mods = list(
 		/datum/skill/misc/sneaking = SKILL_LEVEL_LEGENDARY,
-		/datum/skill/misc/stealing = SKILL_LEVEL_LEGENDARY,
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_LEGENDARY
 	)
 

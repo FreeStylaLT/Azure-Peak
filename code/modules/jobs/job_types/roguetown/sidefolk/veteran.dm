@@ -8,7 +8,7 @@
 
 	allowed_sexes = list(MALE, FEMALE) //same as town guard
 	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE) //Constructs are too new to even exist long enough to be veterans, plus noble title.
-	tutorial = "You've known combat your entire life. There isn't a way to kill a man you havent practiced in the tapestries of war itself. You wouldn't call yourself a hero--those belong to the men left rotting in the fields where you honed your ancient trade. You don't sleep well at night anymore, you don't like remembering what you've had to do to survive. Trading adventure for stable pay was the only logical solution, and maybe someday you'll get to lay down the blade and rest your weary body..."
+	tutorial = "You've known combat your entire life. There isn't a way to kill a man you haven't practiced in the tapestries of war itself. You wouldn't call yourself a hero--those belong to the men left rotting in the fields where you honed your ancient trade. You don't sleep well at night anymore, you don't like remembering what you've had to do to survive. Trading adventure for stable pay was the only logical solution, and maybe someday you'll get to lay down the blade and rest your weary body..."
 	allowed_ages = list(AGE_OLD) //VETERANS!! ARE!!! OLD!!!
 	advclass_cat_rolls = list(CTAG_VETERAN = 20)
 	display_order = JDO_VETERAN
@@ -43,6 +43,7 @@
 			if(!index)
 				index = H.real_name
 			S.name = "veteran cloak ([index])"
+		H.mind?.AddSpell(new /datum/action/cooldown/spell/vetprotege)
 
 
 /datum/advclass/veteran/battlemaster
@@ -52,7 +53,7 @@
 	cmode_music = 'sound/music/cmode/towner/combat_retired.ogg'
 
 	category_tags = list(CTAG_VETERAN)
-	traits_applied = list(TRAIT_BREADY, TRAIT_MEDIUMARMOR, TRAIT_STEELHEARTED)
+	traits_applied = list(TRAIT_BREADY, TRAIT_MEDIUMARMOR, TRAIT_STEELHEARTED, TRAIT_BADTRAINER)
 	subclass_stats = list(
 		STATKEY_INT = 2,
 		STATKEY_STR = 1,
@@ -103,7 +104,7 @@
 		)
 	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
+		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.", mint_new = TRUE, mint_label = "Retirement savings", income_acct = LEDGER_CITIZEN_ESTATE)
 
 /datum/outfit/job/roguetown/vet/battlemaster/choose_loadout(mob/living/carbon/human/H)
 	. = ..()
@@ -168,7 +169,7 @@
 	outfit = /datum/outfit/job/roguetown/vet/footman
 
 	category_tags = list(CTAG_VETERAN)
-	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_STEELHEARTED)
+	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_STEELHEARTED, TRAIT_BADTRAINER)
 	subclass_stats = list(
 		STATKEY_CON = 2,
 		STATKEY_INT = 2,
@@ -223,7 +224,7 @@
 		)
 	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
+		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.", mint_new = TRUE, mint_label = "Retirement savings", income_acct = LEDGER_CITIZEN_ESTATE)
 	H.adjust_blindness(-3)
 	if(H.mind)
 		var/retirement = list("Pursue Homesteading", "Dabble in Artisan Smithing", "Write an autobiography", "Keep up with your old regimen")
@@ -268,7 +269,7 @@
 
 /datum/advclass/veteran/calvaryman
 	name = "Tarnished Knight"
-	tutorial = "You were once a member of a knightly calvary regiment, a prestigious title. You were ontop of the world, the townspeople rejoiced when you rode through their streets. Now, all you can hear is the screams of your brothers-in-arms as they fell. You specialize in mounted warfare."
+	tutorial = "You were once a member of a knightly calvary regiment, a prestigious title. You were on top of the world, the townspeople rejoiced when you rode through their streets. Now, all you can hear is the screams of your brothers-in-arms as they fell. You specialize in mounted warfare."
 	outfit = /datum/outfit/job/roguetown/vet/calvaryman
 
 	category_tags = list(CTAG_VETERAN)
@@ -328,19 +329,19 @@
 		)
 	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
+		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.", mint_new = TRUE, mint_label = "Retirement savings", income_acct = LEDGER_CITIZEN_ESTATE)
 
 	H.adjust_blindness(-3)
 	if(H.mind)
-		var/weapons = list("Sword + Recurve Bow","Axe + Crossbow","Spear + Shield")
+		var/weapons = list("Sword + Bow","Axe + Crossbow","Spear + Shield")
 		var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 		H.set_blindness(0)
 		switch(weapon_choice)
-			if("Sword + Recurve Bow")
+			if("Sword + Bow")
 				r_hand = /obj/item/rogueweapon/sword/long
 				beltl = /obj/item/quiver/arrows
 				beltr = /obj/item/rogueweapon/scabbard/sword
-				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow
 
 			if("Axe + Crossbow")
 				r_hand = /obj/item/rogueweapon/stoneaxe/woodcut/steel
@@ -398,7 +399,7 @@
 	subclass_languages = list(/datum/language/grenzelhoftian)
 	cmode_music = 'sound/music/combat_grenzelhoft.ogg'
 	category_tags = list(CTAG_VETERAN)
-	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_STEELHEARTED) //I am sick of fullplate grenzelvets
+	traits_applied = list(TRAIT_MEDIUMARMOR, TRAIT_STEELHEARTED, TRAIT_BADTRAINER) //I am sick of fullplate grenzelvets
 	subclass_stats = list(
 		STATKEY_WIL = 3,// two handed weapons require a LOT of stamina.
 		STATKEY_STR = 2,
@@ -451,7 +452,7 @@
 		)
 	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
+		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.", mint_new = TRUE, mint_label = "Retirement savings", income_acct = LEDGER_CITIZEN_ESTATE)
 
 /datum/outfit/job/roguetown/vet/merc/choose_loadout(mob/living/carbon/human/H)
 	. = ..()
@@ -514,7 +515,7 @@
 	outfit = /datum/outfit/job/roguetown/vet/scout
 
 	category_tags = list(CTAG_VETERAN)
-	traits_applied = list(TRAIT_LONGSTRIDER, TRAIT_OUTDOORSMAN, TRAIT_STEELHEARTED) //No more dexpert. Fuck you.
+	traits_applied = list(TRAIT_LONGSTRIDER, TRAIT_OUTDOORSMAN, TRAIT_STEELHEARTED, TRAIT_BADTRAINER) //No more dexpert. Fuck you.
 	subclass_stats = list(
 		STATKEY_PER = 3,// you are OLD you have OLD EYES. this is to counter that debuff so you can be OBSERVANT. You sacrifice your strength and armor, so.
 		STATKEY_INT = 2,
@@ -522,6 +523,9 @@
 		STATKEY_CON = 1,
 		STATKEY_SPD = 1,// You get -2 speed from being old.
 		STATKEY_STR = -1
+	)
+	subclass_stashed_items = list(
+		"Wax Putty" = /obj/item/waxputty,
 	)
 	age_mod = /datum/class_age_mod/veteran/scout
 	subclass_skills = list(
@@ -541,7 +545,6 @@
 		/datum/skill/misc/reading = SKILL_LEVEL_NOVICE,
 		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/tracking = SKILL_LEVEL_EXPERT,
-		/datum/skill/misc/stealing = SKILL_LEVEL_APPRENTICE,
 	)
 
 // Originally was meant to be a horse archer. I decided that was a bad idea.
@@ -556,13 +559,13 @@
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
 	shoes = /obj/item/clothing/shoes/roguetown/boots/leather
 	saiga_shoes = /obj/item/clothing/shoes/roguetown/horseshoes
-	var/weapons = list("Recurve Bow", "Slurbow", "Crossbow")
+	var/weapons = list("Long Bow", "Slurbow", "Crossbow")
 	var/weapon_choice = input(H, "Choose your weapon.", "TAKE UP ARMS") as anything in weapons
 	H.set_blindness(0)
 	switch(weapon_choice)
-		if("Recurve Bow")
+		if("Long Bow")
 			beltl = /obj/item/quiver/arrows
-			beltr = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+			beltr = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/longbow
 		if("Slurbow")
 			beltr = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow/slurbow
 			beltl = /obj/item/quiver/bolt/light
@@ -581,7 +584,7 @@
 	add_verb(H, /mob/proc/haltyell)
 	H.cmode_music = 'sound/music/cmode/antag/combat_deadlyshadows.ogg' // so apparently this works for veteran, but not for advents. i dont know why.
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
+		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.", mint_new = TRUE, mint_label = "Retirement savings", income_acct = LEDGER_CITIZEN_ESTATE)
 	H.adjust_blindness(-3)
 	if(H.mind)
 		var/retirement = list("Pursue Homesteading", "Dabble in Artisan Smithing", "Write an autobiography", "Keep up with your old regimen")
@@ -626,19 +629,22 @@
 
 /datum/advclass/veteran/spy
 	name = "Ex-Spy"
-	tutorial = "You didn't serve on the frontlines, you were an informant, a spy, an assassin. You wove your way through enemy courts, finding information, neutralizing loose ends. You lived old in a career that many die young. It's a miracle you stand here today. You specialize in knives, whips, and stealth."
+	tutorial = "You didn't serve on the front lines, you were an informant, a spy, an assassin. You wove your way through enemy courts, finding information, neutralizing loose ends. You lived old in a career that many die young. It's a miracle you stand here today. You specialize in knives, whips, and stealth."
 	outfit = /datum/outfit/job/roguetown/vet/spy
 	subclass_languages = list(/datum/language/thievescant)
 	cmode_music = 'sound/music/cmode/nobility/combat_spymaster.ogg'
 	category_tags = list(CTAG_VETERAN)
 	vice_limits = list(/datum/charflaw/silverweakness)
-	traits_applied = list(TRAIT_DODGEEXPERT, TRAIT_CICERONE, TRAIT_STEELHEARTED)
+	traits_applied = list(TRAIT_DODGEEXPERT, TRAIT_CICERONE, TRAIT_STEELHEARTED, TRAIT_BADTRAINER)
 	subclass_stats = list(
 		STATKEY_INT = 3,// you are int-maxxing, especially if you go old.
 		STATKEY_PER = 1,
 		STATKEY_CON = 1,
 		STATKEY_SPD = 1,
 		STATKEY_STR = -2
+	)
+	subclass_stashed_items = list(
+		"Wax Putty" = /obj/item/waxputty,
 	)
 	age_mod = /datum/class_age_mod/veteran/spy
 	subclass_skills = list(
@@ -661,7 +667,6 @@
 		/datum/skill/misc/medicine = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/misc/lockpicking = SKILL_LEVEL_EXPERT,
 		/datum/skill/misc/tracking = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/misc/stealing = SKILL_LEVEL_EXPERT,
 	)
 
 // The sneaker. Not really typical, but hey, wildcard. Wanna-be Spymaster. I guess that just makes them a normal spy, or, once one.
@@ -678,10 +683,10 @@
 	beltl = /obj/item/rogueweapon/whip
 	beltr = /obj/item/flashlight/flare/torch/lantern
 	backr = /obj/item/storage/backpack/rogue/satchel/black
-	belt = /obj/item/storage/belt/rogue/leather/knifebelt/iron
+	belt = /obj/item/storage/belt/rogue/leather/tossbelt/blade/iron
 	cloak = /obj/item/clothing/cloak/raincloak/mortus
 	backpack_contents = list(
-		/obj/item/rogueweapon/huntingknife/idagger/silver/elvish = 1,
+		/obj/item/rogueweapon/huntingknife/idagger/steel/silver/elvish = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/roguekey/veteran = 1,
 		/obj/item/reagent_containers/glass/bottle/rogue/poison = 1,
@@ -689,7 +694,7 @@
 		)
 	add_verb(H, /mob/proc/haltyell)
 	if(H.mind)
-		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.")
+		SStreasury.give_money_account(ECONOMIC_RICH, H, "Retirement.", mint_new = TRUE, mint_label = "Retirement savings", income_acct = LEDGER_CITIZEN_ESTATE)
 	H.adjust_blindness(-3)
 	if(H.mind)
 		var/retirement = list("Pursue Homesteading", "Dabble in Artisan Smithing", "Write an autobiography", "Keep up with your old regimen")

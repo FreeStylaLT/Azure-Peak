@@ -1,6 +1,6 @@
-/datum/vision_quest/siren_calling
-	name = "The Siren's Lament"
-	description = "A melody from the deep calls to the faithful."
+/datum/vision_quest/tier_2
+	name = "Walking The Dream"
+	description = "Am I dreaming too deep?"
 	required_tier = 2
 	possible_rewards = list(
 		/obj/item/dream_material/dream_effigy = "glittering effigies",
@@ -12,6 +12,41 @@
 		/obj/item/dream_material/dream_fishes = "spiraling eels",
 		/obj/item/dream_material/dream_blade = "shattered blades"
 	)
+	target_description = "unknown"
+	summary = "I am dreaming too deep."
+	vision_text = "I stand upon the precipice of the church. \
+	It's a dae like any other. The rays of Astrata bathe the steps. \
+	Merely another humble servant of the Deepfather, that's who you are, ready to feed the congegation with his bounty yet again. \
+	But it's not just a regular day. Something feels... Off. \
+	Like the hues of gold in Astrata's banners are more vibrant, singing your eyes. \
+	The murmurs within the crowd grow loud and obnoxious, echoing in your skull. \
+	Yet, you persist. One of the faithful isn't so easily swayed by a little bit of nausea. \
+	Perhaps it was that morning's porridge. It wouldn't be the first time the rot of the land afflicted the golden grains. \
+	The sermon proceeds. You diligently sing your portion of her holy hymns. \
+	It just.. Drags on. The words stuck to your tongue like sludge. \
+	Musing such thoughts left you ill-prepared for the sudden drop of moisture hitting your forehead. \
+	You rub out the drop, not even singing anymore. The roof? But- it isn't even raining. \
+	Sensing the disturbance, you are excused. Acolytes file to fill the gap you've left. \
+	Stumbling over to the staircase. But you do not reach it, your legs do not follow commands any longer. \
+	Gazing up the walls start to lengthen, and where the roof should be, there lies the eye of the storm instead. \
+	The congregation doesn't seem to notice, only your form is getting soaked in the ever swelling deluge. \
+	The lock in your knees lifts, but the realm buckles under each step. \
+	I am awake, yet I dream. My eyes weep with otherworldly tears. \
+	But it all pales in comparison to the hatred. \
+	Anger, levied at the way the realm is shaped. \
+	Pillars should wave, they shouldn't rise up as straight monuments. \
+	They shouldn't be singing of Her, they should be telling His great deeds. \
+	The realms shift, the imagery swirls... As your hands form before your eyes clearly once more. \
+	It-.. It was just a vision."
+	possible_phrases = list(
+		"do not dream too deep",
+		"seek not forbidden knowledge",
+		"do not wander the mind"
+	)
+
+/datum/vision_quest/tier_2/siren_calling
+	name = "The Siren's Lament"
+	description = "A melody from the deep calls to the faithful."
 	target_description = "a troubled abyssorite"
 	summary = "The siren's call is not always truthful."
 	vision_text = "I stand upon a cliff of crumbling dolomite, the sea below a churning maw. \
@@ -36,27 +71,16 @@
 		"A fiend wears His voice"
 	)
 
-/datum/vision_quest/siren_calling/is_valid_target(mob/living/carbon/human/target, mob/living/carbon/human/seeker)
+/datum/vision_quest/tier_2/siren_calling/is_valid_target(mob/living/carbon/human/target, mob/living/carbon/human/seeker)
 	if(!..())
 		return FALSE
 	if(!target.patron || !istype(target.patron, /datum/patron/divine/abyssor))
 		return FALSE
 	return TRUE
 
-/datum/vision_quest/orthodoxist_salvation
+/datum/vision_quest/tier_2/orthodoxist_salvation
 	name = "Psydonic Vision"
 	description = "A psydonite stands in Abyssor's gaze. You are the prophet, you will deliver his missive."
-	required_tier = 2
-	possible_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
-	possible_bonus_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
 	target_description = "an Orthodoxist"
 	summary = "A psydonite's faith in the light of a true vision."
 	vision_text = "The mists part to reveal someone clad in tattered, heretical rags, their broken icons cast aside. \
@@ -80,20 +104,9 @@
 	)
 	valid_roles = list("Orthodoxist","Inquisitor","Absolver")
 
-/datum/vision_quest/the_lost_city
+/datum/vision_quest/tier_2/the_lost_city
 	name = "Shal'Ghur"
 	description = "Chittering and crawling creatures dwell in the city of shades."
-	required_tier = 2
-	possible_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
-	possible_bonus_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
 	target_description = "unknown"
 	summary = "Shal'ghur's streets are paved with forgotten souls, the market awaits"
 	vision_text = "Long bending streets that turn in spirals. Buildings that rise up, seemingly convening into a singular point. \
@@ -122,20 +135,9 @@
 		"we abandoned them"
 	)
 
-/datum/vision_quest/beggar_court
+/datum/vision_quest/tier_2/beggar_court
 	name = "The Ragged Court"
 	description = "A group of depraved & deprived gather."
-	required_tier = 2
-	possible_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
-	possible_bonus_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
 	target_description = "an affluent one"
 	summary = "It's not all gold that glitters."
 	vision_text = "The clink of chains. \
@@ -147,7 +149,7 @@
 	Your presence is noticed, horrid eyes that look like they're clawing to stay above the wrinkles. \
 	'A guest. Are they reaching for their pouch?' \
 	'Do not feed us, you will end up just the same.' \
-	'Cut off that hand, clearly you musn't just perish the thought, you must prevent it altogether.' \
+	'Cut off that hand, clearly you mustn't just perish the thought, you must prevent it altogether.' \
 	Each vie for your attention. To look as pathetic as possible, but abandoning reason to such a degree that even pity is wasted upon them. \
 	Are you any better? \
 	Hands grip your limbs, dragging you into the mud. So bereft of splendour it has cracked and hardened. \
@@ -163,7 +165,7 @@
 		"fool's gold"
 	)
 
-/datum/vision_quest/beggar_court/is_valid_target(mob/living/carbon/human/target, mob/living/carbon/human/seeker)
+/datum/vision_quest/tier_2/beggar_court/is_valid_target(mob/living/carbon/human/target, mob/living/carbon/human/seeker)
 	if(!..())
 		return FALSE
 
@@ -174,20 +176,9 @@
 		return FALSE
 	return TRUE
 
-/datum/vision_quest/thick_waters
+/datum/vision_quest/tier_2/thick_waters
 	name = "The Great Dark"
 	description = "Endless waters as far as the eye can see."
-	required_tier = 2
-	possible_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
-	possible_bonus_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
 	target_description = "unknown"
 	summary = "Do not dive too deep."
 	vision_text = "Murky, darkened waters stretches out around my form. \
@@ -217,20 +208,9 @@
 		"perfection is a devil"
 	)
 
-/datum/vision_quest/great_spire
+/datum/vision_quest/tier_2/great_spire
 	name = "The Great Spire"
 	description = "It reaches for the skies."
-	required_tier = 2
-	possible_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
-	possible_bonus_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
 	target_description = "unknown"
 	summary = "We would all benefit from a slice of His realm."
 	vision_text = "A tiny seed, Dendorites wish their were as magnificent. \
@@ -261,48 +241,61 @@
 		"the time is not yet right"
 	)
 
-/datum/vision_quest/dreamwalker
-	name = "Walking The Dream"
-	description = "Am I dreaming too deep?"
-	required_tier = 2
-	possible_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
-	possible_bonus_rewards = list(
-		/obj/item/dream_material/dream_effigy = "glittering effigies",
-		/obj/item/dream_material/dream_fishes = "spiraling eels",
-		/obj/item/dream_material/dream_blade = "shattered blades"
-	)
+/datum/vision_quest/tier_2/day_four_thunder
+	name = "The Deafening Void"
+	description = "Lightning strikes without a sound, but the damage is reality."
 	target_description = "unknown"
-	summary = "I am dreaming too deep."
-	vision_text = "I stand upon the precipice of the church. \
-	It's a dae like any other. The rays of Astrata bathe the steps. \
-	Merely another humble servant of the Deepfather, that's who you are, ready to feed the congegation with his bounty yet again. \
-	But it's not just a regular day. Something feels... Off. \
-	Like the hues of gold in Astrata's banners are more vibrant, singing your eyes. \
-	The murmurs within the crowd grow loud and obnoxious, echoing in your skull. \
-	Yet, you persist. One of the faithful isn't so easily swayed by a little bit of nausea. \
-	Perhaps it was that morning's porridge. It wouldn't be the first time the rot of the land afflicted the golden grains. \
-	The sermon proceeds. You dilligently sing your portion of her holy hymns. \
-	It just.. Drags on. The words stuck to your tongue like sludge. \
-	Musing such thoughts left you ill-prepared for the sudden drop of moisture hitting your forehead. \
-	You rub out the drop, not even singing anymore. The roof? But- it isn't even raining. \
-	Sensing the disturbance, you are excused. Acolytes file to fill the gap you've left. \
-	Stumbling over to the staircase. But you do not reach it, your legs do not follow commands any longer. \
-	Gazing up the walls start to lengthen, and where the roof should be, there lies the eye of the storm instead. \
-	The congregation doesn't seem to notice, only your form is getting soaked in the ever swelling deluge. \
-	The lock in your knees lifts, but the realm buckles under each step. \
-	I am awake, yet I dream. My eyes weep with otherworldly tears. \
-	But it all pales in comparison to the hatred. \
-	Anger, levied at the way the realm is shaped. \
-	Pillars should wave, they shouldn't rise up as straight monuments. \
-	They shouldn't be singing of Her, they should be telling His great deeds. \
-	The realms shift, the imagery swirls... As your hands form before your eyes clearly once more. \
-	It-.. It was just a vision."
+	summary = "Absolute silence turns deadly under the sky of Thunder's Dae."
+	vision_text = "The storm clouds roll over Astrata in silence. She is blind to tragedy. \
+	You open your mouth to scream, but no sound escapes an aching throat. \
+	A lightning bolt strikes the great watchtower, there is no crack of thunder, only the silent disintegration of stone. \
+	Men fall to their knees, clutching bleeding ears in a world stripped of voice. \
+	Others rush to the aid of the fallen, whilst a woman pounds upon the rubble from below. No one hears her plea. \
+	A man solely bound by his own heroics, that he forgets the need of his own wife. \
+	Amidst the calamit, a monk meditates unperturbed. \
+	Thunder's Dae chastices the proud who will speak unduly."
 	possible_phrases = list(
-		"do not dream too deep",
-		"seek not forbidden knowledge",
-		"do not wander the mind"
+		"Thunder's Dae strikes without a sound",
+		"On Thunder's Dae the mouth remains silent",
+		"Thunder's Dae vows to silence",
+		"Thunder's Dae punishes pride"
 	)
+
+/datum/vision_quest/tier_2/day_four_thunder/is_valid_target(mob/living/carbon/human/target, mob/living/carbon/human/seeker)
+	var/current_day = get_current_day_of_week()
+	if(current_day > 3)
+		return FALSE
+	if(!..())
+		return FALSE
+	return TRUE
+
+/datum/vision_quest/tier_2/day_five_feast
+	name = "The Golden Famine"
+	description = "The banquet tables overflow, but every morsel turns rotten."
+	target_description = "unknown"
+	summary = "Plenty turns to pestilence on Feast's Dae."
+	vision_text = "The roasted boar gleams under torchlight, skin crisp and fragrant. \
+	The lord carves into the flank, but the hog shrieks against the cold metal. \
+	Goblets poured with vintage wine spill forth a heavy stream of vile vomit. \
+	The hungry gather at the doors, smelling roast meats that cannot be eaten, whilst the fortunate perish surrounded by culinary riches. \
+	Emptied as they are, each stomach shines with an auric hue, eyes stand witness, knuckles whiten around sharp implements. \
+	If it isn't food they'll have, it shall be gold instead. \
+	Feast's Dae starves the gluttonous."
+	possible_phrases = list(
+		"Feast's Dae denounces the greedy",
+		"On Feast's Dae the rich shall starve",
+		"Touch no grain on Feast's Dae"
+	)
+
+/datum/vision_quest/tier_2/day_five_feast/is_valid_target(mob/living/carbon/human/target, mob/living/carbon/human/seeker)
+	var/current_day = get_current_day_of_week()
+	if(current_day > 4)
+		return FALSE
+	if(!..())
+		return FALSE
+	var/mammonsonperson = get_mammons_in_atom(target)
+	var/mammonsinbank = SStreasury.get_balance(target)
+	var/totalvalue = mammonsonperson + mammonsinbank
+	if(totalvalue <= 150)
+		return FALSE
+	return TRUE

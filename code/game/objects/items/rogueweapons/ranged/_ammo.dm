@@ -3,12 +3,17 @@
 	firing_effect_type = null
 	icon = 'icons/roguetown/weapons/ammo.dmi'
 	var/ammo_weight = 1 // Weight cost in a quiver. Default 1, heavy ammo costs more.
+	materia = list(/datum/materia_aspect/air, /datum/materia_aspect/weapon)
 
 /obj/item/ammo_casing/caseless/rogue/get_mechanics_examine(mob/user)
 	. = ..()
 	. += span_info("Projectiles have maximum and minimum falloff ranges, with particular falloff factors for damage.")
 	. += span_info("If the target is hit between the maximum and minimum tile range, then the full force is delivered.")
 	. += get_sweetspot_examine()
+	var/obj/projectile/proj = projectile_type
+	var/aimmod = BB ? BB.aim_mod : (proj ? initial(proj.aim_mod) : 0)
+	if(aimmod)
+		. += span_info("Its heft throws off my aim by <b>[-aimmod]</b>.")
 
 /// Returns examine lines describing the sweetspot (full-force range) of this casing's projectile, or an empty list if it has none.
 /obj/item/ammo_casing/proc/get_sweetspot_examine(subject = "This projectile")
@@ -58,6 +63,6 @@
 
 	if(is_silver_proj && HAS_TRAIT(victim, TRAIT_SILVER_WEAK))
 		SEND_SIGNAL(victim, COMSIG_FORCE_UNDISGUISE)
-		to_chat(victim, span_danger("Silver rebukes my presence! My vitae smolders, and my powers wane!"))
+		to_chat(victim, span_silver("Silver rebukes my presence! My vitae smolders, and my powers wane!"))
 		victim.adjust_fire_stacks(1, /datum/status_effect/fire_handler/fire_stacks/sunder) // Ammunition can't be blessed.
 		victim.ignite_mob()

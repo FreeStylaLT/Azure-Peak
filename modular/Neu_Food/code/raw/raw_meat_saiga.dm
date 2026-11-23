@@ -6,50 +6,57 @@
 	icon_state = "steak"
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga/cooked
 	fried_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga/cooked
+	smoked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/steak/smoked
 	ingredient_size = 4
 	rotprocess = SHELFLIFE_LONG
 
 /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_ribs
 	cuisine = CUISINE_SOUTH_IMPERIAL
 	name = "venison ribs"
-	desc = "The ribs of some cervine. It is a meaty, filling cut often cherised by commonfolk as a true feast, albeit the vert of the woods isn't meant to be touched by peasants."
+	desc = "The ribs of some cervine. It is a meaty, filling cut often cherished by commonfolk as a true feast, albeit the vert of the woods isn't meant to be touched by peasants."
 	icon = 'modular/Neu_Food/icons/raw/raw_meat_saiga.dmi'
 	icon_state = "ribs"
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_ribs/cooked
 	fried_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_ribs/cooked
+	smoked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/steak/smoked
 	ingredient_size = 4
 	rotprocess = SHELFLIFE_LONG
 
+// Author note - Please do not add loins & prime cut to the stockpile as these are meant to be noble foods, and therefore difficult to come across / illegal trade.
 /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_loins
 	cuisine = CUISINE_SOUTH_IMPERIAL
 	name = "venison loins"
-	desc = "The loin cut of a cervine, the most tender cut of venison, often desired by the upper class. Only skilled butchers have a chance at cutting this free without ruining the meat."
+	desc = "The loin cut of a cervine, the most tender cut of venison, desired by the upper echelons of society. It is considered improper in the hands of commoners, therefore it tends to only find trade on the black market. Only skilled butchers have a chance at cutting this free without ruining the meat."
 	icon = 'modular/Neu_Food/icons/raw/raw_meat_saiga.dmi'
 	icon_state = "loin"
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_loins/cooked
 	fried_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_loins/cooked
+	smoked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/steak/smoked
 	ingredient_size = 4
 	rotprocess = SHELFLIFE_LONG
 
+// Author note - Please do not add loins & prime cut to the stockpile as these are meant to be noble foods, and therefore difficult to come across / illegal trade.
 /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_prime
 	cuisine = CUISINE_SOUTH_IMPERIAL
 	name = "venison prime cut"
-	desc = "A prime cut of venison prepared by a skilled butcher. Not only tender, but incredibly filling too. A meal fit for a duke, often regarded by others with jealousy."
+	desc = "A prime cut of venison prepared by a skilled butcher. Not only tender, but incredibly filling too. A meal fit for a duke, often regarded by others with jealousy. It is considered sacrilegious in the hands of commoners, therefore it tends to only find trade on the black market"
 	icon = 'modular/Neu_Food/icons/raw/raw_meat_saiga.dmi'
 	icon_state = "ossobuco"
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_prime/cooked
 	fried_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_prime/cooked
+	smoked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/steak/smoked
 	ingredient_size = 4
 	rotprocess = SHELFLIFE_LONG
 
 /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_z
 	cuisine = CUISINE_SOUTH_IMPERIAL
 	name = "deadite venison"
-	desc = "The undead still carry flesh, tough, chewy. It is an aquired taste."
+	desc = "The undead still carry flesh, though tough and chewy. It is an acquired taste."
 	icon = 'modular/Neu_Food/icons/raw/raw_meat_saiga.dmi'
 	icon_state = "steak_z"
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_z/cooked
 	fried_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_z/cooked
+	smoked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/steak/smoked_z
 	ingredient_size = 4
 	// Already rotten.
 	rotprocess = null
@@ -63,6 +70,7 @@
 	icon_state = "ribs_z"
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_ribs_z/cooked
 	fried_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_ribs_z/cooked
+	smoked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/steak/smoked_z
 	ingredient_size = 4
 	rotprocess = null
 	eat_effect = /datum/status_effect/debuff/rotfood
@@ -75,6 +83,7 @@
 	icon_state = "loin_z"
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_loins_z/cooked
 	fried_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_loins_z/cooked
+	smoked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/steak/smoked_z
 	ingredient_size = 4
 	rotprocess = null
 	eat_effect = /datum/status_effect/debuff/rotfood
@@ -87,6 +96,7 @@
 	icon_state = "ossobuco_z"
 	cooked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_prime_z/cooked
 	fried_type = /obj/item/reagent_containers/food/snacks/rogue/meat/saiga_prime_z/cooked
+	smoked_type = /obj/item/reagent_containers/food/snacks/rogue/meat/steak/smoked_z
 	ingredient_size = 4
 	rotprocess = null
 	eat_effect = /datum/status_effect/debuff/rotfood

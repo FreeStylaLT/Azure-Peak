@@ -112,13 +112,6 @@
 	if(replaced_by == /datum/surgery_step)
 		return FALSE
 
-	// True surgeons (like abductor scientists) need no instructions
-	if(HAS_TRAIT(user, TRAIT_SURGEON) || (user.mind && HAS_TRAIT(user.mind, TRAIT_SURGEON)))
-		// only show top-level surgeries
-		if(replaced_by)
-			return FALSE
-		return TRUE
-
 	if(!requires_tech && !replaced_by)
 		return TRUE
 
@@ -423,7 +416,7 @@
 		return 0.6
 	if(locate(/obj/structure/bed) in patient_turf)
 		return 1
-	else if(locate(/obj/structure/table) in patient_turf)
+	else if (has_table_surface(patient_turf))
 		return 0.8
 	return 0.7
 
@@ -434,17 +427,6 @@
 		return 1.4
 	if(locate(/obj/structure/bed) in patient_turf)
 		return 0.9
-	else if(locate(/obj/structure/table) in patient_turf)
+	else if (has_table_surface(patient_turf))
 		return 0.8
 	return 1.1
-	/*
-	if(locate(/obj/structure/table/optable) in patient_turf)
-		return 1
-	else if(locate(/obj/machinery/stasis) in patient_turf)
-		return 0.9
-	else if(locate(/obj/structure/table) in patient_turf)
-		return 0.8
-	else if(locate(/obj/structure/bed) in patient_turf)
-		return 0.7
-	return 0.5
-	*/

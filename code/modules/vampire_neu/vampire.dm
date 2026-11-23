@@ -7,6 +7,7 @@ GLOBAL_LIST_EMPTY(vampire_objects)
 //	Masquerade		|	2	|	80	|	2	| always 2 (the coven)
 //	Vamp+Werewolf	|	2	|	80	|	4	| 1-79 pop -> 2, 80-159 -> 3, 160+ -> 4
 /datum/antagonist/vampire
+	overrides_forlorne_vice = TRUE
 	name = "Vampire"
 	roundend_category = "Vampires"
 	antagpanel_category = "Vampire"
@@ -17,7 +18,7 @@ GLOBAL_LIST_EMPTY(vampire_objects)
 	antag_hud_name = "vamp_spawn_hud"
 	confess_lines = list(
 		"I WANT YOUR BLOOD!",
-		"DRINK THE BLOOD!",
+		"THE CRIMSON CALLS!",
 		"DEATH DID LITTLE THE FIRST TIME!",
 	)
 	rogue_enabled = TRUE
@@ -64,15 +65,15 @@ GLOBAL_LIST_EMPTY(vampire_objects)
 /datum/antagonist/vampire/get_antag_cap_weight()
 	switch(generation)
 		if(GENERATION_METHUSELAH)
-			return 3
+			return 3 //The lorde, the walking calamity.
 		if(GENERATION_ANCILLAE)
-			return 2
+			return 2 //Masquerade vampires/Vlord elites/Vlord sires.
 		if(GENERATION_NEONATE)
-			return 0.75 // Licker Wretch
+			return 0.75 // Licker Wretch/Vlord minions.
 		if(GENERATION_THINBLOOD)
-			return 0.25 // You are not even an antagonist
+			return 0.25 // You are barely even an antagonist.
 		if(GENERATION_THINNERBLOOD)
-			return 0 //Vagabond class
+			return 0 //Vagabond class.
 		else
 			return 1 // Default weight if generation not set
 
@@ -105,6 +106,8 @@ GLOBAL_LIST_EMPTY(vampire_objects)
 			if(GENERATION_METHUSELAH)
 				vampdude?.cmode_music = 'sound/music/cmode/combat_ready_to_die.ogg' //LISTEN TO ME WHETHER YOU WANT TO HEAR IT OR NOT, YOU WEREN'T EVEN BORN WHEN THIS HAPPENED
 				vampdude?.adjust_skillrank_up_to(/datum/skill/magic/blood, 6, TRUE)
+				vampdude?.devotion = null //no cleric VL, please.
+				vampdude.mind?.RemoveAllSpells() //no spellblade VL, please.
 				max_thralls = 69
 			if(GENERATION_ANCILLAE)
 				vampdude?.cmode_music = 'sound/music/cmode/antag/combat_thrall.ogg'
@@ -117,15 +120,18 @@ GLOBAL_LIST_EMPTY(vampire_objects)
 				max_thralls = 1
 			if(GENERATION_THINBLOOD)
 				vampdude?.cmode_music = 'sound/music/cmode/antag/combat_thrall.ogg'
-				vampdude?.adjust_skillrank_up_to(/datum/skill/magic/blood, 3, TRUE) // You are not even an antagonist
+				vampdude?.adjust_skillrank_up_to(/datum/skill/magic/blood, 3, TRUE) // You are barely even an antagonist
 				max_thralls = 0
+				ADD_TRAIT(vampdude, TRAIT_NOVAMPMITOSIS, TRAIT_GENERIC) //no bloodpool vamps
 			if(GENERATION_THINNERBLOOD)
 				vampdude?.cmode_music = 'sound/music/cmode/antag/combat_thrall.ogg'
-				vampdude?.adjust_skillrank_up_to(/datum/skill/magic/blood, 1, TRUE)
+				vampdude?.adjust_skillrank_up_to(/datum/skill/magic/blood, 1, TRUE) // You are not even an antagonist
 				max_thralls = 0
+				ADD_TRAIT(vampdude, TRAIT_NOVAMPMITOSIS, TRAIT_GENERIC) //no bloodpool vamps
 			else
 				vampdude?.adjust_skillrank_up_to(/datum/skill/magic/blood, 2, TRUE) // Default weight if generation not set
 				max_thralls = 0
+				ADD_TRAIT(vampdude, TRAIT_NOVAMPMITOSIS, TRAIT_GENERIC) //no bloodpool vamps
 
 		if(HAS_TRAIT(vampdude, TRAIT_DNR)) //if you have DNR, we add dustable
 			ADD_TRAIT(vampdude, TRAIT_DUSTABLE, TRAIT_GENERIC)
@@ -139,7 +145,7 @@ GLOBAL_LIST_EMPTY(vampire_objects)
 		else
 			vampdude.set_clan_direct(forcing_clan)
 			forcing_clan = null
-
+		disable_vessel(vampdude)
 
 	if(!clan_setup_deferred)
 		after_gain()
@@ -155,7 +161,7 @@ GLOBAL_LIST_EMPTY(vampire_objects)
 	if(!vampdude)
 		return
 
-	if(vampdude.job == "Wretch" || vampdude.job == "Stray")
+	if((vampdude.job == "Wretch" || vampdude.job == "Vagabond") && vampdude.get_vampire_generation() <= GENERATION_NEONATE) //Masquerade/vlord bypass this restriction
 		var/wretch_name = tgui_input_text(vampdude, "Enter your Caitiff clan name:", "Custom Clan", "Custom Clan", MAX_NAME_LEN)
 		create_custom_clan(vampdude, wretch_name)
 		return
@@ -204,6 +210,8 @@ GLOBAL_LIST_EMPTY(vampire_objects)
 		vampdude.set_clan(null)
 		if(HAS_TRAIT(vampdude, TRAIT_DUSTABLE)) //if you have DNR, we add dustable
 			REMOVE_TRAIT(vampdude, TRAIT_DUSTABLE, TRAIT_GENERIC)
+		if(HAS_TRAIT(vampdude, TRAIT_NOVAMPMITOSIS)) //for whatever reasoning we remove it and re-add it so we don't fuck up bloodpool buying.
+			REMOVE_TRAIT(vampdude, TRAIT_NOVAMPMITOSIS, TRAIT_GENERIC)
 	owner.current?.hud_used?.shutdown_bloodpool()
 	if(!silent && owner.current)
 		to_chat(owner.current, span_danger("I am no longer a [job_rank]!"))

@@ -16,7 +16,7 @@
 		STATKEY_WIL = 1,
 		STATKEY_SPD = 1
 	)
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 3, "utilities" = 8, "post_aspect_spells" = list(/datum/action/cooldown/spell/message, /datum/action/cooldown/spell/mindlink), "ward" = TRUE)
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 3, "utilities" = 12, "post_aspect_spells" = list(/datum/action/cooldown/spell/message, /datum/action/cooldown/spell/mindlink), "ward" = TRUE)
 	age_mod = /datum/class_age_mod/wretch/rogue_mage
 	subclass_skills = list(
 		/datum/skill/combat/staves = SKILL_LEVEL_EXPERT,
@@ -37,6 +37,7 @@
 	)
 	subclass_stashed_items = list(
 		"Sewing Kit" =	/obj/item/repair_kit,
+		"Stashed Funds" = /obj/item/roguecoin/silver/pile/wretchpile,
 	)
 
 /datum/outfit/job/roguetown/wretch/roguemage/pre_equip(mob/living/carbon/human/H)

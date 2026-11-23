@@ -73,6 +73,8 @@
 	var/requires_aspect_access = FALSE
 	/// Visual impact intensity for on-hit effects. See SPELL_IMPACT defines.
 	var/spell_impact_intensity = SPELL_IMPACT_NONE
+	/// Whether a guard deflecting this spell's non-projectile effect will expose the caster or not
+	var/expose_caster_on_deflect = TRUE
 	/// If true, the spell can be refunded. Set by learnspell when learned.
 	var/refundable = FALSE
 	/// Aspect type path this spell was granted by, if any. Used by the aspect picker
@@ -89,8 +91,6 @@
 
 	/// What is uttered when the user casts the spell. Can be a list for random selection.
 	var/list/invocations
-	/// What is shown in chat when the user casts the spell, only matters for INVOCATION_EMOTE.
-	var/invocation_self_message
 	/// What type of invocation the spell is.
 	/// Can be "none", "whisper", "shout", "emote".
 	var/invocation_type = INVOCATION_NONE
@@ -130,6 +130,7 @@
 	var/self_cast_possible = TRUE
 	/// The casting range of our spell.
 	var/cast_range = 7
+	var/impact_radius
 	/// If TRUE, this spell may be cast at a target on a different Z-level. Defaults FALSE; only projectile spells opt in.
 	var/allow_cross_z = FALSE
 	/// Variable dictating if the spell will use turf based aim assist.
@@ -146,6 +147,8 @@
 	var/charge_swingdelay_type = SWINGDELAY_NORMAL
 	/// If nonzero, overrides the charge swingdelay penalty/disrupt duration (deciseconds) instead of charge_time + 20.
 	var/charge_swingdelay_duration = 0
+	/// Click spells only: a middle click on the target starts a do_after channel for charge_time instead of a mouse hold.
+	var/channel_cast = FALSE
 	/// Whether we're currently charging the spell.
 	var/currently_charging = FALSE
 	/// Whether the charge bar has completed and the spell is being held ready. While TRUE, hold_drain bleeds per process tick.
@@ -194,6 +197,8 @@
 	var/weapon_penalty_active = FALSE
 	/// If TRUE, this spell ignores armor cooldown penalties (for armored casters like Tithebound).
 	var/ignore_armor_penalty = FALSE
+	/// If FALSE, victim antimagic does not stop this spell. Natural mob abilities are not magic.
+	var/blocked_by_antimagic = TRUE
 	/// If TRUE, casting will -not- apply the combat tag (skips stealth reveal and rest interruption).
 	var/ignore_combat_tag = FALSE
 	/// If TRUE, spell charges on button press, then waits for a separate middle-click to cast.
@@ -201,6 +206,23 @@
 	var/charge_then_click = FALSE
 	var/blocks_defense_while_channeling = FALSE
 	var/cancel_penalty_mult = 1
+
+	/// Roots the caster for the length of the cast
+	var/freeze_cast = FALSE
+	/// Sounds played as the wind-up begins. One is picked at random.
+	var/list/telegraph_sound
+	/// If TRUE, faction allies of the caster are skipped by this spell's area effects.
+	var/spare_allies = FALSE
+	/// Extra offsets for mob_charge_effect, on top of the rune's own. For oversized casters.
+	var/cast_effect_x_offset = 0
+	var/cast_effect_y_offset = 0
+
+	/// How long the caster is left open after the spell resolves. 0 disables the whole recovery step.
+	var/recovery_time = 0
+	/// Status effect applied to the caster for the recovery window.
+	var/recovery_status = /datum/status_effect/debuff/exposed
+	/// Movement slowdown during recovery. NONE (0) disables it.
+	var/recovery_slowdown = CHARGING_SLOWDOWN_NONE
 
 	/// Lore/flavor text. Shown on hover in spell lists, always shown in detailed examine.
 	var/fluff_desc = ""
@@ -231,6 +253,8 @@
 		var/obj/effect/R = new /obj/effect/spell_rune
 		R.icon = button_icon
 		R.icon_state = button_icon_state
+		R.pixel_x += cast_effect_x_offset
+		R.pixel_y += cast_effect_y_offset
 		mob_charge_effect = R
 
 	if(!charge_required)
@@ -370,7 +394,7 @@
 	// to allow people to click unavailable abilities to get a feedback chat message
 	// about why the ability is unavailable.
 	// It is otherwise redundant, however, as IsAvailable() checks can_cast_spell as well.
-	if(!can_cast_spell())
+	if(!can_cast_spell(feedback = !npc_controlled()))
 		return FALSE
 
 	return ..()
@@ -403,13 +427,14 @@
 				other_spell.UnregisterSignal(on_who.client, list(COMSIG_CLIENT_MOUSEDOWN, COMSIG_CLIENT_MOUSEUP))
 			UnregisterSignal(on_who.client, list(COMSIG_CLIENT_MOUSEDOWN, COMSIG_CLIENT_MOUSEUP))
 
-		if(charge_required)
-			// If pointed we setup signals to override mouse down to call InterceptClickOn()
-			RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(start_casting))
-		else
-			// Non-charge spells still need to intercept middle-click MouseDown
-			// to prevent the old system from starting its charging flow
-			RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(intercept_mousedown))
+		if(owner.client) // NPC skip this
+			if(charge_required && !channel_cast)
+				// If pointed we setup signals to override mouse down to call InterceptClickOn()
+				RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(start_casting))
+			else
+				// Non-charge spells still need to intercept middle-click MouseDown
+				// to prevent the old system from starting its charging flow
+				RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(intercept_mousedown))
 
 	return ..()
 
@@ -421,7 +446,7 @@
 		return
 	// Defensive: ensure clean slate before re-registering
 	UnregisterSignal(owner.client, list(COMSIG_CLIENT_MOUSEDOWN, COMSIG_CLIENT_MOUSEUP))
-	if(charge_required)
+	if(charge_required && !channel_cast)
 		RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(start_casting))
 	else
 		RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(intercept_mousedown))
@@ -506,6 +531,11 @@
 /datum/action/cooldown/spell/InterceptClickOn(mob/living/clicker, list/modifiers, atom/click_target)
 	if(istext(modifiers))
 		modifiers = params2list(modifiers)
+	// The AI drives abilities through Trigger(target) with no click behind them.
+	if(isnull(modifiers) && npc_controlled())
+		if(QDELETED(click_target))
+			return FALSE
+		return PreActivate(click_target)
 	if(!LAZYACCESS(modifiers, MIDDLE_CLICK))
 		return
 
@@ -516,7 +546,7 @@
 		else
 			clicker.balloon_alert(clicker, "no fellow in range!")
 
-	if(charge_required && !charged)
+	if(charge_required && !charged && !channel_cast)
 		end_charging()
 		return
 
@@ -545,16 +575,16 @@
 	return Activate(target)
 
 /// Returns TRUE if the caster is holding a penalized weapon in either hand, or recently had one.
-/// Staves and Arcyne Armaments are valid spell conduits and do not trigger this penalty.
+/// Weapons with is_implement (implements, wooden staves, arcyne armaments) do not trigger this penalty.
 /datum/action/cooldown/spell/proc/check_weapon_in_hand()
 	if(!weapon_cast_penalized)
 		return FALSE
 	if(!ishuman(owner))
 		return FALSE
+	if(HAS_TRAIT(owner, TRAIT_WARLOCK)) //rituos users get to ignore this, that's your whole shtick
+		return FALSE
 	var/mob/living/carbon/human/H = owner
 	for(var/obj/item/held in list(H.get_active_held_item(), H.get_inactive_held_item()))
-		if(ispath(held?.associated_skill, /datum/skill/combat/staves) || ispath(held?.associated_skill, /datum/skill/combat/arcyne))
-			continue
 		if(istype(held, /obj/item/gun))
 			return TRUE
 		if(!istype(held, /obj/item/rogueweapon))
@@ -562,7 +592,7 @@
 		if(istype(held, /obj/item/rogueweapon/shield))
 			continue
 		var/obj/item/rogueweapon/W = held
-		if(W.implement_refund)
+		if(W.is_implement)
 			continue
 		return TRUE
 	if(H.has_status_effect(/datum/status_effect/recent_weapon))
@@ -686,7 +716,7 @@
 			owner.balloon_alert(owner, "My vitae drowns out the spell!")
 		return FALSE
 
-	if(HAS_TRAIT(owner, TRAIT_NOC_CURSE))
+	if(HAS_TRAIT(owner, TRAIT_CURSE_NOC))
 		if(feedback)
 			owner.balloon_alert(owner, "My magicka has left me...")
 		return FALSE
@@ -710,9 +740,9 @@
 			return FALSE
 
 	var/mob/living/living_owner = owner
-	if(istype(living_owner) && living_owner.has_status_effect(/datum/status_effect/debuff/cast_disrupted))
+	if(istype(living_owner) && living_owner.has_status_effect(/datum/status_effect/debuff/clickcd))
 		if(feedback)
-			owner.balloon_alert(owner, "Too exposed to focus!")
+			owner.balloon_alert(owner, "I can't act yet!")
 		return FALSE
 
 	if(!(spell_requirements & SPELL_CASTABLE_WHILE_MOUNTED) && owner.client && owner.buckled && isliving(owner.buckled))
@@ -768,16 +798,34 @@
 			return FALSE
 
 	if(LAZYLEN(required_items))
-		var/found = FALSE
-		for(var/obj/item/I in owner.contents)
-			if(is_type_in_list(I, required_items) || HAS_TRAIT(owner, TRAIT_HALLOWED))
-				found = TRUE
-				break
-		if(!found && feedback)
-			owner.balloon_alert(owner, "Missing something to cast!")
-			return FALSE
+		if(!HAS_TRAIT(owner, TRAIT_HALLOWED))
+			var/found = FALSE
+			for(var/obj/item/I in owner.contents)
+				if(is_type_in_list(I, required_items))
+					found = TRUE
+					break
+			if(!found && feedback)
+				owner.balloon_alert(owner, "Missing something to cast!")
+				return FALSE
 
 	return TRUE
+
+/datum/action/cooldown/spell/proc/get_impact_turfs(atom/center)
+	. = list()
+	var/turf/epicenter = get_turf(center)
+	if(!epicenter || isnull(impact_radius))
+		return
+	for(var/turf/affected in range(impact_radius, epicenter))
+		. += affected
+
+/proc/get_visible_area_turfs(turf/center, radius)
+	. = list()
+	if(!center)
+		return
+	var/list/visible = get_hear(radius, center)
+	for(var/turf/T in range(radius, center))
+		if(T in visible)
+			. += T
 
 /**
  * Check if the target we're casting on is a valid target.
@@ -816,7 +864,7 @@
 
 	// Extra safety
 	if(!check_cost())
-		if(charge_required && click_to_activate && owner?.client)
+		if(charge_required && click_to_activate && !channel_cast && owner?.client)
 			UnregisterSignal(owner.client, list(COMSIG_CLIENT_MOUSEDOWN, COMSIG_CLIENT_MOUSEUP))
 			RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(start_casting))
 		return FALSE
@@ -828,9 +876,13 @@
 			var/mob/living/carbon/human/wpn_check = owner
 			var/has_weapon_now = FALSE
 			for(var/obj/item/held in list(wpn_check.get_active_held_item(), wpn_check.get_inactive_held_item()))
-				if(ispath(held?.associated_skill, /datum/skill/combat/staves) || ispath(held?.associated_skill, /datum/skill/combat/arcyne))
+				if(istype(held, /obj/item/gun))
+					has_weapon_now = TRUE
+					break
+				if(!istype(held, /obj/item/rogueweapon) || istype(held, /obj/item/rogueweapon/shield))
 					continue
-				if(istype(held, /obj/item/gun) || (istype(held, /obj/item/rogueweapon) && !istype(held, /obj/item/rogueweapon/shield)))
+				var/obj/item/rogueweapon/W = held
+				if(!W.is_implement)
 					has_weapon_now = TRUE
 					break
 			if(has_weapon_now)
@@ -854,7 +906,7 @@
 	// If cast() returns FALSE, the spell fizzled - skip cooldown, cost, and feedback
 	if(cast_result == FALSE)
 		weapon_penalty_active = FALSE
-		if(charge_required && click_to_activate && owner?.client)
+		if(charge_required && click_to_activate && !channel_cast && owner?.client)
 			UnregisterSignal(owner.client, list(COMSIG_CLIENT_MOUSEDOWN, COMSIG_CLIENT_MOUSEUP))
 			RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(start_casting))
 		build_all_button_icons()
@@ -868,6 +920,12 @@
 	// Spells that need pre-cast invocation (e.g. teleports) should call spell_feedback() manually in cast()
 	if(!(precast_result & SPELL_NO_FEEDBACK))
 		spell_feedback(owner)
+
+	if(isliving(owner))
+		var/mob/living/L = owner
+		// Special case: if this is a miracle, and we're a heretic, we flag the target with a higher index false-positive chance
+		if((primary_resource_type == SPELL_COST_DEVOTION || secondary_resource_type == SPELL_COST_DEVOTION) && istype(L.patron, /datum/patron/inhumen))
+			ADD_TRAIT(target, TRAIT_ASCENDENT_MIRACLED, TRAIT_GENERIC)
 
 	if(!(precast_result & SPELL_NO_IMMEDIATE_COOLDOWN))
 		// The entire spell is done, start the actual cooldown at its adjusted duration
@@ -934,23 +992,37 @@
 
 		//Psydonites/Vheslynites feel nothing
 		if((primary_resource_type == SPELL_COST_DEVOTION) && HAS_TRAIT(cast_on, TRAIT_PSYDONITE) && !(spell_flags & SPELL_PSYDON) || HAS_TRAIT(cast_on, TRAIT_UNFORGIVABLE) && !(spell_flags & SPELL_PSYDON))
-			cast_on.visible_message(span_info("[cast_on] stirs for a moment, the miracle dissipates."), span_notice("A dull warmth swells in your heart, only to fade as quickly as it arrived."))
+			cast_on.visible_message(span_info("[cast_on] stirs for a moment, the miracle dissipates."), span_blue("A dull warmth swells in your heart, only to fade as quickly as it arrived."))
 			playsound(cast_on, 'sound/magic/PSY.ogg', 100, FALSE, -1)
 			owner.playsound_local(owner, 'sound/magic/PSY.ogg', 100, FALSE, -1)
 			return sig_return | SPELL_CANCEL_CAST
 
-	if(charge_required && !click_to_activate)
+	// An NPC has no mouse to hold, so it charges through a do_after even on click-to-activate spells.
+	if(charge_required && (!click_to_activate || channel_cast || npc_controlled()))
 		// Use a simple do_after for non-click charge spells
 		var/require_no_move = (spell_requirements & SPELL_REQUIRES_NO_MOVE)
 		on_start_charge()
+		charge_started_at = world.time
+		charge_target_time = charge_time
 		apply_charge_intent()
+		var/kick_cancels = npc_controlled()
+		if(kick_cancels)
+			RegisterSignal(owner, COMSIG_MOB_KICKED_SUCCESSFUL, PROC_REF(signal_cancel), TRUE)
 		var/success = TRUE
 		if(!do_after(owner, charge_time, needhand = FALSE, extra_checks = CALLBACK(src, PROC_REF(do_after_checks), owner, cast_on), no_interrupt = !require_no_move, allow_movement = !require_no_move))
 			success = FALSE
 			sig_return |= SPELL_CANCEL_CAST
+		if(kick_cancels && owner)
+			UnregisterSignal(owner, COMSIG_MOB_KICKED_SUCCESSFUL)
 
 		if(currently_charging) // in case charging was interrupted elsewhere
 			on_end_charge(success)
+		if(channel_cast)
+			charged = FALSE
+
+	if(!(sig_return & SPELL_CANCEL_CAST) && npc_controlled() && !npc_cast_safe(cast_on))
+		npc_aborted = TRUE
+		sig_return |= SPELL_CANCEL_CAST
 
 	return sig_return
 
@@ -958,6 +1030,8 @@
 	if(!currently_charging)
 		return FALSE
 	if(!can_cast_spell(TRUE))
+		return FALSE
+	if(channel_cast && get_dist(owner, cast_on) > cast_range)
 		return FALSE
 	if(!is_valid_target(cast_on))
 		return FALSE
@@ -1016,9 +1090,7 @@
 		smoke.set_up(smoke_amt, loca = get_turf(owner))
 		smoke.start()
 
-	// Clean up overhead spell icon
-	if(mob_charge_effect)
-		owner.vis_contents -= mob_charge_effect
+	clear_cast_effect(owner)
 
 	// Clean up glow
 	if(spell_glow_light)
@@ -1031,6 +1103,55 @@
 	// Reset mouse pointer
 	if(owner.client)
 		owner.client.mouse_pointer_icon = 'icons/effects/mousemice/human.dmi'
+
+/// Announces the wind-up. Called at the head of whichever commitment phase the spell uses.
+/datum/action/cooldown/spell/proc/announce_telegraph(mob/living/caster)
+	if(QDELETED(caster))
+		return
+	if(telegraph_sound)
+		playsound(get_turf(caster), telegraph_sound, 100, TRUE)
+
+/// Roots the caster for `duration`. No-op unless the spell opts in via freeze_cast.
+/// The duration is a safety cap - the commitment path that applied it is expected to clear it.
+/datum/action/cooldown/spell/proc/apply_cast_freeze(mob/living/caster, duration)
+	if(!freeze_cast || !isliving(caster) || duration <= 0)
+		return
+	caster.Immobilize(duration, ignore_canstun = TRUE)
+
+/datum/action/cooldown/spell/proc/clear_cast_freeze(mob/living/caster)
+	if(!freeze_cast || !isliving(caster))
+		return
+	caster.SetImmobilized(0, ignore_canstun = TRUE)
+
+/// Shows/hides the overhead cast rune. Shared by the charge-up and telegraph-windup paths.
+/datum/action/cooldown/spell/proc/show_cast_effect(mob/caster)
+	if(mob_charge_effect && !QDELETED(caster))
+		caster.vis_contents |= mob_charge_effect
+
+/datum/action/cooldown/spell/proc/clear_cast_effect(mob/caster)
+	if(mob_charge_effect && !QDELETED(caster))
+		caster.vis_contents -= mob_charge_effect
+
+/// Opens the caster up for recovery_time after the spell resolves. Callers decide when the spell has
+/// actually resolved - instant spells can fire this from after_cast, telegraphed ones only once the hit lands.
+/datum/action/cooldown/spell/proc/start_recovery(mob/living/caster)
+	if(!recovery_time || QDELETED(caster))
+		clear_recovery_penalty(caster)
+		return
+	if(recovery_status)
+		caster.apply_status_effect(recovery_status, recovery_time)
+	caster.apply_status_effect(/datum/status_effect/debuff/clickcd, recovery_time)
+	set_recovery_penalty(caster)
+	sleep(recovery_time)
+	clear_recovery_penalty(caster)
+
+/datum/action/cooldown/spell/proc/set_recovery_penalty(mob/living/caster)
+	if(recovery_slowdown <= CHARGING_SLOWDOWN_NONE || QDELETED(caster))
+		return
+	caster.add_movespeed_modifier(MOVESPEED_ID_SPELL_RECOVERY, TRUE, 100, override = TRUE, multiplicative_slowdown = recovery_slowdown)
+
+/datum/action/cooldown/spell/proc/clear_recovery_penalty(mob/living/caster)
+	caster?.remove_movespeed_modifier(MOVESPEED_ID_SPELL_RECOVERY)
 
 /// Provides feedback after a spell cast occurs, in the form of a cast sound and/or invocation
 /datum/action/cooldown/spell/proc/spell_feedback(mob/living/invoker)
@@ -1068,12 +1189,12 @@
 
 		if(INVOCATION_EMOTE)
 			invoker.visible_message(
-				capitalize(replacetext(used_invocation_message, "%CASTER", invoker.name)),
-				capitalize(replacetext(invocation_self_message, "%CASTER", invoker.name)),
+				span_danger(capitalize(replacetext(used_invocation_message, "%CASTER", invoker.name)))
 			)
 
 /// When we start charging the spell called from set_click_ability or start_casting
 /datum/action/cooldown/spell/proc/on_start_charge()
+	set waitfor = 0
 	currently_charging = TRUE
 	fully_charged = FALSE
 	fully_charged_at = 0
@@ -1085,6 +1206,8 @@
 		if(!owner.fixedeye)
 			owner.nodirchange = TRUE
 		owner.channeling_spell = src
+		announce_telegraph(owner)
+		apply_cast_freeze(owner, charge_time)
 	STOP_PROCESSING(SSfastprocess, src)
 	START_PROCESSING(SSmousecharge, src)
 	build_all_button_icons(UPDATE_BUTTON_STATUS|UPDATE_BUTTON_BACKGROUND)
@@ -1095,9 +1218,7 @@
 	if(charge_sound_instance)
 		playsound(owner, charge_sound_instance, 50, FALSE, channel = CHANNEL_CHARGED_SPELL)
 
-	// Overhead spell icon rune
-	if(mob_charge_effect)
-		owner.vis_contents += mob_charge_effect
+	show_cast_effect(owner)
 
 	// Spell glow light
 	if(glow_intensity && spell_color && isliving(owner))
@@ -1168,6 +1289,7 @@
 		UnregisterSignal(owner.client, list(COMSIG_CLIENT_MOUSEDOWN, COMSIG_CLIENT_MOUSEUP))
 	UnregisterSignal(owner, list(COMSIG_MOB_LOGOUT, COMSIG_MOB_DEATH, COMSIG_MOVABLE_MOVED, COMSIG_MOB_KICKED_SUCCESSFUL, COMSIG_CARBON_SWAPHANDS))
 	clear_charge_intent()
+	clear_cast_freeze(owner)
 
 	// When charging ends, other spells may have had their buttons stuck red
 	// because can_cast_spell() returned FALSE while we were charging.
@@ -1184,9 +1306,7 @@
 		owner.stop_sound_channel(CHANNEL_CHARGED_SPELL)
 		playsound(owner, sound(null, repeat = 0), 50, FALSE, channel = CHANNEL_CHARGED_SPELL)
 
-	// Clean up overhead spell icon
-	if(mob_charge_effect)
-		owner.vis_contents -= mob_charge_effect
+	clear_cast_effect(owner)
 
 	if(has_visual_effects)
 		var/mob/living/caster = owner
@@ -1198,7 +1318,7 @@
 
 	// Always restore the spell to "selected and listening" if it's still the active click intercept.
 	// This prevents dead-spell states where charging ends but no input handler is registered.
-	if(click_to_activate && charge_required && owner?.client)
+	if(click_to_activate && charge_required && !channel_cast && owner?.client)
 		RegisterSignal(owner.client, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(start_casting))
 
 /datum/action/cooldown/spell/proc/apply_charge_intent()
@@ -1238,8 +1358,9 @@
 	if(SW && SW.duration != -1)
 		SW.duration = max(SW.duration, world.time + (charge_swingdelay_duration || 20))
 
+/// Bypass the straining / mouse hold mechanics for NPC
 /datum/action/cooldown/spell/proc/is_held_ready()
-	return charge_required && click_to_activate
+	return charge_required && click_to_activate && !channel_cast && !npc_controlled()
 
 /datum/action/cooldown/spell/proc/has_hold_cap()
 	return is_held_ready() && !charge_then_click && hold_max_time > hold_grace_time
@@ -1838,8 +1959,7 @@
 
 	// Call this directly to do all the relevant checks and aim assist
 	// If it fails (cooldown, invalid target), end_charging() already re-registered MOUSEDOWN
-	InterceptClickOn(owner, modifiers, _target)
-	source.click_intercept_time = 0
+	INVOKE_ASYNC(src, PROC_REF(finish_intercepted_cast), source, modifiers, _target)
 
 /// Handle the second click for charge-then-click spells.
 /// Spell is already charged — this middle-click picks the target and casts.
@@ -1874,17 +1994,25 @@
 			RegisterSignal(source, COMSIG_CLIENT_MOUSEDOWN, PROC_REF(cast_after_charge))
 			return
 
-	InterceptClickOn(owner, modifiers, _target)
-	source.click_intercept_time = 0
+	INVOKE_ASYNC(src, PROC_REF(finish_intercepted_cast), source, modifiers, _target)
 
-/datum/action/cooldown/spell/proc/spell_guard_check(mob/living/target, no_message = FALSE, mob/living/attacker)
+/// Runs the actual cast out of the mouse signal handler, which must not sleep.
+/datum/action/cooldown/spell/proc/finish_intercepted_cast(client/source, list/modifiers, atom/_target)
+	InterceptClickOn(owner, modifiers, _target)
+	if(source)
+		source.click_intercept_time = 0
+
+/// punish_caster overrides expose_caster_on_deflect for one call, for spells that mix a direct strike with a telegraphed zone.
+/datum/action/cooldown/spell/proc/spell_guard_check(mob/living/target, no_message = FALSE, mob/living/attacker, punish_caster)
 	if(!isliving(target))
 		return FALSE
 	if(target == owner)
 		return FALSE
 	if(isnull(attacker))
 		attacker = owner
-	return target.guard_deflect_spell(name, no_message, attacker)
+	if(isnull(punish_caster))
+		punish_caster = expose_caster_on_deflect
+	return target.guard_deflect_spell(name, no_message, attacker, punish_caster)
 
 /datum/action/cooldown/spell/proc/signal_cancel()
 	SIGNAL_HANDLER
@@ -1918,18 +2046,18 @@
 	vis_contents |= rune
 	spell_rune = rune
 
-	start_spell_particles(spell_color)
+	start_spell_particles(spell_color, rune)
 
-/// Intermittent particle effect while charging. Requires spell_rune — self-repeats via timer.
-/mob/living/proc/start_spell_particles(spell_color = "#FFFFFF")
-	if(QDELETED(src) || QDELETED(spell_rune))
+/// Intermittent particle effect while charging. Self-repeats via timer until the rune it was started for is gone.
+/mob/living/proc/start_spell_particles(spell_color = "#FFFFFF", obj/effect/spell_rune_under/rune)
+	if(QDELETED(src) || QDELETED(rune) || spell_rune != rune)
 		return
 
-	var/obj/effect/temp_visual/particle_up/particles = new(null, src, spell_rune)
+	var/obj/effect/temp_visual/particle_up/particles = new(null, src, rune)
 	vis_contents |= particles
 	particles.color = spell_color
 
-	addtimer(CALLBACK(src, PROC_REF(start_spell_particles), spell_color), 3.6 SECONDS)
+	addtimer(CALLBACK(src, PROC_REF(start_spell_particles), spell_color, rune), 3.6 SECONDS)
 
 /// Finish spell visual effects on successful cast. Cleans up rune and creates wave_up.
 /mob/living/proc/finish_spell_visual_effects(spell_color = "#FFFFFF")

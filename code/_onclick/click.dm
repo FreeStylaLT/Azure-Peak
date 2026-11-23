@@ -58,6 +58,10 @@
 	in_combat_until = world.time + num
 	hud_used?.defdelay?.mark_dirty()
 
+/// Returns TRUE if the mob's in_combat_until has not expired. It returns FALSE otherwise.
+/mob/living/proc/is_in_combat(combat_expire_time = world.time)
+	return src.in_combat_until > combat_expire_time
+
 /mob/living/proc/changeMaxDodge(num, clamp = FALSE)
 	if(num < 0)
 		if(max_dodge <= MAX_DODGE_FLOOR)
@@ -335,8 +339,8 @@
 						return
 */
 
-	// Allows you to click on a box's contents, if that box is on the ground, but no deeper than that
-	if(isturf(A) || isturf(A.loc) || (A.loc && isturf(A.loc.loc)))
+	// Allows you to click on a box's contents, if that box is on the ground or held by something on the ground, but no deeper than that
+	if(isturf(A) || isturf(A.loc) || isturf(A.loc?.loc) || isturf(A.loc?.loc?.loc))
 		var/can_reach = CanReach(A, W)
 		if(can_reach)
 			if(isopenturf(A))
@@ -441,100 +445,109 @@
 
 /mob/living/proc/is_swinging(disrupt_only = FALSE)
 	if(!disrupt_only)
-		return (has_status_effect(/datum/status_effect/swingdelay) || has_status_effect(/datum/status_effect/swingdelay/disrupt))
+		return (has_status_effect(/datum/status_effect/swingdelay) || has_status_effect(/datum/status_effect/swingdelay/disrupt) || has_status_effect(/datum/status_effect/swingdelay/penalty))
 	else
 		return (has_status_effect(/datum/status_effect/swingdelay/disrupt))
+
+/mob/living/proc/can_unarmed_dualwield()
+	if(get_active_held_item() || get_inactive_held_item())
+		return FALSE
+	return get_skill_level(/datum/skill/combat/unarmed) >= SKILL_LEVEL_JOURNEYMAN
 
 /mob/living/proc/can_dualwield(obj/item/mainhand, obj/item/offhand)
 	if(!mainhand || !offhand)
 		return FALSE
-	if(istype(mainhand, /obj/item/rogueweapon/shield) || istype(mainhand, /obj/item/flashlight/flare/torch) || istype(mainhand, /obj/item/lantern) || istype(mainhand, /obj/item/flashlight))
-		return FALSE
-	if(istype(offhand, /obj/item/rogueweapon/shield) || istype(mainhand, /obj/item/flashlight/flare/torch) || istype(mainhand, /obj/item/lantern) || istype(mainhand, /obj/item/flashlight))
-		return FALSE
-	if(mainhand.w_class >= WEIGHT_CLASS_HUGE)
-		return FALSE
-	if(offhand.w_class >= WEIGHT_CLASS_HUGE)
-		return FALSE
-	if(mainhand.wlength >= WLENGTH_GREAT)
-		return FALSE
-	if(offhand.wlength >= WLENGTH_GREAT)
-		return FALSE
-	if(mainhand.associated_skill)
-		if(get_skill_level(mainhand.associated_skill) < SKILL_LEVEL_JOURNEYMAN)
+	var/static/list/banned = list(/obj/item/rogueweapon/shield, /obj/item/grabbing, /obj/item/flashlight, /obj/item/lantern) // torches are flashlight subtypes
+	for(var/obj/item/I as anything in list(mainhand, offhand))
+		if(is_type_in_list(I, banned) || I.w_class >= WEIGHT_CLASS_HUGE || I.wlength >= WLENGTH_GREAT)
 			return FALSE
-	if(offhand.associated_skill)
-		if(get_skill_level(offhand.associated_skill) < SKILL_LEVEL_JOURNEYMAN)
+		if(I.force <= 9) // tiny damage items are usually tools
 			return FALSE
-	if(mainhand.force <= 9 || offhand.force <= 9) // should prevent things that have tiny damage from being used, those are often tools anyway.
-		return FALSE
+		if(I.has_wskill() && get_wskill(I) < SKILL_LEVEL_JOURNEYMAN) // its a masterpiece...
+			return FALSE
 	return TRUE
 
-/mob/living/proc/process_dualwield(atom/A, obj/item/attack_weapon, params)
-	if(!HAS_TRAIT(src, TRAIT_DUALWIELDER))
-		return
+/mob/living/proc/dualwield_intent_blocked()
+	var/datum/intent/I = used_intent || a_intent
+	if(!I)
+		return FALSE
+	return I.no_attack || is_type_in_list(I, list(/datum/intent/garrote, /datum/intent/unarmed/grab, /datum/intent/unarmed/help, /datum/intent/unarmed/shove))
 
-	if(dualwield_processing)
-		return
+/// Returns TRUE only when this attack should trigger the finisher, otherwise we're either unable to dw or we're still stacking
+/mob/living/proc/process_dualwield(obj/item/attack_weapon)
+	if(dualwield_processing || dualwield_intent_blocked() || check_arm_grabbed(get_inactive_hand_index())) // dualwield_processing is held by fire_dualwield_paired while it sleeps, a reminder for me in the future, thank me later, you
+		return FALSE
 
-	var/obj/item/mainhand = get_active_held_item()
 	var/obj/item/offhand = get_inactive_held_item()
-
-	// Weapon attack validation
 	if(attack_weapon)
-		if(!offhand)
-			return
-
-		if(attack_weapon == offhand)
-			return
-
-		if(check_arm_grabbed(get_inactive_hand_index()))
-			return
-
-		if(!can_dualwield(attack_weapon, offhand))
-			return
-
-	// Unarmed validation
-	else
-		if(mainhand || offhand)
-			return
+		if(!offhand || attack_weapon == offhand || !can_dualwield(attack_weapon, offhand)) // gotta validate
+			return FALSE
+	else if(!can_unarmed_dualwield())
+		return FALSE
 
 	// Combo timeout
 	if(world.time > dualwield_resets_in)
+		if(dualwield_attack_count)
+			balloon_alert(src, "<font color='#ffbfbf'>COMBO BREAKER!</font>") // i could make this timeout by making a new var in living but who cares, potato potahto
 		dualwield_attack_count = 0
-		dualwield_finisher = FALSE
-
 	dualwield_resets_in = world.time + 3 SECONDS
 
-	// Finisher attack
-	if(dualwield_finisher)
+	var/finisher = dualwield_finisher
+	if(finisher)
 		dualwield_finisher = FALSE
-		dualwield_processing = TRUE
+	else
+		balloon_alert(src, "<font color='#ffbfbf'>[++dualwield_attack_count]-Hit!</font>")
+		if(dualwield_attack_count >= 3)
+			dualwield_attack_count = 0
+			dualwield_finisher = TRUE
 
-		if(stamina_add(3))
-			balloon_alert_to_viewers("<font color='#bb2b2b'>Dual Hit!!</font>")
-			to_chat(src, "<font color='#ffc400'>I strike twice!</font>")
-			to_chat(A, "<font color='#ffc400'>I am hit twice!</font>")
-			if(attack_weapon && offhand)
-				offhand.melee_attack_chain(src, A, params)
-			else
-				UnarmedAttack(A, TRUE, params)
-		playsound_local(A, 'sound/combat/polearm_woosh.ogg', 75, FALSE, 0, 3)
-		playsound_local(A, 'sound/combat/rend_hit.ogg', 75, FALSE, 0, 3)
-		dualwield_processing = FALSE
-		swap_hand()
-		return
-
-	// Build combo
-	dualwield_attack_count++
-
-	if(dualwield_attack_count >= 3)
-		dualwield_attack_count = 0
-		dualwield_finisher = TRUE
-
-	// Swap only after everything else is finished
 	if(attack_weapon)
 		swap_hand()
+	return finisher
+
+/mob/living/proc/dualwield_can_strike(atom/A)
+	return !QDELETED(src) && !QDELETED(A) && stat == CONSCIOUS && A.Adjacent(src)
+
+/mob/living/proc/dualwield_announce(atom/A, title, self_msg, target_msg)
+	balloon_alert_to_viewers("<font color='#bb2b2b'>[title]</font>")
+	to_chat(src, "<font color='#ffc400'>[self_msg]</font>")
+	if(ismob(A))
+		to_chat(A, "<font color='#ffc400'>[target_msg]</font>")
+
+/mob/living/proc/fire_dualwield_paired(atom/A, params)
+	if(dualwield_processing || QDELETED(src) || QDELETED(A) || !stamina_add(3))
+		return
+	dualwield_processing = TRUE
+	dualwield_paired_attack(A, params)
+	dualwield_processing = FALSE
+
+/mob/living/proc/dualwield_paired_attack(atom/A, params)
+	var/obj/item/weapon = get_active_held_item() // process_dualwield already swapped hands
+	if(weapon)
+		dualwield_announce(A, "Dual Hit!!", "I strike twice!", "I am hit twice!")
+		sleep(2)
+		if(dualwield_can_strike(A) && get_active_held_item() == weapon)
+			used_intent = a_intent || used_intent
+			weapon.melee_attack_chain(src, A, params)
+			do_attack_animation_at(A, ATTACK_EFFECT_DISARM)
+	else
+		var/knuckles = istype(get_item_by_slot(SLOT_GLOVES), /obj/item/clothing/gloves/roguetown/knuckles)
+		var/hits = knuckles ? 2 : 4
+		if(knuckles)
+			dualwield_announce(A, "Demolish!!", "I unleash a devastating rush!", "I am struck by a devastating rush!")
+		else
+			dualwield_announce(A, "Flurry of Blows!!", "I unleash a flurry of blows!", "I am struck by a flurry of blows!")
+		for(var/i in 1 to hits)
+			if(!dualwield_can_strike(A))
+				break
+			arcyne_strike(src, A, null, knuckles ? 8 : 4, zone_selected, BCLASS_BLUNT, spell_name = knuckles ? "Demolish" : "Flurry of Blows", no_crit = knuckles ? TRUE : FALSE)
+			do_attack_animation_at(A, ATTACK_EFFECT_PUNCH)
+			if(i < hits)
+				sleep(3)
+
+	if(!QDELETED(A))
+		playsound_local(get_turf(A), 'sound/combat/polearm_woosh.ogg', 75, FALSE, 0, 3)
+		playsound_local(get_turf(A), 'sound/combat/rend_hit.ogg', 75, FALSE, 0, 3)
 
 //Branching path for Adjacent clicks with or without items
 //DOES NOT ACTUALLY KNOW IF YOU'RE ADJACENT, DO NOT CALL ON IT'S OWN
@@ -890,7 +903,7 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 		user.client.open_listed_turf(T)
 
 /mob/proc/CtrlRightClickOn(atom/A, params)
-	pointed(A)
+	linepoint(A)
 
 /*
 	Misc helpers
@@ -904,9 +917,11 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 /atom/proc/face_atom(atom/A, location, control, params)
 	if(!A)
 		return FALSE
-	if(!A.xyoverride && (!x || !y || !A.x || !A.y))
+	if(!x || !y)
 		return
 	var/atom/holder = A.face_me(location, control, params)
+	if(holder && !holder.xyoverride && (!holder.x || !holder.y))
+		holder = get_turf(holder)
 	if(!holder)
 		return FALSE
 	var/dx = holder.x - x
@@ -1040,14 +1055,6 @@ GLOBAL_LIST_EMPTY(reach_dummy_pool)
 
 /mob/dead/observer/MouseWheelOn(atom/A, delta_x, delta_y, params)
 	return
-/*	var/list/modifier = params2list(params)
-	if(modifier["shift"])
-		var/view = 0
-		if(delta_y > 0)
-			view = -1
-		else
-			view = 1
-		add_view_range(view)*/
 
 /mob/proc/check_click_intercept(params,A)
 	//Client level intercept

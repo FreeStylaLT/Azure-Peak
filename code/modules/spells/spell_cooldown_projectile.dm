@@ -26,11 +26,35 @@
 	var/arc_mode = FALSE
 	/// If TRUE, a non-click (facing-direction) cast snaps the aim to the nearest cardinal direction.
 	var/cardinal_aim = FALSE
+	/// Where the target was when the spell was cast. Used for NPC lead aiming.
+	var/turf/aim_locked_turf
 
 /datum/action/cooldown/spell/projectile/generate_wiki_html(mob/user)
 	if(!displayed_damage && projectile_type)
 		displayed_damage = initial(projectile_type.damage)
 	return ..()
+
+/datum/action/cooldown/spell/projectile/set_ai_aim_lock(turf/locked_turf)
+	aim_locked_turf = locked_turf
+
+/datum/action/cooldown/spell/projectile/can_use(atom/target)
+	. = ..()
+	if(!. || !npc_controlled() || !isliving(owner))
+		return .
+	if(npc_line_obstructed(target))
+		return FALSE
+	return !npc_line_blocked(target) || npc_can_fire_past_allies()
+
+/datum/action/cooldown/spell/projectile/proc/npc_can_fire_past_allies()
+	return !!projectile_type_arc
+
+/datum/action/cooldown/spell/projectile/npc_cast_target(atom/target)
+	if(projectile_type_arc)
+		arc_mode = npc_line_blocked(target)
+	return target
+
+/datum/action/cooldown/spell/projectile/ai_commit_time()
+	return charge_required ? charge_time : 0
 
 /// cast_on is the turf or atom we're firing at.
 /datum/action/cooldown/spell/projectile/cast(atom/cast_on)
@@ -39,12 +63,16 @@
 		return FALSE
 
 	var/atom/target = cast_on
-	// For non-click spells, resolve target in the caster's facing direction
-	if(!click_to_activate)
+	if(!click_to_activate && (QDELETED(cast_on) || cast_on == owner))
 		var/aim_dir = cardinal_aim ? angle2dir_cardinal(dir2angle(owner.dir)) : owner.dir
 		target = get_ranged_target_turf(owner, aim_dir, cast_range)
+	else if(aim_locked_turf && isliving(owner))
+		var/mob/living/caster = owner
+		var/obj/projectile/active_type = (arc_mode && projectile_type_arc) ? projectile_type_arc : projectile_type
+		target = caster.get_ranged_lead_turf(target, aim_locked_turf, initial(active_type.speed), caster.STAINT, CASTER_NPC_LEAD_ERROR_BONUS) || target
 
 	fire_projectile(target)
+	aim_locked_turf = null
 	return TRUE
 
 /// Fire the projectile(s) at the target.
@@ -72,10 +100,7 @@
 	// Accuracy from PER and skill, matching the old proc_holder system
 	if(isliving(user))
 		var/mob/living/L = user
-		to_fire.accuracy += (L.STAPER - 9) * 4
-		to_fire.bonus_accuracy += (L.STAPER - 8) * 3
-		if(L.mind)
-			to_fire.bonus_accuracy += (L.get_skill_level(associated_skill) * 5)
+		L.apply_spell_accuracy(to_fire)
 
 	// Apply attunement glow if the caster is holding a spell implement
 	if(attunement_school && ishuman(user))

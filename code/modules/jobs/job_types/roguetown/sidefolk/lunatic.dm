@@ -13,7 +13,6 @@
 
 	allowed_ages = list(AGE_ADULT, AGE_MIDDLEAGED, AGE_OLD)
 	outfit = /datum/outfit/job/roguetown/lunatic
-	bypass_lastclass = TRUE
 	bypass_jobban = FALSE
 	min_pq = 100 //the magic of an allowlist server.
 	max_pq = null
@@ -46,7 +45,6 @@
 	)
 	subclass_skills = list(
 		/datum/skill/misc/sneaking = SKILL_LEVEL_APPRENTICE,
-		/datum/skill/misc/stealing = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/knives = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/wrestling = SKILL_LEVEL_APPRENTICE,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_APPRENTICE,

@@ -156,14 +156,17 @@
 				else
 					recoil_mult = 0.05
 
+			// if armor broke, your toof dont broke, ya git
+			var/obj/item/clothing/armor = src.get_item_by_slot(def_zone)
+			if(armor?.obj_broken)
+				recoil_mult = 0.05
+
 			var/recoil = round(dam2do * recoil_mult)
 			user.apply_damage(recoil, BRUTE, BODY_ZONE_PRECISE_MOUTH)// cleaner, basically! this will recoil 25% damage to your mouth if you bite flesh, and 50% if you bite armor
-		if(prob(25)) // 1/4 of the time you'll overextend and be exposed, giving your opponent a room to strike back hard
-			user.apply_status_effect(/datum/status_effect/debuff/exposed, 3 SECONDS)
 		if(!apply_damage(dam2do, BRUTE, def_zone, armor_block, user))
 			nodmg = TRUE
 			next_attack_msg += VISMSG_ARMOR_BLOCKED
-		else if(!nodmg && (HAS_TRAIT(user, TRAIT_VAMPBITE)))
+		else if(!nodmg && (HAS_TRAIT(user, TRAIT_VAMPBITE)) && !(src.dna?.species?.species_traits && (NOSTOMACH in src.dna?.species?.species_traits)))
 			var/ramount = 15
 			var/rid = /datum/reagent/vampsolution
 			reagents.add_reagent(rid, ramount)
@@ -189,9 +192,14 @@
 				if(HAS_TRAIT(src, TRAIT_SILVER_BLESSED))
 					to_chat(user, span_warning("BLEH! [bite_victim] tastes of SILVER! My gift cannot take hold."))
 				else
-					caused_wound?.werewolf_infect_attempt()
-					if(prob(50))
-						user.werewolf_feed(bite_victim, 10)
+					if(user.mind.has_antag_datum(/datum/antagonist/werewolf/noinfect)) //they can't infect anyone
+						to_chat(user, span_warning("My curse is not strong enough to infect [bite_victim]."))
+						if(prob(50))
+							user.werewolf_feed(bite_victim, 10)
+					else
+						caused_wound?.werewolf_infect_attempt()
+						if(prob(50))
+							user.werewolf_feed(bite_victim, 10)
 			if(istype(user.dna.species, /datum/species/gnoll))
 				if(prob(30))
 					user.gnoll_feed(bite_victim, 10)
@@ -333,10 +341,13 @@
 			else
 				recoil_mult = 0.05
 
+		// if armor broke, your toof dont broke, ya git
+		var/obj/item/clothing/armor = C.get_item_by_slot(sublimb_grabbed)
+		if(armor?.obj_broken)
+			recoil_mult = 0.05
+
 		var/recoil = round(damage * recoil_mult)
 		user.apply_damage(recoil, BRUTE, BODY_ZONE_PRECISE_MOUTH) // cleaner, basically! this will recoil 25% damage to your mouth if you bite flesh, and 50% if you bite armor
-	if(prob(50)) // half the time you'll overextend and be exposed, giving your opponent a room to strike back hard
-		user.apply_status_effect(/datum/status_effect/debuff/exposed, 3 SECONDS)
 
 	C.next_attack_msg.Cut()
 	user.do_attack_animation_simple(C, ATTACK_EFFECT_BITE)
@@ -359,6 +370,8 @@
 				var/datum/antagonist/zombie/existing_zombie = C.mind?.has_antag_datum(/datum/antagonist/zombie) //If the bite target is a zombie
 				if(!existing_zombie && caused_wound?.zombie_infect_attempt(user))	// infect_attempt on wound
 					to_chat(user, span_danger("You feel your gift trickling into [C]'s wound...")) //message to the zombie they infected the target
+		else if(caused_wound && C.mind && HAS_TRAIT(user, TRAIT_DEADITE) && !HAS_TRAIT(C, TRAIT_ZOMBIE_IMMUNE) && prob(LERP(25, 2.5, (clamp(C.STALUC, 1, 20) - 1) / 19))) // NPC deadite: with the attempt's own 20% roll, 5% per wound at 1 fortune down to 0.5% at 20
+			caused_wound.zombie_infect_attempt(user)
 /*
 	Code below is for a zombie smashing the brains of unit. The code expects the brain to be part of the head which is not the case with AP. Kept for posterity in case it's used in an overhaul.
 */

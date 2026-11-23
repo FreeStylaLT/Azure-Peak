@@ -499,6 +499,7 @@
 	min_pq = 10 //Cus it's a Martyr of the Ten. Get it.
 	max_pq = null
 	round_contrib_points = 4
+	quest_claim_barred = TRUE
 	total_positions = 1
 	spawn_positions = 1
 	display_order = JDO_MARTYR
@@ -511,8 +512,9 @@
 	//No undeath-adjacent virtues for a role that can sacrifice itself. The Ten like their sacrifices 'pure'. (I actually didn't want to code returning those virtue traits post-sword use)
 	//They get those traits during sword activation, anyway.
 	//Dual wielder is there to stand-in for ambidextrous in case they activate their sword in their off-hand.
-	virtue_restrictions = list(/datum/virtue/utility/noble, /datum/virtue/combat/second_chance, /datum/virtue/utility/hollow, /datum/virtue/combat/dualwielder, /datum/virtue/heretic/zchurch_keyholder)
-	vice_restrictions = list(/datum/charflaw/silverweakness)
+	virtue_restrictions = list(/datum/virtue/utility/noble, /datum/virtue/combat/second_chance, /datum/virtue/utility/hollow, /datum/virtue/combat/dualwielder, /datum/virtue/utility/zchurch_keyholder)
+	quirk_restrictions = list(/datum/quirk/noble)
+	vice_restrictions = list(/datum/charflaw/silverweakness, /datum/charflaw/wanted)
 
 	advclass_cat_rolls = list(CTAG_MARTYR = 2)
 	job_subclasses = list(
@@ -575,9 +577,10 @@
 	shirt = /obj/item/clothing/suit/roguetown/armor/chainmail/hauberk
 	pants = /obj/item/clothing/under/roguetown/platelegs/holysee
 	cloak = /obj/item/clothing/cloak/holysee
-	id = /obj/item/clothing/neck/roguetown/psicross/undivided
+	id = /obj/item/clothing/neck/roguetown/psicross/silver/undivided
 	backpack_contents = list(
-		/obj/item/rogueweapon/huntingknife/idagger/silver = 1,
+		/obj/item/rope/chain = 1,
+		/obj/item/rogueweapon/huntingknife/idagger/steel/silver = 1,
 		/obj/item/rogueweapon/scabbard/sheath = 1,
 		/obj/item/mini_flagpole/church,
 		)
@@ -630,11 +633,7 @@
 	AddComponent(\
 		/datum/component/silverbless,\
 		pre_blessed = BLESSING_TENNITE,\
-		silver_type = SILVER_TENNITE,\
-		added_force = 0,\
-		added_blade_int = 0,\
-		added_int = 0,\
-		added_def = 0,\
+		silver_type = SILVER_TENNITE\
 	)
 
 /datum/intent/sword/cut/martyr
@@ -728,11 +727,7 @@
 	AddComponent(\
 		/datum/component/silverbless,\
 		pre_blessed = BLESSING_TENNITE,\
-		silver_type = SILVER_TENNITE,\
-		added_force = 0,\
-		added_blade_int = 0,\
-		added_int = 0,\
-		added_def = 0,\
+		silver_type = SILVER_TENNITE\
 	)
 
 /datum/intent/axe/cut/long/martyr
@@ -821,11 +816,7 @@
 	AddComponent(\
 		/datum/component/silverbless,\
 		pre_blessed = BLESSING_TENNITE,\
-		silver_type = SILVER_TENNITE,\
-		added_force = 0,\
-		added_blade_int = 0,\
-		added_int = 0,\
-		added_def = 0,\
+		silver_type = SILVER_TENNITE\
 	)
 
 /datum/intent/mace/strike/martyr
@@ -912,11 +903,7 @@
 	AddComponent(\
 		/datum/component/silverbless,\
 		pre_blessed = BLESSING_TENNITE,\
-		silver_type = SILVER_TENNITE,\
-		added_force = 0,\
-		added_blade_int = 0,\
-		added_int = 0,\
-		added_def = 0,\
+		silver_type = SILVER_TENNITE\
 	)
 
 /datum/intent/spear/thrust/martyr

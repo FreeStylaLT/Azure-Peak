@@ -15,7 +15,6 @@
 		src.adjust_skillrank(/datum/skill/misc/athletics, 3, TRUE)
 		src.adjust_skillrank(/datum/skill/misc/sneaking, 5, TRUE) //Who's a sneaky fellow?
 		src.adjust_skillrank(/datum/skill/misc/climbing, 5, TRUE) //May as well be magical
-		src.adjust_skillrank(/datum/skill/misc/stealing, 3, TRUE)
 		src.adjust_skillrank(/datum/skill/misc/tracking, 1, TRUE)
 
 		src.STASTR = 2
@@ -60,6 +59,7 @@
 		ORGAN_SLOT_LIVER = /obj/item/organ/liver,
 		ORGAN_SLOT_STOMACH = /obj/item/organ/stomach,
 		ORGAN_SLOT_APPENDIX = /obj/item/organ/appendix,
+		ORGAN_SLOT_GUTS = /obj/item/organ/guts,
 		)
 
 	languages = list(
@@ -73,10 +73,6 @@
 	H.icon_state = "cat2"
 	H.update_damage_overlays()
 	return TRUE
-
-/datum/species/shapecat/on_species_gain(mob/living/carbon/C, datum/species/old_species)
-	. = ..()
-	RegisterSignal(C, COMSIG_MOB_SAY, PROC_REF(handle_speech))
 
 /datum/species/shapecat/update_damage_overlays(mob/living/carbon/human/H)
 	H.remove_overlay(DAMAGE_LAYER)
@@ -108,7 +104,7 @@
 	candodge = TRUE
 	canparry = TRUE
 	miss_text = "slashes the air!"
-	miss_sound = "bluntswoosh"
+	miss_sound = "bladewooshsmall"
 	item_d_type = "slash"
 
 /obj/item/rogueweapon/cat_claw //Backscratcher

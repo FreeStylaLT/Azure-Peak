@@ -1,4 +1,6 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/spider
+	anatomy_type = /datum/anatomy/spider
+	attack_aim = MOB_AIM_GROUND
 	icon = 'icons/roguetown/mob/monster/spider.dmi'
 	name = "beespider"
 	desc = "An invasive species of oversized spider known both for its dangerous venom and its production of bee-like honey. While occasionally domesticated in some parts of the world, feral specimens are reputedly dangerous and best avoided."
@@ -8,11 +10,7 @@
 	gender = MALE
 	blood_toll_bucket = STATS_KILLED_GREATER_BEASTS
 	speak_chance = 1
-	turns_per_move = 3
 	see_in_dark = 6
-	move_to_delay = 4
-	vision_range = 5
-	aggro_vision_range = 9
 	base_intents = list(/datum/intent/simple/bite/honeyspider)
 	botched_butcher_results = list(/obj/item/reagent_containers/food/snacks/rogue/meat/steak = 1)
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/rogue/meat/steak = 1,
@@ -34,8 +32,6 @@
 	melee_damage_lower = 17
 	melee_damage_upper = 21
 	environment_smash = ENVIRONMENT_SMASH_NONE
-	retreat_distance = 0
-	minimum_distance = 0
 	milkies = FALSE
 	food_type = list(/obj/item/reagent_containers/food/snacks/rogue/meat,
 					//obj/item/bodypart,
@@ -47,18 +43,12 @@
 	STASTR = 9
 	STASPD = 10
 	deaggroprob = 0
-	defprob = 40
-	attack_same = 0
-	retreat_health = 0.3
 	attack_sound = list('sound/vo/mobs/spider/attack (1).ogg','sound/vo/mobs/spider/attack (2).ogg','sound/vo/mobs/spider/attack (3).ogg','sound/vo/mobs/spider/attack (4).ogg')
 	aggressive = 1
 
 	//new ai, old ai off
-	AIStatus = AI_OFF
-	can_have_ai = FALSE
 	ai_controller = /datum/ai_controller/spider
-	melee_cooldown = HONEYSPIDER_ATTACK_SPEED
-	stat_attack = UNCONSCIOUS
+	move_base_delay = MOVEMENT_DELAY_SPD_10
 
 /mob/living/simple_animal/hostile/retaliate/rogue/spider/mutated
 	threat_point = THREAT_HIGH
@@ -72,8 +62,8 @@
 	butcher_results = list(/obj/item/reagent_containers/food/snacks/rogue/meat/spider = 2,
 					/obj/item/reagent_containers/food/snacks/rogue/honey/spider = 1,
 					/obj/item/natural/hide = 1)
-	health = 130
-	maxHealth = 130
+	health = HONEYSPIDER_MUTATED_HEALTH
+	maxHealth = HONEYSPIDER_MUTATED_HEALTH
 
 /mob/living/simple_animal/hostile/retaliate/rogue/spider/Initialize(mapload)
 	. = ..()
@@ -85,7 +75,6 @@
 	ai_controller.set_blackboard_key(BB_BASIC_FOODS, food_type)
 	ADD_TRAIT(src, TRAIT_KNEESTINGER_IMMUNITY, INNATE_TRAIT)
 
-
 /mob/living/simple_animal/hostile/retaliate/rogue/spider/AttackingTarget()
 	. = ..()
 	if(. && isliving(target))
@@ -96,7 +85,6 @@
 /mob/living/simple_animal/hostile/retaliate/rogue/spider/death(gibbed)
 	..()
 	update_icon()
-
 
 /mob/living/simple_animal/hostile/retaliate/rogue/spider/update_icon()
 	cut_overlays()
@@ -120,8 +108,7 @@
 
 /mob/living/simple_animal/hostile/retaliate/rogue/spider/taunted(mob/user)
 	emote("aggro")
-	Retaliate()
-	GiveTarget(user)
+	ai_controller?.force_aggro(user)
 	return
 
 /mob/living/simple_animal/hostile/retaliate/rogue/spider/Life()
@@ -138,50 +125,7 @@
 	if(pulledby && !tame)
 		if(HAS_TRAIT(pulledby, TRAIT_WEBWALK))
 			return
-		Retaliate()
-		GiveTarget(pulledby)
-
-/mob/living/simple_animal/hostile/retaliate/rogue/spider/simple_limb_hit(zone)
-	if(!zone)
-		return ""
-	switch(zone)
-		if(BODY_ZONE_PRECISE_R_EYE)
-			return "head"
-		if(BODY_ZONE_PRECISE_L_EYE)
-			return "head"
-		if(BODY_ZONE_PRECISE_NOSE)
-			return "nose"
-		if(BODY_ZONE_PRECISE_MOUTH)
-			return "mouth"
-		if(BODY_ZONE_PRECISE_SKULL)
-			return "head"
-		if(BODY_ZONE_PRECISE_EARS)
-			return "head"
-		if(BODY_ZONE_PRECISE_NECK)
-			return "neck"
-		if(BODY_ZONE_PRECISE_L_HAND)
-			return "foreleg"
-		if(BODY_ZONE_PRECISE_R_HAND)
-			return "foreleg"
-		if(BODY_ZONE_PRECISE_L_FOOT)
-			return "leg"
-		if(BODY_ZONE_PRECISE_R_FOOT)
-			return "leg"
-		if(BODY_ZONE_PRECISE_STOMACH)
-			return "stomach"
-		if(BODY_ZONE_PRECISE_GROIN)
-			return "stomach"
-		if(BODY_ZONE_HEAD)
-			return "head"
-		if(BODY_ZONE_R_LEG)
-			return "leg"
-		if(BODY_ZONE_L_LEG)
-			return "leg"
-		if(BODY_ZONE_R_ARM)
-			return "foreleg"
-		if(BODY_ZONE_L_ARM)
-			return "foreleg"
-	return ..()
+		ai_controller?.force_aggro(pulledby)
 
 /datum/intent/simple/bite/honeyspider
 	clickcd = HONEYSPIDER_ATTACK_SPEED

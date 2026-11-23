@@ -35,13 +35,16 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 	if(!player)
 		player = character.client
 	apply_charflaw_equipment(character, player)
-	apply_prefs_special(character, player)
 	apply_prefs_virtue(character, player)
 	apply_prefs_race_bonus(character, player)
 	if(!HAS_TRAIT(character, TRAIT_NO_VOICEPACK_OVERRIDE)) //Only roundstart roles that jobload in, should use this. Prevents prefloaded voicepacks overriding yours.
 		apply_voicepacks(character, player)
-	if(player.prefs.dnr_pref)
-		apply_dnr_trait(character, player)
+	if(player.prefs.char_toggles & CHAR_TOGGLE_DNR)
+		apply_dnr_trait(character, player, TRAIT_GENERIC)
+	if(SSgamemode?.dnr_round)
+		apply_dnr_trait(character, player, MERCILESS_ROUND)
+	if(SSgamemode?.lastlegs_round)
+		apply_lastlegs_trait(character, player, MERCILESS_ROUND)
 	if(player.prefs.qsr_pref)
 		apply_qsr_trait(character, player)
 	character.mind.triumph_discount_remaining = is_donator(player.ckey) ? 3 : 0 // donators get first 3 triumph points free, spent on retrieval
@@ -59,6 +62,7 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 	if(assigned_job)
 		assigned_job.clamp_stats(character)
 	check_trait_incompatibilities(character)
+	apply_prefs_quirk(character, player) // this needs to be after all traits are applied, so that trait incompats will work
 	character.calculate_energy()
 	character.calculate_stamina()
 	character.energy = character.max_energy
@@ -93,11 +97,7 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 		return
 
 	var/virtuous = FALSE
-	var/heretic = FALSE
 	var/species = character.dna.species
-
-	if(istype(player.prefs.selected_patron, /datum/patron/inhumen))
-		heretic = TRUE
 
 	if(player.prefs.statpack.virtuous)
 		virtuous = TRUE
@@ -107,12 +107,12 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 	var/datum/virtue/origin_type = player.prefs.virtue_origin
 	var/language_type = player.prefs.extra_language
 	if(virtue_type)
-		if(virtue_check(virtue_type, heretic, species))
+		if(virtue_check(virtue_type, species))
 			apply_virtue(character, virtue_type)
 		else
 			to_chat(character, "Incorrect Virtue parameters! It will not be applied.")
 	if(virtuetwo_type && virtuous)
-		if(virtue_check(virtuetwo_type, heretic, species))
+		if(virtue_check(virtuetwo_type, species))
 			apply_virtue(character, virtuetwo_type)
 		else
 			to_chat(character, "Incorrect Second Virtue parameters! It will not be applied.")
@@ -129,6 +129,41 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 				to_chat(character, "Incorrect Origin parameters! Resetting to default.")
 				origin_type = new character.dna.species.origin_default
 				apply_virtue(character, origin_type)
+
+/// Virtuous/fated alone, or two vices: lesser. Virtuous/fated AND two vices: lesser and greater. Neither: no quirks
+/proc/get_quirk_slots(datum/preferences/prefs)
+	. = 0
+	if(prefs.statpack.virtuous)
+		.++
+	var/flaws = 0
+	for(var/datum/charflaw/cf as anything in prefs.charflaws) // difficulty flaws don't count as each other's extra vice
+		if(!cf::needs_extra_vice)
+			flaws++
+	if(flaws >= 2)
+		.++
+
+/proc/apply_prefs_quirk(mob/living/carbon/human/character, client/player)
+	if (!player)
+		player = character.client
+	if (!player)
+		return
+	if (!player.prefs)
+		return
+
+	var/slots = get_quirk_slots(player.prefs)
+	var/datum/quirk/lesser = player.prefs.quirklesser
+	var/datum/quirk/greater = player.prefs.quirkgreater
+
+	if(slots && lesser)
+		if(quirk_check(lesser, player.prefs))
+			apply_quirk(character, lesser)
+		else
+			to_chat(character, "Incorrect Lesser Quirk parameters! It will not be applied.")
+	if((slots >= 2) && greater)
+		if(quirk_check(greater, player.prefs))
+			apply_quirk(character, greater)
+		else
+			to_chat(character, "Incorrect Greater Quirk parameters! It will not be applied.")
 
 /proc/origin_check(datum/virtue/V, datum/species/species)
 	if(!species || !V)
@@ -183,14 +218,30 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 	if(bonus in GLOB.roguetraits)
 		ADD_TRAIT(character, bonus, SPECIES_TRAIT)
 
-/proc/virtue_check(datum/virtue/V, heretic = FALSE, datum/species/species)
+/proc/virtue_check(datum/virtue/V, datum/species/species)
 	if(V)
-		if(istype(V,/datum/virtue/heretic) && !heretic)
-			return FALSE
 		if(V.restricted)
 			if((species.type in V.races))
 				return FALSE
 		if(V.type in species.restricted_virtues)
+			return FALSE
+		return TRUE
+	return FALSE
+
+/proc/quirk_check(datum/quirk/quirk, datum/preferences/prefs)
+	if(quirk)
+		if(LAZYLEN(quirk.restricted_species) && (prefs.pref_species.type in quirk.restricted_species))
+			return FALSE
+		if(LAZYLEN(quirk.restricted_virtues))
+			if(prefs.virtue && (prefs.virtue.type in quirk.restricted_virtues))
+				return FALSE
+			if(prefs.statpack.virtuous && prefs.virtuetwo && (prefs.virtuetwo.type in quirk.restricted_virtues))
+				return FALSE
+		if(LAZYLEN(quirk.allowed_species) && !(prefs.pref_species.type in quirk.allowed_species))
+			if(LAZYLEN(quirk.allowed_virtues) && ((prefs.virtue.type in quirk.allowed_virtues) || (prefs.statpack.virtuous && (prefs.virtuetwo.type in quirk.allowed_virtues))))
+				return TRUE
+			if(LAZYLEN(quirk.allowed_quirks) && ((prefs.quirklesser.type in quirk.allowed_quirks) || ((get_quirk_slots(prefs) == 2) && (prefs.quirkgreater.type in quirk.allowed_quirks))))
+				return TRUE
 			return FALSE
 		return TRUE
 	return FALSE
@@ -211,24 +262,14 @@ GLOBAL_LIST_INIT(special_traits, build_special_traits())
 		character.charflaws.Add(rf)
 		rf.apply_post_equipment(character)
 
-/proc/apply_dnr_trait(mob/living/carbon/human/character, client/player)
-	ADD_TRAIT(player.mob, TRAIT_DNR, TRAIT_GENERIC)
+/proc/apply_dnr_trait(mob/living/carbon/human/character, client/player, source = TRAIT_GENERIC)
+	ADD_TRAIT(player.mob, TRAIT_DNR, source)
+
+/proc/apply_lastlegs_trait(mob/living/carbon/human/character, client/player, source = TRAIT_GENERIC)
+	ADD_TRAIT(player.mob, TRAIT_LASTLEGS, source)
 
 /proc/apply_qsr_trait(mob/living/carbon/human/character, client/player)
 	ADD_TRAIT(player.mob, TRAIT_QUICKSILVERRESISTANT, TRAIT_GENERIC)
-
-/proc/apply_prefs_special(mob/living/carbon/human/character, client/player)
-	if(!player)
-		player = character.client
-	if(!player)
-		return
-	if(!player.prefs)
-		return
-	var/trait_type = player.prefs.next_special_trait
-	if(!trait_type)
-		return
-	apply_special_trait_if_able(character, player, trait_type)
-	player.prefs.next_special_trait = null
 
 /proc/apply_special_trait_if_able(mob/living/carbon/human/character, client/player, trait_type)
 	if(!charactet_eligible_for_trait(character, player, trait_type))

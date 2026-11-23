@@ -21,6 +21,17 @@
 	textb = num2hex(255 - b, 2)
 	return text("#[][][]", textr, textg, textb)
 
+/proc/get_angle_raw(start_x, start_y, start_pixel_x, start_pixel_y, end_x, end_y, end_pixel_x, end_pixel_y)
+	var/dy = (32 * end_y + end_pixel_y) - (32 * start_y + start_pixel_y)
+	var/dx = (32 * end_x + end_pixel_x) - (32 * start_x + start_pixel_x)
+	if(!dy)
+		return (dx >= 0) ? 90 : 270
+	. = arctan(dx/dy)
+	if(dy < 0)
+		. += 180
+	else if(dx < 0)
+		. += 360
+
 /proc/Get_Angle(atom/movable/start,atom/movable/end)//For beams.
 	if(!start || !end)
 		return 0
@@ -192,43 +203,6 @@ Turf and target are separate in case you want to teleport some distance from a t
 		if (ch < 48 || ch > 57)
 			return 0
 	return 1
-
-//Generalised helper proc for letting mobs rename themselves. Used to be clname() and ainame()
-/mob/proc/apply_pref_name(role, client/C)
-	if(!C)
-		C = client
-	var/oldname = real_name
-	var/newname
-	var/loop = 1
-	var/safety = 0
-
-	var/banned = C ? is_banned_from(C.ckey, "Appearance") : null
-
-	while(loop && safety < 5)
-		if(C && C.prefs.custom_names[role] && !safety && !banned)
-			newname = C.prefs.custom_names[role]
-		else
-			switch(role)
-				if("human")
-					newname = random_unique_name(gender)
-				else
-					return FALSE
-
-		for(var/mob/living/M in GLOB.player_list)
-			if(M == src)
-				continue
-			if(!newname || M.real_name == newname)
-				newname = null
-				loop++ // name is already taken so we roll again
-				break
-		loop--
-		safety++
-
-	if(newname)
-		fully_replace_character_name(oldname,newname)
-		return TRUE
-	return FALSE
-
 
 //Returns a list of all items of interest with their name
 /proc/getpois(mobs_only=FALSE,skip_mindless=FALSE,team=null,skip_antighost=TRUE)
@@ -743,6 +717,10 @@ will handle it, but:
 		if(H.cloak)
 			wash_obj(H.cloak, clean)
 			H.update_inv_cloak()
+
+		for(var/obj/item/I in list(H.wear_wrists, H.backr, H.backl, H.beltr, H.beltl, H.mouth, H.wear_ring))
+			wash_obj(I, clean)
+			I.update_slot_icon()
 
 		SEND_SIGNAL(H, COMSIG_COMPONENT_CLEAN_ACT, CLEAN_STRENGTH_BLOOD)
 	else
@@ -1620,3 +1598,32 @@ GLOBAL_LIST_INIT(duplicate_forbidden_vars,list(
 
 	return sorted_ckey_to_actor_data
 
+//Whether a living mob's client prefs currently hide them from non-admin ghosts.
+/proc/has_ghost_protection(atom/target)
+	if(!isliving(target))
+		return FALSE
+	var/mob/living/living_target = target
+	return !!(living_target.client?.prefs.ghost_toggles & TOGGLE_ANTIGHOST)
+
+//Admins keep their existing observer tooling even when a target has ghost protection.
+/mob/dead/observer/proc/bypasses_ghost_protection()
+	return !!check_rights_for(client, R_ADMIN) // this should maybe just be an override on /mob/dead/observer/admin
+
+/mob/dead/observer/eye/bypasses_ghost_protection()
+	return TRUE
+
+//Whether a protected living target should be hidden from this observer.
+/proc/is_hidden_from_ghosts(atom/target, mob/dead/observer/viewer)
+	if(!isobserver(viewer))
+		return FALSE
+	if(viewer.bypasses_ghost_protection())
+		return FALSE
+	return has_ghost_protection(target)
+
+/proc/get_hidden_ghosts_for_target(atom/target)
+	. = list()
+	if(!has_ghost_protection(target))
+		return
+	for(var/mob/dead/observer/observer in GLOB.player_list)
+		if(is_hidden_from_ghosts(target, observer))
+			. += observer

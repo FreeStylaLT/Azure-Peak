@@ -13,6 +13,10 @@
 	min_pq = 2		//Will be handled by classes if PQ limiting is needed. --But Until then, learn escalation, mercs.
 	max_pq = null
 	round_contrib_points = 1
+	quest_claim_barred = TRUE
+	quest_claim_towner_allowed = TRUE
+	quest_claim_lowpop_allowed = TRUE
+	quest_claim_solo_allowed = TRUE
 	townie_contract_gate_exempt = TRUE
 	outfit = null	//Handled by classes
 	outfit_female = null
@@ -47,7 +51,6 @@
 		/datum/advclass/mercenary/rumaclan_sasu,
 		/datum/advclass/mercenary/hangyaku,
 		/datum/advclass/mercenary/chonin,
-		/datum/advclass/mercenary/seonjang,
 		/datum/advclass/mercenary/steppesman,
 		/datum/advclass/mercenary/warscholar,
 		/datum/advclass/mercenary/warscholar_pontifex,
@@ -112,11 +115,15 @@
 			to_chat(M, span_boldnotice("I sense a mercenary statue calling out to me..."))
 			to_chat(M, span_notice("<a href='?src=[REF(statue)];register=[REF(H)]'>Touch the statue from afar</a> to register myself as available for contract."))
 
-			// Store the registration request
-			statue.pending_registrations[H.key] = H
+			statue.pending_registrations[M.key] = H
+			addtimer(CALLBACK(statue, TYPE_PROC_REF(/obj/structure/roguemachine/talkstatue/mercenary, expire_registration), M.key), 5 MINUTES)
 
 /datum/advclass/mercenary/post_equip(mob/living/carbon/human/H) // has to be here because this is done AFTER subclass selection
 	. = ..()
+	add_verb(H, /mob/living/carbon/human/proc/mercenary_statusupdate)
+	if(istype(SSjob.GetJob(H.job), /datum/job/roguetown/mercenary))
+		add_verb(H, /mob/living/carbon/human/proc/mercenary_end_contract)
+		grant_merc_contract(H)
 	var/list/subprefs = H.client?.prefs?.job_subprefs
 	if(!subprefs)
 		return

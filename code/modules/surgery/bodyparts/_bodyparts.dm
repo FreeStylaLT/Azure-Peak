@@ -108,7 +108,7 @@
 	grid_width = 32
 	grid_height = 64
 
-	resistance_flags = FLAMMABLE
+	resistance_flags = FIRE_PROOF | UNACIDABLE
 
 /obj/item/bodypart/proc/operator""()
 	return "\proper"+name
@@ -118,19 +118,25 @@
 
 /obj/item/bodypart/proc/get_specific_markings_overlays(list/specific_markings, aux = FALSE, mob/living/carbon/human/human_owner, override_color)
 	var/list/appearance_list = list()
-//	var/specific_layer = aux ? aux_layer : BODYPARTS_LAYER
-	var/specific_layer = aux_layer ? aux_layer : BODYPARTS_LAYER
+	var/specific_layer = (aux || aux_layer == LEG_PART_LAYER) ? aux_layer : BODYPARTS_LAYER
 	var/specific_render_zone = aux ? aux_zone : body_zone
+
 	for(var/key in specific_markings)
 		var/color = specific_markings[key]
 		var/datum/body_marking/BM = GLOB.body_markings[key]
 
 		var/render_limb_string = specific_render_zone
+		var/pixel_y_offset = 0
 		if(BM.gendered && (!BM.gender_only_chest || specific_render_zone == BODY_ZONE_CHEST))
-			var/gendaar = (human_owner.gender == FEMALE) ? "f" : "m"
+			var/gendaar = human_owner.is_bulky_body() ? "m" : "f"
 			render_limb_string = "[render_limb_string]_[gendaar]"
+			// Only gendered markings need this: one drawn as a single shared sprite was never drawn against her
+			// body to begin with. The per-zone amounts live on the build, as marking_offsets.
+			if(gendaar == "f" && human_owner.gender == MALE)
+				pixel_y_offset = human_owner.get_marking_offset(specific_render_zone)
 
 		var/mutable_appearance/accessory_overlay = mutable_appearance(BM.icon, "[BM.icon_state]_[render_limb_string]", -specific_layer)
+		accessory_overlay.pixel_y += pixel_y_offset
 		if(override_color)
 			accessory_overlay.color = "#[override_color]"
 		else
@@ -256,19 +262,6 @@
 				user.temporarilyRemoveItemFromInventory(src, TRUE)
 				attach_limb(C)
 				return
-	return ..()
-
-/obj/item/bodypart/head/attackby(obj/item/I, mob/user, params)
-	if(length(contents) && I.get_sharpness() && !user.cmode)
-		add_fingerprint(user)
-		playsound(loc, 'sound/combat/hits/bladed/genstab (1).ogg', 60, vary = FALSE)
-		user.visible_message(span_warning("[user] begins to cut open [src]."),\
-			span_notice("You begin to cut open [src]..."))
-		if(do_after(user, 5 SECONDS, target = src))
-			drop_organs(user)
-			user.visible_message(span_danger("[user] cuts [src] open!"),\
-				span_notice("You finish cutting [src] open."))
-		return
 	return ..()
 
 /obj/item/bodypart/throw_impact(atom/hit_atom, datum/thrownthing/throwingdatum)
@@ -536,10 +529,7 @@
 		return
 	var/datum/species/S = H.dna.species
 	species_id = S.limbs_id
-	if(H.gender == MALE)
-		species_icon = S.limbs_icon_m
-	else
-		species_icon = S.limbs_icon_f
+	species_icon = S.get_limbs_icon(H)
 	species_flags_list = H.dna.species.species_traits
 
 
@@ -611,6 +601,11 @@
 	icon_state = "" //to erase the default sprite, we're building the visual aspects of the bodypart through overlays alone.
 
 	. = list()
+	var/datum/component/ooze_color_shift/color_shift
+	if(!dropped && owner && isooze(owner))
+		color_shift = owner.GetComponent(/datum/component/ooze_color_shift)
+		if(!color_shift?.shifting)
+			color_shift = null
 	var/icon_gender = (body_gender == FEMALE) ? "f" : "m" //gender of the icon, if applicable
 
 	var/image_dir = 0
@@ -664,7 +659,7 @@
 		limb.icon_state = "[prosthetic_prefix]_[body_zone]"
 		if(aux_zone)
 			if(!hideaux)
-				aux = image(limb.icon, "pr_[aux_zone]", -aux_layer, image_dir)
+				aux = image(limb.icon, "[prosthetic_prefix]_[aux_zone]", -aux_layer, image_dir)
 				. += aux
 
 
@@ -679,6 +674,13 @@
 			limb.color = "#[draw_color]"
 			if(aux_zone && !hideaux)
 				aux.color = "#[draw_color]"
+			if(color_shift && !no_update && !rotted && !(HAS_TRAIT(owner, TRAIT_ROTMAN) && !owner.mind) && !mutation_color && draw_color == owner.dna.features["mcolor"])
+				var/list/limb_overlays = .
+				limb_overlays[1] = color_shift.add_body_visual(limb)
+				if(aux)
+					var/aux_index = limb_overlays.Find(aux)
+					if(aux_index)
+						limb_overlays[aux_index] = color_shift.add_body_visual(aux)
 
 	var/draw_organ_features = TRUE
 	var/draw_bodypart_features = TRUE
@@ -707,8 +709,11 @@
 						should_draw = TRUE
 				if(!should_draw)
 					continue
-			var/mutable_appearance/organ_appearance = organ.get_bodypart_overlay(src)
+			var/organ_appearance = organ.get_bodypart_overlay(src)
 			if(organ_appearance)
+				if(color_shift && islist(organ_appearance) && !istype(organ, /obj/item/organ/eyes) && color_shift.prepare_accessory(organ, organ.accessory_type, organ.accessory_colors))
+					var/datum/sprite_accessory/accessory = SPRITE_ACCESSORY(organ.accessory_type)
+					organ_appearance = color_shift.add_accessory_visuals(accessory, src, organ, organ_appearance, organ.accessory_colors)
 				. += organ_appearance
 
 	// Feature overlays
@@ -722,6 +727,9 @@
 			var/overlays = feature.get_bodypart_overlay(src)
 			if(!overlays)
 				continue
+			if(color_shift && color_shift.prepare_accessory(feature, feature.accessory_type, feature.accessory_colors))
+				var/datum/sprite_accessory/accessory = SPRITE_ACCESSORY(feature.accessory_type)
+				overlays = color_shift.add_accessory_visuals(accessory, src, null, overlays, feature.accessory_colors)
 			. += overlays
 
 /obj/item/bodypart/deconstruct(disassembled = TRUE)

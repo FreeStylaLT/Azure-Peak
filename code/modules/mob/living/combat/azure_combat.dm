@@ -23,7 +23,7 @@
 			H.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
 			if(H.mind)
 				H.dodgetime = clamp(H.dodgetime + 5, 0, CLICK_CD_HEAVY)
-			H.Slowdown(3)
+			H.apply_slowdown(5 SECONDS)
 			to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
 			playsound(src, 'sound/combat/clash_struck.ogg', 100)
 			remove_status_effect(/datum/status_effect/buff/clash)
@@ -37,7 +37,7 @@
 		H.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
 		if(H.mind)
 			H.dodgetime = clamp(H.dodgetime + 5, 0, CLICK_CD_HEAVY)
-		H.Slowdown(3)
+		H.apply_slowdown(5 SECONDS)
 		to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
 		playsound(src, 'sound/combat/clash_struck.ogg', 100)
 		remove_status_effect(/datum/status_effect/buff/clash)
@@ -57,7 +57,7 @@
 		H.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
 		if(H.mind)
 			H.dodgetime = clamp(H.dodgetime + 5, 0, CLICK_CD_HEAVY)
-		H.Slowdown(3)
+		H.apply_slowdown(5 SECONDS)
 		to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
 		playsound(src, 'sound/combat/clash_struck.ogg', 100)
 		remove_status_effect(/datum/status_effect/buff/clash)
@@ -81,7 +81,7 @@
 		if(H.mind)
 			H.dodgetime = clamp(H.dodgetime + 5, 0, CLICK_CD_HEAVY)
 		dodgetime = clamp(dodgetime - 5, 0, CLICK_CD_DODGE)
-		H.Slowdown(3)
+		H.apply_slowdown(5 SECONDS)
 
 		to_chat(src, span_notice("[capitalize(H.p_theyre())] exposed!"))
 		remove_status_effect(/datum/status_effect/buff/clash)
@@ -102,7 +102,7 @@
 		L.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
 		if(L.mind)
 			L.dodgetime = clamp(L.dodgetime + 5, 0, CLICK_CD_HEAVY)
-		L.Slowdown(3)
+		L.apply_slowdown(5 SECONDS)
 		to_chat(src, span_notice("[capitalize(L.p_theyre())] exposed!"))
 		remove_status_effect(/datum/status_effect/buff/clash)
 		apply_status_effect(/datum/status_effect/buff/adrenaline_rush/melee)
@@ -114,7 +114,7 @@
 	if(L.mind)
 		L.dodgetime = clamp(L.dodgetime + 5, 0, CLICK_CD_HEAVY)
 	dodgetime = clamp(dodgetime - 5, 0, CLICK_CD_DODGE)
-	user.Slowdown(3)
+	L.apply_slowdown(5 SECONDS)
 
 	to_chat(src, span_notice("[capitalize(L.p_theyre())] exposed!"))
 	remove_status_effect(/datum/status_effect/buff/clash)
@@ -136,16 +136,8 @@
 	var/list/statdiffs = list(strdiff, perdiff, spddiff, fordiff, intdiff)
 
 	//Skill check, very simple. If you're more skilled with your weapon than the opponent is with theirs -> +10% to disarm or vice-versa.
-	var/skilldiff
-	if(IM?.associated_skill)
-		skilldiff = get_skill_level(IM.associated_skill)
-	else
-		skilldiff = get_skill_level(/datum/skill/combat/unarmed)
-
-	if(IU?.associated_skill)
-		skilldiff = skilldiff - HU.get_skill_level(IU.associated_skill)
-	else
-		skilldiff = skilldiff - HU.get_skill_level(/datum/skill/combat/unarmed)
+	var/skilldiff = get_wskill(IM, /datum/skill/combat/unarmed)
+	skilldiff -= HU.get_wskill(IU, /datum/skill/combat/unarmed)
 
 	//Weapon checks.
 	var/lengthdiff = IM?.wlength - IU?.wlength //The longer the weapon the better.
@@ -209,7 +201,7 @@
 		else
 			apply_status_effect(/datum/status_effect/debuff/vulnerable, 5 SECONDS)
 			apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
-		Slowdown(5)
+		apply_slowdown(9 SECONDS)
 		success = TRUE
 	if(prob(prob_opp))
 		if(IU)
@@ -217,7 +209,7 @@
 		else
 			HU.apply_status_effect(/datum/status_effect/debuff/vulnerable, 3 SECONDS)
 			HU.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
-		HU.Slowdown(5)
+		HU.apply_slowdown(9 SECONDS)
 		play_overhead_indicator('icons/mob/overhead_effects.dmi', "clashtwo", 1 SECONDS, OBJ_LAYER, soundin = 'sound/combat/clash_disarm_opp.ogg', y_offset = 24)
 		success = TRUE
 	if(!success)
@@ -251,7 +243,7 @@
 			return FALSE
 	if(r_grab || l_grab || length(grabbedby))
 		return FALSE
-	if(IsImmobilized() || IsOffBalanced())
+	if(IsImmobilized() || IsOffBalanced() || incapacitated(ignore_restraints = TRUE))
 		return FALSE
 	if(m_intent == MOVE_INTENT_RUN)
 		to_chat(src, span_warning("I can't focus on this while running."))
@@ -566,7 +558,7 @@
 		return
 	if(istype(used_weapon.associated_skill, /datum/skill/combat/unarmed))
 		return
-	if(get_skill_level(used_weapon.associated_skill) < SKILL_LEVEL_JOURNEYMAN)
+	if(get_wskill(used_weapon) < SKILL_LEVEL_JOURNEYMAN)
 		return
 	if(has_status_effect(/datum/status_effect/debuff/bindcd))
 		return
@@ -596,7 +588,7 @@
 			var/obj/item/rogueweapon/RW = user.get_active_held_item()
 			if(RW)
 				RW.take_damage(RW.sharpness ? (INTEG_PARRY_DECAY) : (INTEG_PARRY_DECAY_NOSHARP), BRUTE, used_weapon.d_type)
-				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY), src)
+				RW.remove_bintegrity((SHARPNESS_ONHIT_DECAY), user)
 
 			//if(used_weapon)
 			//	used_weapon.take_damage((used_weapon.sharpness ? (INTEG_PARRY_DECAY) : (INTEG_PARRY_DECAY_NOSHARP)), BRUTE, used_weapon.d_type)

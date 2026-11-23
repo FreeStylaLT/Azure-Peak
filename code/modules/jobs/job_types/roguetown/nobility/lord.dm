@@ -11,6 +11,7 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	spawn_positions = 1
 	selection_color = JCOLOR_NOBLE
 	forbidden_races = list(RACES_CONSTRUCT RACES_DESPISED RACES_OOZE)
+	allowed_patrons = NON_PSYDON_PATRONS
 	allowed_sexes = list(MALE, FEMALE)
 	advclass_cat_rolls = list(CTAG_LORD = 20)
 
@@ -30,11 +31,12 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	min_pq = 50 //staff request
 	max_pq = null
 	round_contrib_points = 4
+	quest_claim_barred = TRUE
 	give_bank_account = 250
 	cmode_music = 'sound/music/combat_noble.ogg'
 
 	// Can't use the Throat when you can't talk properly or.. at all for that matter.
-	vice_restrictions = list(/datum/charflaw/mute, /datum/charflaw/unintelligible)
+	vice_restrictions = list(/datum/charflaw/mute, /datum/charflaw/unintelligible, /datum/charflaw/wanted)
 
 	job_subclasses = list(
 		/datum/advclass/lord/warrior,
@@ -125,12 +127,12 @@ GLOBAL_LIST_EMPTY(lord_titles)
 			}
 
 /datum/outfit/job/roguetown/lord
-	neck = /obj/item/storage/belt/rogue/pouch/coins/rich
-	cloak = /obj/item/clothing/cloak/lordcloak
+	neck = /obj/item/clothing/neck/roguetown/ornateamulet/noble
 	belt = /obj/item/storage/belt/rogue/leather/plaquegold
-	beltl = /obj/item/storage/keyring/lord
 	beltr = /obj/item/rogueweapon/scabbard/sword/royal
-	backpack_contents = list(/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1, /obj/item/blueprint/mace_mushroom = 1, /obj/item/hunting_map/white_stag = 1)
+	pants = /obj/item/clothing/under/roguetown/tights/puritan
+	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson/lord/heavy //DNR guarrenteed role, won't save you since your legs are unarmored by default, but it at least prevents a cheap swift-intent gutspill ending you.
+	shoes = /obj/item/clothing/shoes/roguetown/rosa/nine
 	id = /obj/item/scomstone/garrison
 
 /datum/outfit/job/roguetown/lord/pre_equip(mob/living/carbon/human/H)
@@ -141,17 +143,12 @@ GLOBAL_LIST_EMPTY(lord_titles)
 	else
 		to_chat(H, span_warning("My crown must be yet in the realm. I shall search it out."))
 	if(should_wear_femme_clothes(H))
-		pants = /obj/item/clothing/under/roguetown/tights/black
-		shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/black
 		armor = /obj/item/clothing/suit/roguetown/shirt/dress/royal
 		cloak = /obj/item/clothing/cloak/lordcloak/ladycloak
 		wrists = /obj/item/clothing/wrists/roguetown/royalsleeves
-		shoes = /obj/item/clothing/shoes/roguetown/shortboots
 	else if(should_wear_masc_clothes(H))
-		pants = /obj/item/clothing/under/roguetown/tights/black
-		shirt = /obj/item/clothing/suit/roguetown/shirt/undershirt/black
-		armor = /obj/item/clothing/suit/roguetown/armor/leather/vest/black
-		shoes = /obj/item/clothing/shoes/roguetown/boots
+		armor = /obj/item/clothing/suit/roguetown/shirt/dress/royal/prince/lord
+		cloak = /obj/item/clothing/cloak/lordcloak
 	saiga_shoes = /obj/item/clothing/shoes/roguetown/horseshoes/gold
 	if(H.wear_mask)
 		if(istype(H.wear_mask, /obj/item/clothing/mask/rogue/eyepatch))
@@ -161,24 +158,6 @@ GLOBAL_LIST_EMPTY(lord_titles)
 			qdel(H.wear_mask)
 			mask = /obj/item/clothing/mask/rogue/lordmask/l
 	ADD_TRAIT(H, TRAIT_NOBLE, TRAIT_GENERIC)
-
-/datum/outfit/job/roguetown/lord/choose_loadout(mob/living/carbon/human/H)
-	. = ..()
-	var/client/player = H?.client
-	if(player.prefs)
-		if(!istype(player.prefs.virtue_origin, /datum/virtue/origin/azuria) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/grenzelhoft) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/otava) && !istype(player.prefs.virtue_origin, /datum/virtue/origin/etrusca))
-			var/list/new_origins = list("Azuria" = /datum/virtue/origin/azuria,
-			"Grenzelhoft" = /datum/virtue/origin/grenzelhoft,
-			"Otava" = /datum/virtue/origin/otava,
-			"Etrusca" = /datum/virtue/origin/etrusca)
-			var/new_origin
-			var/choice = input(player, "Your origins are not compatible with the [SSticker.realm_type_short]. Where do you hail from?", "ANCESTRY") as anything in new_origins
-			if(choice)
-				new_origin = new_origins[choice]
-			else
-				to_chat(player, span_notice("No choice detected. Picking a random compatible origin."))
-				new_origin = pick(/datum/virtue/origin/grenzelhoft, /datum/virtue/origin/otava, /datum/virtue/origin/etrusca)
-			change_origin(H, new_origin, "Royal line")
 
 //	SSticker.rulermob = H
 /**
@@ -226,6 +205,16 @@ GLOBAL_LIST_EMPTY(lord_titles)
 /datum/outfit/job/roguetown/lord/warrior/pre_equip(mob/living/carbon/human/H)
 	..()
 	l_hand = /obj/item/rogueweapon/lordscepter
+	//assigned per subclass to prevent duplication glitches with items
+	backr = /obj/item/storage/backpack/rogue/satchel/black
+	backpack_contents = list(
+		/obj/item/storage/keyring/lord = 1,
+		/obj/item/storage/belt/rogue/pouch/coins/veryrich = 1,
+		/obj/item/rogueweapon/huntingknife/idagger/steel/decorated = 1,
+		/obj/item/blueprint/mace_mushroom = 1,
+		/obj/item/hunting_map/white_stag = 1,
+		/obj/item/rogueweapon/scabbard/sheath/royal = 1
+	)
 
 /**
 	Merchant Lord subclass. Consider this an evolution from Sheltered Aristocrat.
@@ -275,6 +264,16 @@ GLOBAL_LIST_EMPTY(lord_titles)
 /datum/outfit/job/roguetown/lord/merchant/pre_equip(mob/living/carbon/human/H)
 	..()
 	l_hand = /obj/item/rogueweapon/lordscepter
+	//assigned per subclass to prevent duplication glitches with items
+	backr = /obj/item/storage/backpack/rogue/satchel/black
+	backpack_contents = list(
+		/obj/item/storage/keyring/lord = 1,
+		/obj/item/storage/belt/rogue/pouch/coins/veryrich = 1,
+		/obj/item/rogueweapon/huntingknife/idagger/steel/decorated = 1,
+		/obj/item/blueprint/mace_mushroom = 1,
+		/obj/item/hunting_map/white_stag = 1,
+		/obj/item/rogueweapon/scabbard/sheath/royal = 1
+	)
 	if(H.mind)
 		H.mind.AddSpell(new /obj/effect/proc_holder/spell/invoked/appraise/secular)
 
@@ -299,7 +298,7 @@ GLOBAL_LIST_EMPTY(lord_titles)
 		STATKEY_PER = 2,
 		STATKEY_WIL = 1,
 	)
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 1, "utilities" = 4, "ward" = TRUE)
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 1, "minor" = 1, "utilities" = 5, "ward" = TRUE)
 	subclass_skills = list(
 		/datum/skill/combat/staves = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/arcyne = SKILL_LEVEL_EXPERT,
@@ -324,9 +323,17 @@ GLOBAL_LIST_EMPTY(lord_titles)
 /datum/outfit/job/roguetown/lord/mage/pre_equip(mob/living/carbon/human/H)
 	..()
 	l_hand = /obj/item/rogueweapon/lordscepter
-	backr = /obj/item/storage/backpack/rogue/satchel
-
-	backpack_contents = list(/obj/item/rogueweapon/huntingknife/idagger/steel/special = 1, /obj/item/rogueweapon/spellbook = 1, /obj/item/blueprint/mace_mushroom = 1, /obj/item/chalk = 1, /obj/item/hunting_map/white_stag = 1,)
+	//assigned per subclass to prevent duplication glitches with items
+	backr = /obj/item/storage/backpack/rogue/satchel/black
+	backpack_contents = list(
+		/obj/item/storage/keyring/lord = 1,
+		/obj/item/storage/belt/rogue/pouch/coins/veryrich = 1,
+		/obj/item/rogueweapon/huntingknife/idagger/steel/silver/arcyne = 1,
+		/obj/item/rogueweapon/scabbard/sheath/royal = 1,
+		/obj/item/blueprint/mace_mushroom = 1,
+		/obj/item/hunting_map/white_stag = 1,
+		/obj/item/rogueweapon/spellbook/greater = 1
+	)
 
 /**
 	Inbred Lord subclass. A joke class, evolution of the Inbred Wastrel.
@@ -368,6 +375,16 @@ GLOBAL_LIST_EMPTY(lord_titles)
 /datum/outfit/job/roguetown/lord/inbred/pre_equip(mob/living/carbon/human/H)
 	..()
 	l_hand = /obj/item/rogueweapon/lordscepter
+	//assigned per subclass to prevent duplication glitches with items
+	backr = /obj/item/storage/backpack/rogue/satchel/black
+	backpack_contents = list(
+		/obj/item/storage/keyring/lord = 1,
+		/obj/item/storage/belt/rogue/pouch/coins/veryrich = 1,
+		/obj/item/rogueweapon/huntingknife/idagger/steel/decorated = 1,
+		/obj/item/blueprint/mace_mushroom = 1,
+		/obj/item/hunting_map/white_stag = 1,
+		/obj/item/rogueweapon/scabbard/sheath/royal = 1
+	)
 	H.adjust_skillrank(/datum/skill/combat/crossbows, pick(0,1), TRUE)
 	H.adjust_skillrank(/datum/skill/misc/climbing, pick(0,0,1), TRUE)
 	H.adjust_skillrank(/datum/skill/misc/athletics, pick(0,1), TRUE)

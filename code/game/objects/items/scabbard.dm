@@ -190,7 +190,8 @@
 
 	invalid_blades = list(
 		/obj/item/rogueweapon/huntingknife/idagger/stake,
-		/obj/item/rogueweapon/huntingknife/idagger/silver/stake)
+		/obj/item/rogueweapon/huntingknife/idagger/steel/silver/stake,
+		)
 
 /obj/item/rogueweapon/scabbard/sheath/getonmobprop(tag)
 	..()
@@ -288,23 +289,8 @@
 	icon_state = "beltstrapl"
 	item_state = "beltstrapl"
 
-/obj/item/rogueweapon/scabbard/sheath/strap/update_icon(mob/living/user)
-	if(hol_comp.sheathed)
-		icon = hol_comp.sheathed.icon
-		icon_state = hol_comp.sheathed.icon_state
-		experimental_onback = TRUE
-		experimental_onhip = TRUE
-	else
-		icon = initial(icon)
-		icon_state = initial(icon_state)
-		experimental_onback = FALSE
-		experimental_onhip = FALSE
-	if(user)
-		user.update_inv_hands()
-		user.update_inv_back()
-		user.update_inv_belt()
-
-	getonmobprop(tag)
+/obj/item/rogueweapon/scabbard/sheath/strap/ComponentInitialize()
+	AddComponent(/datum/component/holster/simplestrap, (valid_blade ? valid_blade : null), (length(valid_blades) ? valid_blades : null), (length(invalid_blades) ? invalid_blades : null))
 
 /obj/item/rogueweapon/scabbard/sheath/getonmobprop(tag)
 	..()
@@ -583,7 +569,6 @@
 
 	valid_blade = /obj/item/rogueweapon/sword/long/kriegmesser/ssangsudo
 	can_parry = FALSE
-	sewrepair = TRUE
 	special = null
 	max_integrity = 0
 
@@ -620,14 +605,16 @@
 	desc = "A simple lacquered sheath, for shorter eastern-styled blades."
 	icon_state = "kazscabdagger"
 	item_state = "kazscabdagger"
-	valid_blade = /obj/item/rogueweapon/huntingknife/idagger/steel/kazengun
 	associated_skill = /datum/skill/combat/knives
 	possible_item_intents = list(SHIELD_BASH, SHIELD_SMASH)
 	can_parry = TRUE
 	sewrepair = FALSE
 	anvilrepair = /datum/skill/craft/carpentry
-	wdefense = 4
+	wdefense = 6
 	max_integrity = 220
+	valid_blades = list(
+		/obj/item/rogueweapon/huntingknife/idagger/steel/kazengun,
+		/obj/item/rogueweapon/huntingknife/idagger/blacksteel/kazengun)
 
 
 /obj/item/rogueweapon/scabbard/sheath/courtphysician
@@ -704,6 +691,7 @@
 	valid_blade = /obj/item/rogueweapon/sword/rapier/hand
 	implement_tier = IMPLEMENT_TIER_GREATER
 	implement_refund = IMPLEMENT_REFUND_GREATER
+	is_implement = TRUE
 	sellprice = 100
 
 /obj/item/rogueweapon/scabbard/sheath/courtphysician/hand/ComponentInitialize()
@@ -771,6 +759,77 @@
 					"sflip" = 1,
 					"wflip" = 1,
 					"eflip" = 1,
+					"northabove" = 1,
+					"southabove" = 0,
+					"eastabove" = 0,
+					"westabove" = 0
+				)
+	else
+		switch(tag)
+			if("onback")
+				return list(
+					"shrink" = 0.7,
+					"sx" = 1,
+					"sy" = -1,
+					"nx" = 1,
+					"ny" = -1,
+					"wx" = 4,
+					"wy" = -1,
+					"ex" = -1,
+					"ey" = -1,
+					"nturn" = 0,
+					"sturn" = 0,
+					"wturn" = 0,
+					"eturn" = 0,
+					"nflip" = 8,
+					"sflip" = 0,
+					"wflip" = 0,
+					"eflip" = 0,
+					"northabove" = 1,
+					"southabove" = 0,
+					"eastabove" = 0,
+					"westabove" = 0
+				)
+
+/obj/item/rogueweapon/scabbard/gwstrap/nodachi
+	name = "saya"
+	desc = "A well maintained strap connected to a lacquered wood scabbard with a metal finish. It appears designed to hold an exceptionally long blade."
+
+	icon_state = "nodachi0"
+	item_state = "nodachi0"
+	valid_blade = /obj/item/rogueweapon/greatsword/nodachi
+	experimental_onback = TRUE
+
+/obj/item/rogueweapon/scabbard/gwstrap/nodachi/ComponentInitialize()
+	AddComponent(/datum/component/holster, valid_blade, null, null, sheathe_time)
+
+/obj/item/rogueweapon/scabbard/gwstrap/nodachi/getonmobprop(tag)
+	..()
+	if(!hol_comp)
+		return
+	if(!hol_comp.sheathed)
+		return
+	if(istype(hol_comp.sheathed, /obj/item/rogueweapon/estoc) || istype(hol_comp.sheathed, /obj/item/rogueweapon/greatsword))
+		switch(tag)
+			if("onback")
+				return list(
+					"shrink" = 0.6,
+					"sx" = -1,
+					"sy" = 2,
+					"nx" = 0,
+					"ny" = 2,
+					"wx" = 2,
+					"wy" = 1,
+					"ex" = 0,
+					"ey" = 1,
+					"nturn" = 0,
+					"sturn" = 0,
+					"wturn" = -70,
+					"eturn" = -15,
+					"nflip" = 0,
+					"sflip" = 0,
+					"wflip" = 0,
+					"eflip" = 0,
 					"northabove" = 1,
 					"southabove" = 0,
 					"eastabove" = 0,

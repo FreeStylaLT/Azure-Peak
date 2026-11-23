@@ -21,13 +21,15 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	maxHealth = 20
 	gender = PLURAL //placeholder
 
-	status_flags = CANPUSH
+	status_flags = CANSTUN|CANPUSH
 	fire_stack_decay_rate = -3
 	var/icon_living = ""
 	///Icon when the animal is dead. Don't use animated icons for this.
 	var/icon_dead = ""
 	///We only try to show a gibbing animation if this exists.
 	var/icon_gib = null
+	///Icon states already drawn lying down. Toppling must not rotate the sprite while one of these is showing.
+	var/list/prone_icon_states = null
 	///Flip the sprite upside down on death. Mostly here for things lacking custom dead sprites.
 	var/flip_on_death = FALSE
 
@@ -39,20 +41,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/list/emote_hear = list()
 	///Unlike speak_emote, the list of things in this variable only show by themselves with no spoken text. IE: Ian barks, Ian yaps
 	var/list/emote_see = list()
-
-	var/move_skip = FALSE
-	var/action_skip = FALSE
-
-	var/turns_per_move = 1
-	var/turns_since_move = 0
-	///Use this to temporarely stop random movement or to if you write special movement code for animals.
-	var/stop_automated_movement = 0
-	///Does the mob wander around when idle?
-	var/wander = 1
-	///When set to 1 this stops the animal from moving when someone is pulling it.
-	var/stop_automated_movement_when_pulled = 1
-	///Next time we can perform a grid update (throttled to avoid excessive updates)
-	var/next_grid_update_time = 0
 
 	var/obj/item/handcuffed = null //Whether or not the mob is handcuffed
 	var/obj/item/legcuffed = null	//Same as handcuffs but for legs. Bear traps use this.
@@ -99,6 +87,10 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/melee_damage_type = BRUTE
 	///Type of melee attack
 	var/d_type = "slash"
+	/// Height band this mob's melee attacks favors.
+	var/attack_aim = MOB_AIM_LEVEL
+	/// Explicit list that overrides attack_aim
+	var/list/attack_zone_weights
 	/// 1 for full damage , 0 for none , -1 for 1:1 heal from that source.
 	var/list/damage_coeff = list(BRUTE = 1, BURN = 1, TOX = 1, CLONE = 1, STAMINA = 0, OXY = 1)
 	///Attacking verb in present continuous tense.
@@ -113,10 +105,11 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	///Set to 1 to allow breaking of crates,lockers,racks,tables; 2 for walls; 3 for Rwalls.
 	var/environment_smash = ENVIRONMENT_SMASH_NONE
 
-	///LETS SEE IF I CAN SET SPEEDS FOR SIMPLE MOBS WITHOUT DESTROYING EVERYTHING. Higher speed is slower, negative speed is faster.
-	var/speed = 1
-	///Delay for movement and riding logic across the simple-animal hierarchy.
-	var/move_to_delay = 3
+	// Base tile to tile delay
+	var/move_base_delay = null
+	var/run_multiplier = SIMPLEMOB_RUN_MULTIPLIER
+	var/sneak_multiplier = SIMPLEMOB_SNEAK_MULTIPLIER
+	var/ride_move_delay = 3
 
 	///Hot simple_animal baby making vars.
 	var/list/childtype = null
@@ -148,19 +141,12 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/del_on_death = 0
 	var/deathmessage = ""
 
-	var/allow_movement_on_non_turfs = FALSE
-
 	///Played when someone punches the creature.
 	var/attacked_sound = "punch"
 
 	///If the creature has, and can use, hands.
 	var/dextrous = FALSE
 	var/dextrous_hud_type = /datum/hud/dextrous
-
-	///The Status of our AI, can be set to AI_ON (On, usual processing), AI_IDLE (Will not process, but will return to AI_ON if an enemy comes near), NPC_AI_OFF (Off, Not processing ever), AI_Z_OFF (Temporarily off due to nonpresence of players).
-	var/AIStatus = AI_ON
-	///once we have become sentient, we can never go back.
-	var/can_have_ai = TRUE
 
 	///Domestication.
 	var/tame = FALSE
@@ -205,15 +191,9 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/head_butcher
 	var/list/inherent_spells = list()
 
-	///What distance should we be checking for interesting things when considering idling/deidling? Defaults to AI_DEFAULT_INTERESTING_DIST
-	var/interesting_dist = AI_DEFAULT_INTERESTING_DIST
-	///our current cell grid
-	var/datum/cell_tracker/our_cells
-
 	var/obj/item/caparison/ccaparison
 	var/obj/item/clothing/barding/bbarding
 	var/caparison_over_barding = FALSE
-	var/barding_speed_mult = 1
 	var/do_footstep = FALSE
 	var/fly_time = 3 SECONDS //default fly delay
 	var/datum/voicepack/voicepack = null
@@ -232,16 +212,14 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 /mob/living/simple_animal/Initialize(mapload)
 	. = ..()
-	GLOB.simple_animals[AIStatus] += src
 	if(gender == PLURAL)
 		gender = pick(MALE,FEMALE)
 	if(!real_name)
 		real_name = name
 	if(!loc)
 		stack_trace("Simple animal being instantiated in nullspace")
-	update_simplemob_varspeed()
-	our_cells = new(interesting_dist, interesting_dist, 1)
-	set_new_cells()
+	apply_combat_skill()
+	apply_anatomy_traits()
 	if(length(food_type))
 		food_typecache = typecacheof(food_type)
 //	if(dextrous)
@@ -258,43 +236,26 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	))
 
 /mob/living/simple_animal/Destroy()
-	for(var/list/SA_list in GLOB.simple_animals)
-		SA_list -= src
-	SSnpcpool.currentrun -= src
-
 	if(nest)
 		nest.spawned_mobs -= src
 		nest = null
 
-	if(ssaddle)
-		QDEL_NULL(ssaddle)
-		ssaddle = null
+	drop_tack()
+	QDEL_NULL(ssaddle)
+	QDEL_NULL(ccaparison)
+	QDEL_NULL(bbarding)
 
-	if(ccaparison)
-		QDEL_NULL(ccaparison)
-		ccaparison = null
+	return ..()
 
-	if(bbarding)
-		QDEL_NULL(bbarding)
-		bbarding = null
-
+/mob/living/simple_animal/proc/drop_tack()
 	var/turf/T = get_turf(src)
-	if (T && AIStatus == AI_Z_OFF)
-		SSidlenpcpool.idle_mobs_by_zlevel[T.z] -= src
-
-	. = ..()
-	our_cells = null
-
-/mob/living/simple_animal/examine(mob/user)
-	. = ..()
-	if(tame)
-		. += span_notice("This animal appears to be tamed.")
-	if(ssaddle)
-		. += span_notice("This animal is saddled: ([ssaddle.name]).")
-	if(ccaparison)
-		. += span_notice("This animal is wearing a caparison: ([ccaparison.name]).")
-	if(bbarding)
-		. += span_notice("This animal is wearing a bard: ([bbarding.name]).")
+	if(!T)
+		return
+	for(var/obj/item/gear as anything in list(ssaddle, bbarding, ccaparison))
+		gear?.forceMove(T)
+	ssaddle = null
+	bbarding = null
+	ccaparison = null
 
 /mob/living/simple_animal/attackby(obj/item/O, mob/user, params)
 	if(!food_typecache?[O.type])
@@ -338,9 +299,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		user.visible_message(span_notice("[user] removes the bard from [src]."), span_notice("I remove the bard from [src]."))
 		var/obj/item/clothing/barding/B = bbarding
 		bbarding = null
-		// Reset any movement slowdown from barding when it is removed
-		barding_speed_mult = 1
-		updatehealth()
 		B.forceMove(get_turf(src))
 		user.put_in_hands(B)
 		update_icon()
@@ -401,11 +359,13 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 			add_overlay(barding_base_overlay)
 			add_overlay(barding_above_overlay)
 
+/mob/living/simple_animal/is_legbound()
+	return !!legcuffed
+
 ///Extra effects to add when the mob is tamed, such as adding a riding component
 /mob/living/simple_animal/proc/tamed(mob/user)
 	INVOKE_ASYNC(src, PROC_REF(emote), "lower_head", null, null, null, TRUE)
 	tame = TRUE
-	stop_automated_movement_when_pulled = TRUE
 	if(user)
 		owner = user
 		SEND_SIGNAL(user, COMSIG_ANIMAL_TAMED, src)
@@ -419,37 +379,10 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 /mob/living/simple_animal/updatehealth()
 	..()
 	update_damage_overlays()
-
-/mob/living/simple_animal/hostile
-	var/retreating
-
-/mob/living/simple_animal/hostile/updatehealth()
-	..()
-	if(!retreating)
-		if(target)
-			if(retreat_health)
-				if(health <= round(maxHealth*retreat_health))
-					emote("retreat")
-					retreat_distance = 20
-					minimum_distance = 20
-					retreating = world.time
-	if(!retreating || (world.time > retreating + 10 SECONDS))
-		retreating = null
-		retreat_distance = initial(retreat_distance)
-		minimum_distance = initial(minimum_distance)
-	if(HAS_TRAIT(src, TRAIT_RIGIDMOVEMENT))
-		return
-	if(HAS_TRAIT(src, TRAIT_IGNOREDAMAGESLOWDOWN))
-		var/base_delay = initial(move_to_delay)
-		move_to_delay = base_delay * barding_speed_mult
-		return
-	var/health_deficiency = getBruteLoss() + getFireLoss()
-	if(health_deficiency >= ( maxHealth - (maxHealth*0.50) ))
-		var/damaged_delay = initial(move_to_delay) + 2
-		move_to_delay = damaged_delay * barding_speed_mult
-	else
-		var/normal_delay = initial(move_to_delay)
-		move_to_delay = normal_delay * barding_speed_mult
+	show_damage_stage()
+	if(istype(hud_used, /datum/hud/dextrous/oozeling))
+		var/datum/hud/dextrous/oozeling/oozeling_hud = hud_used
+		oozeling_hud.update_health_indicator(src)
 
 /mob/living/simple_animal/hostile/forceMove(turf/T)
 	var/list/BM = list()
@@ -476,21 +409,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	..()
 	if(stuttering)
 		stuttering = 0
-
-/mob/living/simple_animal/proc/handle_automated_action()
-	set waitfor = FALSE
-	return
-
-/mob/living/simple_animal/proc/handle_automated_movement()
-	set waitfor = FALSE
-	if(!stop_automated_movement && wander && !doing)
-		if(ssaddle && has_buckled_mobs())
-			return 0
-		if(binded)
-			return FALSE
-		if((isturf(loc) || allow_movement_on_non_turfs) && (mobility_flags & MOBILITY_MOVE))		//This is so it only moves if it's not inside a closet, gentics machine, etc.
-			turns_since_move++
-			return 1
 
 /mob/living/simple_animal/proc/handle_automated_speech(override)
 	set waitfor = FALSE
@@ -541,20 +459,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		if((areatemp < minbodytemp) || (areatemp > maxbodytemp))
 			. = FALSE
 
-
-/mob/living/simple_animal/handle_environment()
-	var/atom/A = src.loc
-	if(isturf(A))
-		//ATMO/TURF/TEMPERATURE
-		var/turf/cur_turf = A
-		var/areatemp = cur_turf.temperature
-		if( abs(areatemp - bodytemperature) > 5)
-			var/diff = areatemp - bodytemperature
-			diff = diff / 5
-			adjust_bodytemperature(diff)
-
-	handle_temperature_damage()
-
 /mob/living/simple_animal/proc/handle_temperature_damage()
 	if((bodytemperature < minbodytemp) || (bodytemperature > maxbodytemp))
 		adjustHealth(unsuitable_atmos_damage)
@@ -604,9 +508,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	..()
 
 /mob/living/simple_animal/proc/butcher(mob/living/user, on_meathook = FALSE)
-	if(ssaddle)
-		ssaddle.forceMove(get_turf(src))
-		ssaddle = null
+	drop_tack()
 
 	var/butchery_skill_level = user.get_skill_level(/datum/skill/labor/butchering)
 	var/time_per_cut = min(BUTCHERING_MAX_TIME_PER_STEP, BUTCHERING_BASE_TIME_PER_STEP - butchery_skill_level * BUTCHERING_TIME_REDUCTION_PER_SKILL) // 1.8 seconds for no skill, 0.2 seconds for legendary
@@ -630,7 +532,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 	var/rotstuff = FALSE
 	var/datum/component/rot/simple/CR = GetComponent(/datum/component/rot/simple)
-	if(CR && CR.amount >= 10 MINUTES)
+	if(CR && CR.amount >= CR.rot_start)
 		rotstuff = TRUE
 	var/atom/Tsec = drop_location()
 
@@ -704,7 +606,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		to_chat(user, "<span class='notice'>I finish butchering: [butcher_summary(botch_count, normal_count, perfect_count, botch_chance, perfect_chance)].</span>")
 		if(user.mind)
 			user.mind.add_sleep_experience(/datum/skill/labor/butchering, user.STAINT * BUTCHERING_EXP_FINISH)
-		gib()
+		gib(leave_gibs = FALSE)
 
 /mob/living/simple_animal/proc/gib_with_novice_butchery()
 	var/atom/Tsec = drop_location()
@@ -712,7 +614,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	var/botch_chance = 50
 	var/rotstuff = FALSE
 	var/datum/component/rot/simple/CR = GetComponent(/datum/component/rot/simple)
-	if(CR && CR.amount >= 10 MINUTES)
+	if(CR && CR.amount >= CR.rot_start)
 		rotstuff = TRUE
 
 	for(var/path in butcher_results)
@@ -747,7 +649,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 			head.sellprice = 0
 	gib()
 
-/mob/living/simple_animal/mark_contract_spawned()
+/mob/living/simple_animal/mark_contract_spawned(dust_corpse = TRUE)
 	. = ..()
 	head_butcher = null
 
@@ -771,7 +673,7 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 /mob/living/simple_animal/spawn_dust(just_ash = FALSE)
 	if(just_ash || !remains_type)
 		for(var/i in 1 to 5)
-			new /obj/item/ash(loc)
+			new /obj/item/natural/ash(loc)
 	else
 		new remains_type(loc)
 
@@ -779,19 +681,41 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	if(icon_gib)
 		new /obj/effect/temp_visual/gib_animation/animal(loc, icon_gib)
 
+/mob/living/simple_animal/spawn_gibs()
+	if(mob_size < MOB_SIZE_LARGE)
+		return ..()
+	new /obj/effect/gibspawner/beast(drop_location(), src)
+
 /mob/living/simple_animal/say_mod(input, message_mode)
 	if(speak_emote && speak_emote.len)
 		verb_say = pick(speak_emote)
 	. = ..()
 
-/mob/living/simple_animal/proc/set_varspeed(var_value)
-	speed = var_value
-	update_simplemob_varspeed()
+/mob/living/simple_animal/proc/get_move_base_delay()
+	var/base = isnull(move_base_delay) ? SIMPLEMOB_DEFAULT_MOVE_DELAY : move_base_delay
+	return clamp(base, SIMPLEMOB_MINIMUM_MOVE_DELAY, SIMPLEMOB_MAXIMUM_MOVE_DELAY)
 
-/mob/living/simple_animal/proc/update_simplemob_varspeed()
-	if(speed == 0)
-		remove_movespeed_modifier(MOVESPEED_ID_SIMPLEMOB_VARSPEED, TRUE)
-	add_movespeed_modifier(MOVESPEED_ID_SIMPLEMOB_VARSPEED, TRUE, 100, multiplicative_slowdown = speed, override = TRUE)
+/mob/living/simple_animal/update_move_intent_slowdown()
+	var/mod = get_move_base_delay()
+	switch(m_intent)
+		if(MOVE_INTENT_RUN)
+			mod *= run_multiplier
+		if(MOVE_INTENT_SNEAK)
+			mod *= sneak_multiplier
+	// Only apply the penalty of slowing down. Raising speed to make something fast is not OK, because we want to decouple movement from combat speed on simple animals
+	var/spd = get_effective_speed()
+	if(spd < 10)
+		mod += (10 - spd) * SPEED_MOVSPD_MOD
+	add_movespeed_modifier(MOVESPEED_ID_MOB_WALK_RUN_CONFIG_SPEED, TRUE, 100, override = TRUE, multiplicative_slowdown = mod)
+
+/mob/living/simple_animal/update_movespeed(resort = TRUE)
+	. = ..()
+	if(cached_multiplicative_slowdown >= SIMPLEMOB_MINIMUM_MOVE_DELAY)
+		return
+	. = SIMPLEMOB_MINIMUM_MOVE_DELAY
+	cached_multiplicative_slowdown = .
+	if(updating_glide_size)
+		set_glide_size(DELAY_TO_GLIDE_SIZE(cached_multiplicative_slowdown))
 
 /mob/living/simple_animal/proc/drop_loot()
 	for(var/i in loot) // If someone puts a turf in this list I'm going to kill you.
@@ -817,26 +741,13 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	else
 		health = 0
 		icon_state = icon_dead
+		var/datum/wound/cripple/limb/topple/toppled = has_wound(/datum/wound/cripple/limb/topple)
+		toppled?.stand_upright(src)
 		if(flip_on_death)
 			transform = transform.Turn(180)
 		density = FALSE
 		..()
 	update_icon()
-
-/mob/living/simple_animal/proc/CanAttack(atom/the_target)
-	if(binded)
-		return FALSE
-	if(see_invisible < the_target.invisibility)
-		return FALSE
-	if(ismob(the_target))
-		var/mob/M = the_target
-		if(M.status_flags & GODMODE)
-			return FALSE
-	if (isliving(the_target))
-		var/mob/living/L = the_target
-		if(L.stat == DEAD)
-			return FALSE
-	return TRUE
 
 //mob/living/simple_animal/ignite_mob()
 //	return FALSE
@@ -939,10 +850,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 
 	if(changed)
 		animate(src, transform = ntransform, time = 2, easing = EASE_IN|EASE_OUT)
-
-/mob/living/simple_animal/proc/sentience_act() //Called when a simple animal gains sentience via gold slime potion
-	toggle_ai(AI_OFF) // To prevent any weirdness.
-	can_have_ai = FALSE
 
 /mob/living/simple_animal/update_sight()
 	if(!client)
@@ -1066,13 +973,11 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	if(!has_buckled_mobs())
 		return
 	var/mutable_appearance/mounted_overlay = mutable_appearance(icon, mounted_state, overlay_layer)
-	mounted_overlay.appearance_flags = RESET_ALPHA|RESET_COLOR
+	mounted_overlay.appearance_flags = RESET_ALPHA
 	add_overlay(mounted_overlay)
 
 /mob/living/simple_animal/proc/adjust_speed(mob/living/driver)
-	var/delay = vars["move_to_delay"]
-	if(!isnum(delay))
-		delay = 3
+	var/delay = ride_move_delay
 	if(driver?.m_intent == MOVE_INTENT_RUN)
 		delay -= 1
 	if(driver?.mind)
@@ -1226,60 +1131,10 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 	. = ..()
 	LoadComponent(/datum/component/riding)
 
-/mob/living/simple_animal/proc/toggle_ai(togglestatus)
-	if(QDELETED(src))
-		return
-	if(!can_have_ai && (togglestatus != AI_OFF))
-		return
-	if (AIStatus != togglestatus)
-		if (togglestatus > 0 && togglestatus < 5)
-			if (togglestatus == AI_Z_OFF || AIStatus == AI_Z_OFF)
-				var/turf/T = get_turf(src)
-				if (AIStatus == AI_Z_OFF)
-					SSidlenpcpool.idle_mobs_by_zlevel[T.z] -= src
-				else
-					SSidlenpcpool.idle_mobs_by_zlevel[T.z] += src
-			GLOB.simple_animals[AIStatus] -= src
-			GLOB.simple_animals[togglestatus] += src
-			AIStatus = togglestatus
-		else
-			stack_trace("Something attempted to set simple animals AI to an invalid state: [togglestatus]")
-
-/mob/living/simple_animal/proc/consider_wakeup()
-	for(var/datum/spatial_grid_cell/grid as anything in our_cells.member_cells)
-		if(length(grid.client_contents))
-			toggle_ai(AI_ON)
-			return TRUE
-
-	toggle_ai(AI_OFF)
-	return FALSE
-
-/mob/living/simple_animal/adjustHealth(amount, updating_health = TRUE, forced = FALSE)
-	. = ..()
-	if(!ckey && !stat)//Not unconscious
-		if(AIStatus == AI_IDLE)
-			toggle_ai(AI_ON)
-
-
-/mob/living/simple_animal/onTransitZ(old_z, new_z)
-	..()
-	if (AIStatus == AI_Z_OFF)
-		SSidlenpcpool.idle_mobs_by_zlevel[old_z] -= src
-		toggle_ai(initial(AIStatus))
-
 /mob/living/simple_animal/Move(NewLoc, Dir, step_x, step_y)
 	if(binded)
 		return FALSE
-	var/oldloc = loc
-	. = ..()
-	if(. && loc != oldloc)
-		if(client)
-			// Player
-			set_glide_size(DELAY_TO_GLIDE_SIZE(world.tick_lag))
-		else
-			// AI
-			set_glide_size(DELAY_TO_GLIDE_SIZE(move_to_delay))
-	return .
+	return ..()
 
 /mob/living/simple_animal/proc/eat_plants()
 
@@ -1288,11 +1143,15 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		qdel(I)
 		food = max(food + 30, 100)
 
+/mob/living/simple_animal/Login()
+	. = ..()
+	walk(src, 0)
+
 /mob/living/simple_animal/Life()
-	if(!client && can_have_ai && (AIStatus == AI_Z_OFF || AIStatus == AI_OFF))
-		return
 	. = ..()
 	if(.)
+		if(stat == CONSCIOUS && ai_controller?.ai_status == AI_STATUS_ON)
+			handle_automated_speech()
 		if(food > 0)
 			food--
 			pooprog++
@@ -1307,51 +1166,6 @@ GLOBAL_VAR_INIT(farm_animals, FALSE)
 		if(isturf(loc))
 			playsound(src, "fart", 100, TRUE)
 			new pooptype(loc)
-
-/mob/living/simple_animal/proc/on_client_enter(datum/source, atom/target)
-	SIGNAL_HANDLER
-	if(AIStatus == AI_IDLE)
-		toggle_ai(AI_ON)
-
-/mob/living/simple_animal/proc/on_client_exit(datum/source, datum/exited)
-	SIGNAL_HANDLER
-	consider_wakeup()
-
-/mob/living/simple_animal/proc/set_new_cells()
-	var/turf/our_turf = get_turf(src)
-	if(isnull(our_turf))
-		return
-
-	var/list/cell_collections = our_cells.recalculate_cells(our_turf)
-
-	for(var/datum/old_grid as anything in cell_collections[2])
-		UnregisterSignal(old_grid, list(SPATIAL_GRID_CELL_ENTERED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), SPATIAL_GRID_CELL_EXITED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS)))
-
-	for(var/datum/spatial_grid_cell/new_grid as anything in cell_collections[1])
-		RegisterSignal(new_grid, SPATIAL_GRID_CELL_ENTERED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), PROC_REF(on_client_enter))
-		RegisterSignal(new_grid, SPATIAL_GRID_CELL_EXITED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), PROC_REF(on_client_exit))
-	consider_wakeup()
-
-/mob/living/simple_animal/Moved()
-	. = ..()
-	if(world.time >= next_grid_update_time)
-		update_grid()
-
-/mob/living/simple_animal/proc/update_grid()
-	next_grid_update_time = world.time + 5
-	var/turf/our_turf = get_turf(src)
-	if(isnull(our_turf) || isnull(our_cells))
-		return
-
-	var/list/cell_collections = our_cells.recalculate_cells(our_turf)
-
-	for(var/datum/old_grid as anything in cell_collections[2])
-		UnregisterSignal(old_grid, list(SPATIAL_GRID_CELL_ENTERED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), SPATIAL_GRID_CELL_EXITED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS)))
-
-	for(var/datum/spatial_grid_cell/new_grid as anything in cell_collections[1])
-		RegisterSignal(new_grid, SPATIAL_GRID_CELL_ENTERED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), PROC_REF(on_client_enter))
-		RegisterSignal(new_grid, SPATIAL_GRID_CELL_EXITED(SPATIAL_GRID_CONTENTS_TYPE_CLIENTS), PROC_REF(on_client_exit))
-	consider_wakeup()
 
 //Flight related procs foy flying simple_animals
 /mob/living/simple_animal/proc/fly_up()

@@ -51,8 +51,8 @@
 	)
 	invocation_type = INVOCATION_SHOUT
 	charge_required = TRUE
-	charge_time = 2 SECONDS
-	cooldown_time = 10 SECONDS
+	charge_time = 1.5 SECONDS
+	cooldown_time = 1 SECONDS
 	devotion_cost = 30
 	associated_skill = /datum/skill/magic/holy
 
@@ -127,7 +127,7 @@
 
 	user.visible_message(span_notice("[user] begins painting beneath [target]'s feet!"))
 
-	if(!do_after(user, 5 SECONDS, target = target))
+	if(!do_after(user, 1 SECONDS, target = target))
 		to_chat(user, span_warning("The attunement ritual was broken by movement!"))
 		return FALSE
 
@@ -254,14 +254,16 @@
 
 	var/affected_count = 0
 	for(var/obj/effect/ink_trail/trail in range(transmute_range, center))
-		trail.buff_payload = /datum/status_effect/buff/umbral_recovery
-		trail.debuff_payload = null
-		trail.icon_state = "paint_gray"
-		trail.color = "#b6e6b6"
-		trail.consume_buff = TRUE
-		trail.deny_buff = TRUE
-		trail.refresh_lifetime(15 SECONDS)
-		trail.apply_to_pulled = TRUE
+		trail.apply_custom_effect(
+			new_buff = /datum/status_effect/buff/umbral_recovery,
+			new_debuff = null,
+			new_icon_state = "paint_gray",
+			new_color = "#b6e6b6",
+			consume = TRUE,
+			deny = TRUE,
+			new_duration = 15 SECONDS,
+			to_pulled = TRUE
+		)
 		affected_count++
 
 	if(affected_count > 0)

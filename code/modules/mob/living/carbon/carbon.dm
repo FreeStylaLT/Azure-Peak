@@ -1,11 +1,30 @@
 /mob/living/carbon/Initialize(mapload)
 	..()
 
+	RegisterSignal(src, list(SIGNAL_ADDTRAIT(TRAIT_REGROW_LIMBS), SIGNAL_REMOVETRAIT(TRAIT_REGROW_LIMBS)), PROC_REF(update_regrow_limb_action))
+	update_regrow_limb_action()
+
 	recalculate_pain_threshold()
 
 	create_reagents(1000)
 	update_body_parts() //to update the carbon's new bodyparts appearance
 	GLOB.carbon_list += src
+
+/mob/living/carbon/proc/update_regrow_limb_action(datum/source, trait)
+	SIGNAL_HANDLER
+	var/datum/action/cooldown/regrow_limb/regrow_action
+	for(var/datum/action/cooldown/regrow_limb/existing_action in actions)
+		regrow_action = existing_action
+		break
+
+	if(HAS_TRAIT(src, TRAIT_REGROW_LIMBS))
+		if(!regrow_action)
+			regrow_action = new(src)
+			regrow_action.Grant(src)
+		return
+
+	if(regrow_action)
+		qdel(regrow_action)
 
 /mob/living/carbon/proc/recalculate_pain_threshold()
 	pain_threshold = STAWIL * 10
@@ -291,6 +310,9 @@
 			if(pulledby.grab_state >= GRAB_AGGRESSIVE)
 				return TRUE
 
+/mob/living/carbon/is_legbound()
+	return !!legcuffed
+
 /mob/living/carbon/proc/canBeHandcuffed()
 	return 0
 
@@ -353,6 +375,9 @@
 	var/breakoutextra = 30 SECONDS
 
 /mob/living/carbon/resist_buckle()
+	if(IsStun())
+		to_chat(src, span_warning("I can't do that right now!"))
+		return
 	if(restrained())
 		changeNext_move(CLICK_CD_BREAKOUT)
 		last_special = world.time + CLICK_CD_BREAKOUT
@@ -382,6 +407,9 @@
 		buckled.user_unbuckle_mob(src,src)
 
 /mob/living/carbon/resist_fire()
+	if(IsStun() || IsImmobilized())
+		to_chat(src, span_warning("I can't do that right now!"))
+		return
 	adjust_fire_stacks(-2, /datum/status_effect/fire_handler/fire_stacks)
 	adjust_fire_stacks(-2, /datum/status_effect/fire_handler/fire_stacks/sunder)
 	adjust_fire_stacks(-2, /datum/status_effect/fire_handler/fire_stacks/divine)
@@ -393,15 +421,17 @@
 	var/datum/status_effect/fire_handler/fire_stacks/vheslyn_status = has_status_effect(/datum/status_effect/fire_handler/fire_stacks/vheslyn)
 	var/datum/status_effect/fire_handler/fire_stacks/sunder/blessed/blessed_sunder = has_status_effect(/datum/status_effect/fire_handler/fire_stacks/sunder/blessed)
 
-	if(fire_status?.stacks + sunder_status?.stacks + vheslyn_status?.stacks + divine_status?.stacks + blessed_sunder?.stacks > 10 || !(mobility_flags & MOBILITY_STAND))
-		Paralyze(50, TRUE, TRUE)
-		spin(32,2)
-		adjust_fire_stacks(-5, /datum/status_effect/fire_handler/fire_stacks)
-		adjust_fire_stacks(-5, /datum/status_effect/fire_handler/fire_stacks/sunder)
-		adjust_fire_stacks(-5, /datum/status_effect/fire_handler/fire_stacks/divine)
-		adjust_fire_stacks(-5, /datum/status_effect/fire_handler/fire_stacks/sunder/blessed)
-		adjust_fire_stacks(-3, /datum/status_effect/fire_handler/fire_stacks/vheslyn) //Harder to remove
-		visible_message(span_warning("[src] rolls on the ground, trying to put [p_them()]self out!"))
+	if(!mind || !cmode)
+		if(fire_status?.stacks + sunder_status?.stacks + vheslyn_status?.stacks + divine_status?.stacks + blessed_sunder?.stacks > 10 || !(mobility_flags & MOBILITY_STAND))
+			Paralyze(30, TRUE, TRUE)
+			Knockdown(50)
+			spin(32,2)
+			adjust_fire_stacks(-4, /datum/status_effect/fire_handler/fire_stacks)
+			adjust_fire_stacks(-4, /datum/status_effect/fire_handler/fire_stacks/sunder)
+			adjust_fire_stacks(-4, /datum/status_effect/fire_handler/fire_stacks/divine)
+			adjust_fire_stacks(-4, /datum/status_effect/fire_handler/fire_stacks/sunder/blessed)
+			adjust_fire_stacks(-2, /datum/status_effect/fire_handler/fire_stacks/vheslyn) //Harder to remove
+			visible_message(span_warning("[src] rolls on the ground, trying to put [p_them()]self out!"))
 	else
 		visible_message(span_notice("[src] pats the flames to extinguish them."))
 	addtimer(CALLBACK(src, PROC_REF(check_try_extinguish)), 3 SECONDS)
@@ -411,6 +441,9 @@
 		extinguish_mob(TRUE)
 
 /mob/living/carbon/resist_restraints()
+	if(IsStun())
+		to_chat(src, span_warning("I can't do that right now!"))
+		return
 	var/obj/item/I = null
 	var/type = 0
 	if(handcuffed)
@@ -579,9 +612,10 @@
 	nausea = clamp(nausea + amt, 0, 300)
 
 /mob/living/carbon/proc/handle_nausea()
-	if(HAS_TRAIT(src, TRAIT_ROTMAN)||HAS_TRAIT(src, TRAIT_IRONMAN))
-		return TRUE
 	if(stat == DEAD)
+		return TRUE
+	if(HAS_TRAIT(src, TRAIT_ROTMAN) || HAS_TRAIT(src, TRAIT_IRONMAN) || HAS_TRAIT(src, TRAIT_DEADITE))
+		add_nausea(-1)
 		return TRUE
 	if(nausea >= 100)
 		if(mob_timers["puke"])
@@ -803,6 +837,10 @@
 		see_in_dark = max(see_in_dark, 12)
 
 	if(HAS_TRAIT(src, TRAIT_NITEVISION))
+		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE)
+		see_in_dark = max(see_in_dark, 12)
+
+	if(HAS_TRAIT(src, TRAIT_BLIND))
 		lighting_alpha = min(lighting_alpha, LIGHTING_PLANE_ALPHA_MOSTLY_INVISIBLE)
 		see_in_dark = max(see_in_dark, 12)
 
@@ -1167,14 +1205,14 @@
 /mob/living/carbon/extinguish_mob(itemz = TRUE)
 	if(itemz)
 		for(var/obj/item/I as anything in get_equipped_items())
-			if(I.extinguishable)
+			if(I.extinguishable && !istype(I, /obj/item/clothing/mask/cigarette))
 				I.extinguish() //extinguishes our clothes
 			I.acid_level = 0 //washes off the acid on our clothes
 		var/obj/item/I = get_active_held_item()
-		if(I && I.extinguishable)
+		if(I && I.extinguishable && !istype(I, /obj/item/clothing/mask/cigarette))
 			I.extinguish()
 		I = get_inactive_held_item()
-		if(I && I.extinguishable)
+		if(I && I.extinguishable && !istype(I, /obj/item/clothing/mask/cigarette))
 			I.extinguish()
 	..()
 
@@ -1215,7 +1253,7 @@
 
 /mob/living/carbon/vv_get_dropdown()
 	. = ..()
-	VV_DROPDOWN_OPTION("", "---------")
+	VV_DROPDOWN_OPTION("", "--- /carbon ---")
 	VV_DROPDOWN_OPTION(VV_HK_MODIFY_BODYPART, "Modify bodypart")
 	VV_DROPDOWN_OPTION(VV_HK_MODIFY_ORGANS, "Modify organs")
 	VV_DROPDOWN_OPTION(VV_HK_HALLUCINATION, "Hallucinate")
@@ -1334,8 +1372,6 @@
 		return TRUE
 	if(IsSleeping())
 		return TRUE
-	if(HAS_TRAIT(src, TRAIT_DUMB))
-		return TRUE
 
 /mob/living/carbon/can_speak_vocal()
 	. = ..()
@@ -1354,3 +1390,12 @@
 	if((cmode) && (mind) && (!handcuffed) && (stat == CONSCIOUS))
 		return 0
 	. = ..()
+
+// reset_perspective is called for things like z-level transitions. however, revs specifically need to not have their perspective reset if their
+// body moves away from their head; otherwise you get rev bodies with full sight
+/mob/living/carbon/reset_perspective(atom/A)
+	var/obj/item/organ/dullahan_vision/vision = getorganslot(ORGAN_SLOT_HUD)
+	var/datum/species/dullahan/our_species = dna?.species
+	if(!A && istype(vision) && vision.viewing_head && istype(our_species))
+		return ..(our_species.my_head)
+	return ..()

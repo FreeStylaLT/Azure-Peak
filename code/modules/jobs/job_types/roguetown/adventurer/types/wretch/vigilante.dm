@@ -27,6 +27,7 @@
 	)
 	subclass_stashed_items = list(
 		"Sewing Kit" =	/obj/item/repair_kit,
+		"Stashed Funds" = /obj/item/roguecoin/silver/pile/wretchpile,
 	)
 
 /datum/outfit/job/roguetown/wretch/vigilante/pre_equip(mob/living/carbon/human/H)
@@ -34,7 +35,7 @@
 	pants = /obj/item/clothing/under/roguetown/heavy_leather_pants
 	shirt = /obj/item/clothing/suit/roguetown/armor/gambeson
 	backr = /obj/item/storage/backpack/rogue/satchel
-	belt = /obj/item/storage/belt/rogue/leather/knifebelt/black/steel
+	belt = /obj/item/storage/belt/rogue/leather/tossbelt/blade/black/steel
 	gloves = /obj/item/clothing/gloves/roguetown/plate
 	shoes = /obj/item/clothing/shoes/roguetown/boots/armor/iron
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/jackchain
@@ -67,9 +68,10 @@
 	cloak = /obj/item/clothing/cloak/thief_cloak
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/heavy/coat
 	H.change_stat(STATKEY_STR, 2)
-	H.change_stat(STATKEY_CON, 3)
+	H.change_stat(STATKEY_CON, 1)
 	H.change_stat(STATKEY_WIL, 3)
-	ADD_TRAIT(H, TRAIT_NOPAINSTUN, TRAIT_GENERIC) //No crit resist - you can still get folded pretty easily if overwhelmed
+	ADD_TRAIT(H, TRAIT_NOPAINSTUN, TRAIT_GENERIC)
+	ADD_TRAIT(H, TRAIT_BLOOD_RESISTANCE, TRAIT_GENERIC)
 	if(H.mind)
 		var/weapons = list("THE FISTS OF JUSTICE ARE UNISEX!","JUSTICE DISPENSED THROUGH KNUCKLE AND BLADE!")
 		var/weapon_choice = input(H, "Choose your WEAPON.", "THY FISTS ARE THY IMPLEMENT, WATCHMAN!") as anything in weapons
@@ -88,8 +90,8 @@
 	backl = /obj/item/rogueweapon/woodstaff/quarterstaff/steel //nonlethal takedowns
 	beltr = /obj/item/quiver/sling/iron
 	l_hand = /obj/item/grapplinghook
-	r_hand = /obj/item/bomb/smoke
-	beltl = /obj/item/bomb/smoke
+	r_hand = /obj/item/explosive/impact/smoke/bomb
+	beltl = /obj/item/explosive/impact/smoke/bomb
 	cloak = /obj/item/clothing/cloak/cape/puritan
 	armor = /obj/item/clothing/suit/roguetown/armor/leather/studded
 	mask = /obj/item/clothing/mask/rogue/duelmask
@@ -100,6 +102,7 @@
 		/obj/item/flashlight/flare/torch/lantern/prelit = 1,
 		/obj/item/rope/chain = 1,
 		)
+	ADD_TRAIT(H, TRAIT_BLOOD_RESISTANCE, TRAIT_GENERIC) //Bloodres but no nopainstun, this is very squishy for a light armor class.
 	H.adjust_skillrank_up_to(/datum/skill/misc/lockpicking, 4, TRUE) //Investigations
 	H.adjust_skillrank_up_to(/datum/skill/combat/slings, 4, TRUE) // Funny as shit to use.
 	H.adjust_skillrank_up_to(/datum/skill/combat/polearms, 3, TRUE) //Last resort CQC. Enough def on a quarterstaff to fight defensively, not enough to be truly offensive.

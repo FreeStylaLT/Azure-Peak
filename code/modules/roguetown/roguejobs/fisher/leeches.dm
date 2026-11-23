@@ -6,16 +6,7 @@
 	dropshrink = 0.8
 	icon = 'icons/roguetown/items/surgery.dmi'
 	icon_state = "leech"
-	baitpenalty = 0
-	fishingMods=list(
-		"commonFishingMod" = 0.7,
-		"rareFishingMod" = 1.3,
-		"treasureFishingMod" = 1,
-		"trashFishingMod" = 1,
-		"dangerFishingMod" = 1.1,
-		"ceruleanFishingMod" = 0, // 1 on cerulean aril, 0 on everything else
-		"cheeseFishingMod" = 0 // Just for the funny gimmick of a chance for rats and rouses.
-	)
+	bait_quality = TRAIT_GOOD_QUALITY_BAIT
 	baitresilience = 3
 
 	embedding = list(
@@ -78,6 +69,8 @@
 	var/obj/item/bodypart/bp = loc
 	if(giving)
 		var/blood_given = min(BLOOD_VOLUME_MAXIMUM - host.blood_volume, blood_storage, blood_sucking)
+		if(host.is_in_combat()) // inb4 we get a thickblooded smartass who puts on multiple of these little shits
+			blood_given = min(blood_given, 1)
 		host.blood_volume += blood_given
 		blood_storage = max(blood_storage - blood_given, 0)
 		if((blood_storage <= 0) || (host.blood_volume >= BLOOD_VOLUME_MAXIMUM))
@@ -87,6 +80,8 @@
 				host.simple_remove_embedded_object(src)
 			return TRUE
 	else
+		if(HAS_TRAIT(host, TRAIT_JOURNEYS_END))
+			return FALSE
 		var/blood_extracted = min(blood_maximum - blood_storage, host.blood_volume, blood_sucking)
 		host.blood_volume = max(host.blood_volume - blood_extracted, 0)
 		blood_storage += blood_extracted
@@ -113,6 +108,8 @@
 				user.simple_remove_embedded_object(src)
 			return TRUE
 	else
+		if(HAS_TRAIT(user, TRAIT_JOURNEYS_END))
+			return FALSE
 		var/blood_extracted = min(blood_maximum - blood_storage, user.blood_volume, blood_sucking)
 		user.blood_volume = max(user.blood_volume - blood_extracted, 0)
 		blood_storage += blood_extracted * blood_multiplier
@@ -135,7 +132,7 @@
 		if(0.8 to INFINITY)
 			. += span_bloody("<B>[p_theyre(TRUE)] fat and engorged with blood.</B>")
 		if(0.5 to 0.8)
-			. += span_bloody("[p_theyre(TRUE)] well fed.")
+			. += span_bloody("[p_theyre(TRUE)] well-fed.")
 		if(0.1 to 0.5)
 			. += span_warning("[p_they(TRUE)] want[p_s()] a meal.")
 		if(-INFINITY to 0.1)
@@ -153,7 +150,7 @@
 			to_chat(user, span_warning("They are deceased. Only running blood may be extracted."))
 			return
 		if(!giving && !M.mind && !mindless_attach)
-			to_chat(user, span_warning("They are mindless. The [src] won't attach."))
+			to_chat(user, span_warning("They are mindless. [src] won't attach."))
 			return
 		var/mob/living/carbon/human/H = M
 		var/obj/item/bodypart/affecting = H.get_bodypart(check_zone(user.zone_selected))
@@ -259,10 +256,10 @@
 	color = null
 	consistent = TRUE
 	drainage = 0
-	blood_sucking = 5
+	blood_sucking = 7.5
 	toxin_healing = -2
 	blood_multiplier = 3
-	blood_storage = BLOOD_VOLUME_OKAY
+	blood_storage = BLOOD_VOLUME_NORMAL
 	blood_maximum = BLOOD_VOLUME_MAXIMUM
 	mindless_attach = FALSE
 	embedding = list(
@@ -271,7 +268,7 @@
 		"embedded_pain_chance" = 0,
 		"embedded_fall_chance" = 0,
 		"embedded_bloodloss"= 0,
-		"embedded_ignore_throwspeed_threshold" = TRUE,
+		"embedded_ignore_throwspeed_threshold" = FALSE,
 		"embedded_unsafe_removal_pain_multiplier" = 0,
 	) // the humble cheele is gentle. so gentle.
 

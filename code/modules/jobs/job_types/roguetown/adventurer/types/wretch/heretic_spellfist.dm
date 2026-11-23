@@ -15,7 +15,7 @@
 		STATKEY_WIL = 2,
 		STATKEY_CON = 3
 	)
-	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 1, "utilities" = 4, ward = TRUE, "locked_aspects" = list(/datum/magic_aspect/autowardry))
+	subclass_mage_aspects = list("mastery" = FALSE, "major" = 0, "minor" = 1, "utilities" = 5, ward = TRUE, "locked_aspects" = list(/datum/magic_aspect/autowardry))
 	subclass_skills = list(
 		/datum/skill/combat/wrestling = SKILL_LEVEL_JOURNEYMAN,
 		/datum/skill/combat/unarmed = SKILL_LEVEL_EXPERT,
@@ -30,6 +30,7 @@
 	subclass_stashed_items = list(
 		"Sewing Kit" = /obj/item/repair_kit/bad,
 		"Armor Plates" = /obj/item/repair_kit/metal/bad,
+		"Stashed Funds" = /obj/item/roguecoin/silver/pile/wretchpile,
 	)
 
 /datum/outfit/job/roguetown/wretch/heretic_spellfist

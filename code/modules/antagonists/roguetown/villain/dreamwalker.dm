@@ -22,16 +22,12 @@
 		TRAIT_NOHUNGER,
 		TRAIT_NOBREATH,
 		TRAIT_DEATHLESS,
-		TRAIT_NOPAIN,
 		TRAIT_TOXIMMUNE,
 		TRAIT_STEELHEARTED,
 		//TRAIT_NOSLEEP, - Readd this later when I give people options to progress skills again...
 		TRAIT_NOMOOD,
-		TRAIT_NOLIMBDISABLE,
 		TRAIT_SHOCKIMMUNE,
-		TRAIT_CRITICAL_RESISTANCE,
 		TRAIT_HEAVYARMOR,
-		TRAIT_COUNTERCOUNTERSPELL,
 		TRAIT_RITUALIST,
 		TRAIT_STRENGTH_UNCAPPED,
 		TRAIT_DREAMWALKER,
@@ -40,12 +36,12 @@
 		TRAIT_UNCONVERTIBLE
 		)
 
-	var/STASTR = 15
-	var/STASPD = 12
-	var/STAINT = 12
+	var/STASTR = 13
+	var/STASPD = 10
+	var/STAINT = 10
 	var/STAWIL = 12
 	var/STACON = 12
-	var/STAPER = 12
+	var/STAPER = 10
 	var/STALUC = 10
 
 /datum/antagonist/dreamwalker/on_gain()
@@ -96,6 +92,7 @@
 	to_chat(body, span_danger("I feel my connection to the arcyne and divine weaken as dream energies assert themselves..."))
 	REMOVE_TRAIT(body, TRAIT_ARCYNE, TRAIT_GENERIC)
 	body.devotion = null
+	disable_vessel(body)
 
 /datum/outfit/job/roguetown/dreamwalker/pre_equip(mob/living/carbon/human/H) //Equipment is located below
 	..()
@@ -110,12 +107,9 @@
 	H.adjust_skillrank(/datum/skill/combat/axes, 4, TRUE)
 	H.adjust_skillrank(/datum/skill/craft/crafting, 1, TRUE)
 	H.adjust_skillrank(/datum/skill/misc/medicine, 3, TRUE)
-	// We lose our statpack & racial, so bonuses are significant.
-	H.change_stat(STATKEY_STR, 5)
-	H.change_stat(STATKEY_INT, 2)
+	// Stats go
+	H.change_stat(STATKEY_STR, 3)
 	H.change_stat(STATKEY_CON, 2)
-	H.change_stat(STATKEY_PER, 2)
-	H.change_stat(STATKEY_SPD, 1)
 	H.change_stat(STATKEY_WIL, 2)
 
 	if(H.mind)
@@ -223,7 +217,15 @@
 
 	if(marked_target)
 		RegisterSignal(marked_target, COMSIG_LIVING_DEATH, PROC_REF(on_target_death))
-		to_chat(parent, span_notice("You begin focusing your dream energy on [marked_target]."))
+
+		var/mark_secret_link = ""
+		if(ishuman(parent) && ishuman(marked_target))
+			var/mob/living/carbon/human/dreamwalker = parent
+			var/mob/living/carbon/human/marked_human = marked_target
+			if(marked_human.get_secret_for(dreamwalker, "dreamwalker"))
+				mark_secret_link = " (<a href='?src=[REF(marked_human)];task=view_remote_secret;secret_type=dreamwalker'>Recall Secrets</a>)"
+
+		to_chat(parent, span_notice("You begin focusing your dream energy on [marked_target].") + mark_secret_link)
 
 		// Remove any existing summon spell
 		if(summon_spell && ishuman(parent))

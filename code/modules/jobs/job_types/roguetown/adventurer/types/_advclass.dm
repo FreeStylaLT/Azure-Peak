@@ -45,6 +45,9 @@
 	/// Subclass languages.
 	var/list/subclass_languages
 
+	/// Subclass spells. Granted to the mind on equip.
+	var/list/subclass_spells
+
 	/// Subclass virtues.
 	var/list/subclass_virtues
 
@@ -100,19 +103,12 @@
 
 	post_equip(H)
 
+	H.flag_gear_as_worn()
+
 	H.advjob = name
 
-	var/turf/TU = get_turf(H)
-	if(TU)
-		if(horse)
-			var/mob/horse_mob = new horse(TU)
-			if(istype(horse_mob, /mob/living/simple_animal/hostile/retaliate/rogue))
-				var/mob/living/simple_animal/hostile/retaliate/rogue/rogue_animal = horse_mob
-				rogue_animal.owner = H
-				rogue_animal.friends |= H
-
 	for(var/trait in traits_applied)
-		ADD_TRAIT(H, trait, ADVENTURER_TRAIT)
+		ADD_TRAIT(H, trait, JOB_TRAIT)
 
 	if(noble_income)
 		var/already_has_income = !isnull(SStreasury.noble_incomes[H])
@@ -125,6 +121,10 @@
 	if(length(subclass_languages))
 		for(var/lang in subclass_languages)
 			H.grant_language(lang)
+
+	if(length(subclass_spells) && H.mind)
+		for(var/spell in subclass_spells)
+			H.mind.AddSpell(new spell)
 
 	if(reset_stats)
 		H.reset_stats()
@@ -159,6 +159,14 @@
 
 	if(applies_post_equipment)
 		apply_character_post_equipment(H)
+	if(horse)
+		var/turf/TU = get_turf(H)
+		if(TU)
+			var/mob/horse_mob = new horse(TU)
+			if(istype(horse_mob, /mob/living/simple_animal/hostile/retaliate/rogue))
+				var/mob/living/simple_animal/hostile/retaliate/rogue/rogue_animal = horse_mob
+				rogue_animal.owner = H
+				rogue_animal.friends |= H
 	H.set_advsetup(FALSE)
 	H.mind?.refresh_spell_buttons()
 //======== Massive shitcode, that works at least.
@@ -198,8 +206,9 @@
 		limited_vices = vice_limits
 	if(!length(current_vices) || !length(limited_vices))
 		return
-	for(var/datum/charflaw/cf in current_vices)
-		if(is_vice_limited(cf, limited_vices))
+	for(var/cf_type in current_vices)
+		if(is_vice_limited(cf_type, limited_vices))
+			var/datum/charflaw/cf = GLOB.character_flaws_singletons[cf_type]
 			. += cf.name
 
 /datum/advclass/proc/get_prefs_restriction_names(client/player)

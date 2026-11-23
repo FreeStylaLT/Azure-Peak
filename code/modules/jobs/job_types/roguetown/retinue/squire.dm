@@ -98,7 +98,7 @@
 
 /datum/advclass/squire/footman
 	name = "Squire at Arms"
-	tutorial = "Your training has been singularly focused on the fine techniques of melee, suited to to your \
+	tutorial = "Your training has been singularly focused on the fine techniques of melee, suited to your \
 	future dominance on the battlefield."
 	outfit = /datum/outfit/job/roguetown/squire/footman
 
@@ -197,7 +197,7 @@
 	wrists = /obj/item/clothing/wrists/roguetown/bracers/leather
 	neck = /obj/item/clothing/neck/roguetown/chaincoif/iron
 	backr = /obj/item/storage/backpack/rogue/satchel
-	backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+	backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow
 	beltr = /obj/item/quiver/arrows
 	backpack_contents = list(
 		/obj/item/rogueweapon/huntingknife/idagger,

@@ -52,6 +52,9 @@
 #define CANUNCONSCIOUS	(1<<2)
 #define CANPUSH			(1<<3)
 #define GODMODE			(1<<4)
+#define GODMODE_TARGETABLE	(1<<5)
+
+#define GODMODE_HIDDEN(M) (((M).status_flags & GODMODE) && !((M).status_flags & GODMODE_TARGETABLE))
 
 //Health Defines
 #define HEALTH_THRESHOLD_CRIT 0
@@ -63,9 +66,93 @@
 #define STRENGTH_SOFTCAP 14	//STR value past which we get diminishing returns in our damage calculations.
 #define STRENGTH_MULT 0.1	//STR multiplier per STR point up to the softcap. Works as a %-age. 0.1 = 10% per point.
 #define STRENGTH_CAPPEDMULT 0.03	//STR multiplier per STR point past the softcap
-#define RANGED_STAT_SOFTCAP 15	//PER value past which ranged damage scaling has diminishing returns.
-#define RANGED_STAT_MULT 0.1	//PER multiplier per point up to the softcap. 0.1 = 10% per point.
-#define RANGED_STAT_CAPPEDMULT 0.03	//PER multiplier per point past the softcap. 0.03 = 3% per point.
+//RANGED DEFINES
+
+#define RANGED_DRAW_STR_BASELINE 10
+GLOBAL_LIST_INIT(ranged_draw_curve, list(1, 0.79, 0.58, 0.33, 0.17, 0.08, 0))
+#define RANGED_ARC_DRAW_EXTRA 3
+#define RANGED_ARC_DRAW_FLOOR_EXTRA 2
+
+#define BOW_DRAW_BASE 20
+#define BOW_DRAW_FLOOR 8
+#define SHORTBOW_DRAW_BASE 17
+#define SHORTBOW_DRAW_FLOOR 7.5
+#define LONGBOW_DRAW_BASE 26
+#define LONGBOW_DRAW_FLOOR 13
+#define LONGBOW_DRAW_PER_STR 1.5
+#define SLING_DRAW_BASE 18 // Used to be faster shooting than recurve due to perception counting twice. Let it keep its speed advantage but not too much.
+#define SLING_DRAW_FLOOR 8
+
+
+#define CROSSBOW_DRAW_BASE 16
+#define CROSSBOW_DRAW_FLOOR 6
+#define CROSSBOW_DRAW_PER_SKILL 1.5
+#define SLURBOW_DRAW_BASE 10
+#define SLURBOW_DRAW_FLOOR 1
+#define SLURBOW_DRAW_PER_SKILL 4.25
+#define SLURBOW_ARC_DRAW_FLOOR_EXTRA 9
+#define HEAVY_CROSSBOW_DRAW_BASE 24
+#define HEAVY_CROSSBOW_DRAW_FLOOR 10
+#define HEAVY_CROSSBOW_DRAW_PER_SKILL 2
+#define CROSSBOW_ONEHANDED_DRAW_MULT 1.5
+#define CROSSBOW_ONEHANDED_ARC_DRAW_MULT 2
+
+// For archer, whose damage scales massively with PER, we make skill their main determinator of accuracy and ROF, while decoupling PER from accuracy and making it scale damage.
+#define ACC_RANGED_BASE 15
+#define ACC_RANGED_PER_SKILL 15
+// While for Mage, where I have made Arcyne Armament a pseudo melee skills, and INT their primary CDR and Cost scalar, we uses PER so that their build need more than one stat to function well, in place of skills. The accuracy is 10 as a baseline (15 - 10 = 5 * 15 = +75 + 15 = 90% accuracy at 15 perception, i.e. capping out vs limb)
+#define ACC_SPELL_PER_BASELINE 10
+#define ACC_SPELL_PER_STEP 15
+#define ACC_RANGED_FLOOR 0
+#define ACC_RANGED_VISUAL_REACH 7
+#define ACC_RANGED_FARSIGHT_PENALTY 10
+#define ACC_RANGED_ZCROSS_PENALTY 20
+#define ACC_RANGED_NPC_BASE 60
+#define RANGED_ULTRA_PRECISE_HIT_PENALTY -25
+#define RANGED_MAX_PRECISE_HIT_CHANCE 90
+#define RANGED_PRECISE_HIT_PENALTY -10
+
+#define RANGED_PER_DAMAGE_BASELINE 10
+#define RANGED_PER_DAMAGE_SOFTCAP 15	//PER value past which ranged damage scaling has diminishing returns.
+#define RANGED_PER_DAMAGE_MULT 0.1	//PER multiplier per point up to the softcap. 0.1 = 10% per point.
+#define RANGED_PER_DAMAGE_CAPPEDMULT 0.03	//PER multiplier per point past the softcap. 0.03 = 3% per point.
+#define RANGED_SPREAD_JITTER 1.4 // Add jitter to a shot's spread to get the final angle
+#define RANGED_PER_DAMAGE_FLOOR 0
+
+#define RANGED_UNCHARGED_SPREAD 150
+#define RANGED_EARLY_RELEASE_ACC_PENALTY 0
+#define RANGED_EARLY_RELEASE_EMBED_MULT 1
+#define BOW_EARLY_RELEASE_ACC_PENALTY 15
+#define BOW_EARLY_RELEASE_EMBED_MULT 0.5
+
+#define RANGED_HOLD_GRACE 2 SECONDS // +0.5 seconds over mage
+// As you sacrifice all defenses when you do this
+#define RANGED_HOLD_GRACE_MAX 3 SECONDS
+#define RANGED_HOLD_GRACE_PER_BASELINE 10
+#define RANGED_HOLD_GRACE_PER_BONUS 0.2 SECONDS
+#define RANGED_HOLD_RAMP 2
+#define RANGED_HOLD_RAMP_WINDOW 40
+#define BOW_CHARGEDRAIN 0.5
+#define SHORTBOW_CHARGEDRAIN 0.4
+#define SLING_CHARGEDRAIN 0.4
+
+#define RANGED_NPC_DRAIN_MULT 0.5
+#define RANGED_LETDOWN_DRAIN_MULT 0.5
+#define BOW_RELEASEDRAIN 11
+#define SHORTBOW_RELEASEDRAIN 9
+#define RECURVE_RELEASEDRAIN 14
+#define LONGBOW_RELEASEDRAIN 18
+#define SLING_RELEASEDRAIN 8
+#define RANGED_HOLD_SPREAD_MAX 60
+
+#define QUIVER_CAPACITY_SHEAF 24 // Quiver used to hold 30, was nerfed to 20, and that made their logistics kinda rough. So instead as a halfway compromise we'll go for 24 - a Sheaf, which is also a historical amount of arrow measurement.
+#define QUIVER_CAPACITY_BOLT 16
+#define QUIVER_CAPACITY_SIEGE 8
+#define QUIVER_CAPACITY_SLING 40
+#define QUIVER_CAPACITY_JAVELIN 20
+#define ARROW_SMITH_BATCH 12
+#define BOLT_SMITH_BATCH 16 // CBA to make you smith 8 bolts at once and I guess they can have an economic advantage
+
 //Actual combat defines
 
 //click cooldowns, in tenths of a second, used for various combat actions
@@ -110,6 +197,9 @@
 #define EFF_RANGE_EXACT 1
 #define EFF_RANGE_ABOVE 2
 #define EFF_RANGE_BELOW 3
+
+// Damage multiplier for attacking outside of effective range. Also zeroes out penetration.
+#define EFF_RANGE_MISS_DAMFACTOR 0.5
 
 // Swingdelay presets
 #define SWINGDELAY_NORMAL 1	//No penalties, we just swing.
@@ -157,6 +247,12 @@
 #define ATTACK_EFFECT_MECHFIRE	"mech_fire"
 #define ATTACK_EFFECT_MECHTOXIN	"mech_toxin"
 #define ATTACK_EFFECT_BOOP		"boop" //Honk
+
+// Tell us where a mob tends to aim with their attacks
+#define MOB_AIM_GROUND	"ground"
+#define MOB_AIM_LOW		"low"
+#define MOB_AIM_LEVEL	"level"
+#define MOB_AIM_HIGH	"high"
 
 //hurrrddurrrr
 #define QINTENT_BITE			1
@@ -337,6 +433,17 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define BLUNT_DEFAULT_INT_DAMAGEFACTOR 1.6 // Universal blunt intent integrity damage factor. Replaces Roguepen
 #define SPELL_BLUNT_INT_DAMAGEFACTOR 1.3 // Blunt integrity damage factor for spell projectiles
 #define PUNCH_INT_DAMAGEFACTOR 1.2 // Reduced integrity damage for unarmed punches cuz they're really fast
+
+// Per Mage 3.1 decision - we want ARMOR damage of mage to largely stay the same, whereas post-armor damage is reduced slightly, such that it favors grouping with martial or using melee tools like knives or staff to finish them off, but does not completely prevent you from doing so.
+// Applied at compile time. Simplemobs are exempt and take the unscaled damage.
+#define SPELL_DAMAGE_GENERAL_MODIFIER 0.8
+#define SPELL_DAMAGE_INTEGRITY_MODIFIER (1 / SPELL_DAMAGE_GENERAL_MODIFIER)
+#define SPELL_DMG(x) ((x) * SPELL_DAMAGE_GENERAL_MODIFIER)
+#define SPELL_INTDAM(x) ((x) * SPELL_DAMAGE_INTEGRITY_MODIFIER)
+/// Undoes SPELL_DMG on an already-scaled value when the target is a simple animal.
+#define SPELL_DMG_VS(target, x) (isanimal(target) ? (x) / SPELL_DAMAGE_GENERAL_MODIFIER : (x))
+/// Add as the last arg of a mage arcyne_strike() call so armor integrity damage stays unscaled.
+#define SPELL_STRIKE_SCALING intdamage_mult = SPELL_DAMAGE_INTEGRITY_MODIFIER
 // Integrity & Sharpness Value
 #define INTEG_PARRY_DECAY			1	//Default integrity decay on parry.
 #define INTEG_PARRY_DECAY_NOSHARP	5	//Integrity decay on parry for weapons with no sharpness OR for off-hand parries.
@@ -344,6 +451,7 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define RIPOSTE_SHARPNESS_FACTOR	0.15	//Fraction of blade_int lost on riposte (15%). Heavy weapons add +0.05.
 #define INTEG_PARRY_DECAY_UNARMED	5	//Integrity decay on parry when the attacker is unarmed (fists still wear down shields).
 #define RIPOSTE_INTEG_DIVISOR		5	//max_integrity / this = integrity damage on riposte for non-bladed weapons.
+#define ARCYNE_STRIKE_WARDED		-1	// If an arcyne strike got guarded, rider effects do not goes forth.
 #define SHARPNESS_TIER1_THRESHOLD	0.8	//%-age threshold when damage starts to fall off -- mainly damfactor and STR factor. NOT base damage value.
 #define SHARPNESS_TIER1_FLOOR		0.45//%-age threshold when damfactors and STR factors become 0.
 #define SHARPNESS_TIER2_THRESHOLD	0.2 //%-age threshold when damage *really* falls off. Base damage value included.
@@ -361,6 +469,18 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 /// Damage multiplier of silver weapons against mobs with TRAIT_SIMPLE_WOUNDS
 #define SILVER_SIMPLEMOB_DAM_MULT 3
 
+/// Anti-Beast Modifier tiers. Multiplies damage dealt to simple animals by weapons and projectiles.
+#define ANTIBEAST_DEFAULT 1.5 // For arrows and such
+#define ANTIBEAST_GREATER 2 // For bolts / crossbow
+#define ANTIBEAST_SUPERIOR 3 // Stakers
+#define ANTIBEAST_EXCEPTIONAL 5 // Holy?
+#define ANTIBEAST_SUPREME 6 // Silver
+
+/// TRAIT_MONSTER_HUNTER modifiers. Meant for HUNTER TOWNERS. To make them good at their job. Only vs simple animals (including cliented one).
+#define MONSTER_HUNTER_ACCURACY_BONUS 20
+#define MONSTER_HUNTER_PART_DAMAGE_MULT 1.5 // Melee multiplier should be as strong as the ranged counterpart
+#define MONSTER_HUNTER_RANGED_PART_MULT (1 / RANGED_PART_CONTRIBUTION) // Monster Hunter basically exactly cancels out the 0.66x part damage modifier. On top of anti-beast + precision bonus, this should makes them effective at killing simples and weakening them.
+
 #define PROJ_PARRY_TIMER	0.65 SECONDS	//The time after an attack (swinging in the air counts) when a thrown item would be deflected at a higher chance.
 
 /* COMBAT DEFINES for NON ARMOR VALUES */
@@ -369,7 +489,6 @@ GLOBAL_LIST_INIT(shove_disarming_types, typecacheof(list(
 #define BAD_GUARD_FATIGUE_DRAIN 20 //Percentage of your green bar lost on letting a guard expire.
 #define EXPOSED_INTEG_MOD 2.5	//Multiplier for melee integrity / simple-mob damage if we hit an Exposed target.
 #define VULN_INTEG_MOD 1.3		//Multiplier for melee integrity / simple-mob damage if we hit a Vulnerable target.
-#define EXPOSED_CAST_LOCKOUT 4 SECONDS	// Cap on how long Exposed can deny casting
 #define BASE_RCLICK_CD 30 SECONDS
 #define BAIT_RCLICK_CD 20 SECONDS
 #define BIND_CD 15 SECONDS
@@ -478,6 +597,22 @@ Medical defines
 #define MAX_DODGE_CEIL 5
 #define MAX_DODGE_START 0	// We start at (presumed) 90%
 #define MAX_DODGE_FLOOR -15
+
+// Mbos dodge with a different speed based curve meant to not be overly oppressive for melee players
+#define SIMPLEMOB_DODGE_BASE 20
+#define SIMPLEMOB_DODGE_PER_SPD 3
+#define SIMPLEMOB_DODGE_PER_SKILL 4
+#define SIMPLEMOB_DODGE_CAP 45
+
+// We reduce the dodge chances of simple mobs if they dodge consecutively
+#define SIMPLEMOB_DODGE_FATIGUE_PER_DODGE 5
+#define SIMPLEMOB_DODGE_FATIGUE_MAX 20
+/// Nothing recovers until they stop dodging for a while
+#define SIMPLEMOB_DODGE_RECOVERY_DELAY (6 SECONDS)
+/// Points recovered
+#define SIMPLEMOB_DODGE_FATIGUE_REGEN 5
+#define SIMPLEMOB_WINDED_DURATION (4 SECONDS)
+
 #define DODGE_EXPERT_BASE_CAP 90	//What a Dodge Expert with SPD above 10 is hardset to, before max_dodge is added on top.
 #define MAX_DODGE_CLAMP -5 // at 85%. Base is 90%.
 
@@ -485,7 +620,7 @@ Medical defines
 	Melee Accuracy Defines. See resolve_aimed_zone() and melee_accuracy_check().
 */
 #define ACC_MAJOR_ZONE_BONUS 10			//Aiming at a major limb rather than one of its precise subzones.
-#define ACC_FACE_SUBZONE_PENALTY 24		//Aiming at a face subzone on a player.
+#define ACC_FACE_SUBZONE_PENALTY 24		//Aiming at a face subzone.
 #define ACC_PER_BONUS_PER_POINT 8		//Accuracy gained per PER above 10.
 #define ACC_PER_BONUS_CAP 40			//Ceiling on the PER bonus. Reached at PER 15.
 #define ACC_PER_PENALTY_PER_POINT 10	//Accuracy lost per PER below 10. Deliberately harsher than the bonus.

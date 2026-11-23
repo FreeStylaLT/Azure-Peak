@@ -37,6 +37,8 @@
 	var/atom/target = A
 	if(isturf(A))
 		for(var/mob/living/M in A)
+			if(M == src)
+				continue
 			target = M
 			break
 	// but the rest of the logic is pretty much mob-only
@@ -67,6 +69,8 @@
 
 /mob/living/proc/can_kick(atom/A, do_message = TRUE)
 	if(get_num_legs() < 2)
+		return FALSE
+	if(incapacitated(ignore_restraints = TRUE))
 		return FALSE
 	if(!A.Adjacent(src))
 		return FALSE

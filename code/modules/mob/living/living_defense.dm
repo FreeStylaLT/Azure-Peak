@@ -71,7 +71,7 @@
 			var/obj/item/I = used_weapon
 			if(I.sharpness && I.max_blade_int && !(attack_flag in ARMOR_DR_TYPES))
 				var/dullness_ratio = I.blade_int / I.max_blade_int
-				if(dullness_ratio <= SHARPNESS_TIER2_THRESHOLD)	//Our weapon is CHUNKED. What are we PENNING WITH.
+				if(dullness_ratio <= SHARPNESS_TIER2_THRESHOLD && armor_tier)	//Our weapon is CHUNKED. What are we PENNING WITH.
 					blocked = block_damage * 10
 
 	if(mob_timers[MT_INVISIBILITY] > world.time)
@@ -183,7 +183,8 @@
 			return TRUE
 	return FALSE
 
-/mob/living/proc/guard_deflect_spell(spell_name = "the spell", no_message = FALSE, mob/living/attacker)
+/// Riposting Ground Effect should not punish the caster wit an expose, as you can walk into it
+/mob/living/proc/guard_deflect_spell(spell_name = "the spell", no_message = FALSE, mob/living/attacker, punish_caster = TRUE)
 	var/datum/status_effect/buff/clash/guard = has_status_effect(/datum/status_effect/buff/clash)
 	if(guard)
 		if(isarcyne(src))
@@ -206,7 +207,8 @@
 			apply_status_effect(/datum/status_effect/buff/adrenaline_rush/ranged)
 		guard.deflected_spell = TRUE
 		remove_status_effect(/datum/status_effect/buff/clash)
-		punish_deflected_caster(attacker)
+		if(punish_caster)
+			punish_deflected_caster(attacker)
 		return TRUE
 	if(has_status_effect(/datum/status_effect/buff/parry_buffer))
 		return TRUE
@@ -215,7 +217,7 @@
 /// Exposes and staggers the caster of a spell we just Guard-deflected (riposte punish).
 /// Deduped per game tick so a single AOE deflected by multiple guards only punishes once.
 /mob/living/proc/punish_deflected_caster(mob/living/attacker)
-	if(!attacker || !ishuman(attacker) || attacker == src)
+	if(!attacker || attacker == src)
 		return
 	if(attacker.last_deflect_recoil == world.time)
 		return
@@ -234,7 +236,7 @@
 	attacker.remove_status_effect(/datum/status_effect/debuff/exposed)
 	attacker.apply_status_effect(/datum/status_effect/debuff/exposed, 5 SECONDS)
 	attacker.apply_status_effect(/datum/status_effect/debuff/clickcd, 3 SECONDS)
-	attacker.Slowdown(3)
+	attacker.apply_slowdown(5 SECONDS)
 	var/datum/status_effect/buff/arcyne_momentum/momentum = attacker.has_status_effect(/datum/status_effect/buff/arcyne_momentum)
 	if(momentum && momentum.stacks > 0)
 		momentum.consume_all_stacks()
@@ -245,17 +247,21 @@
 /mob/living/bullet_act(obj/projectile/P, def_zone = BODY_ZONE_CHEST)
 	if(SEND_SIGNAL(src, COMSIG_ATOM_BULLET_ACT, P, def_zone) & COMPONENT_ATOM_BLOCK_BULLET)
 		return
-	def_zone = bullet_hit_accuracy_check(P.accuracy + P.bonus_accuracy, def_zone)
+	var/aimed_zone = def_zone
+	var/list/roll_out = list()
+	def_zone = bullet_hit_accuracy_check(P.get_aim_from(src), def_zone, roll_out, P)
 	var/armor = run_armor_check(def_zone, P.flag, "", "",armor_penetration = P.armor_penetration, damage = P.damage, intdamfactor = P.intdamfactor, used_weapon = P)
 
 	next_attack_msg.Cut()
 
 	var/on_hit_state = P.on_hit(src, armor)
 	var/actual_damage = P.damage
-	if(!mind && istype(src, /mob/living/simple_animal))
-		var/datum/component/saddleborn = GetComponent(/datum/component/precious_creature)
-		if(!saddleborn)
-			actual_damage *= P.npc_simple_damage_mult
+	if(istype(src, /mob/living/simple_animal))
+		var/mob/living/simple_animal/weakpoint_target = src
+		actual_damage *= weakpoint_target.weakpoint_damage_mod(def_zone)
+		actual_damage *= P.antibeast_factor
+		if(P.spell_damage_scaled)
+			actual_damage /= SPELL_DAMAGE_GENERAL_MODIFIER
 	var/nodmg = FALSE
 	if(!P.nodamage && on_hit_state != BULLET_ACT_BLOCK)
 		if(!apply_damage(actual_damage, P.damage_type, def_zone, armor))
@@ -289,15 +295,16 @@
 			P.handle_drop()
 
 	var/organ_hit_text = ""
-	var/limb_hit = check_limb_hit(def_zone)//to get the correct message info.
+	var/limb_hit = hit_zone_name(def_zone)//to get the correct message info.
 	if(limb_hit)
-		organ_hit_text = " in \the [parse_zone(limb_hit)]"
+		organ_hit_text = " in \the [limb_hit]"
 	if(P.hitsound && !nodmg)
 		var/volume = P.vol_by_damage()
 		playsound(loc, pick(P.hitsound), volume, TRUE, -1)
 	visible_message(span_danger("[src] is hit by \a [P][organ_hit_text]![next_attack_msg.Join()]"), \
 			span_danger("I'm hit by \a [P][organ_hit_text]![next_attack_msg.Join()]"), null, COMBAT_MESSAGE_RANGE)
 	next_attack_msg.Cut()
+	show_ranged_accuracy_fail(P.firer, aimed_zone, def_zone, roll_out)
 
 
 	return on_hit_state ? BULLET_ACT_HIT : BULLET_ACT_BLOCK
@@ -306,7 +313,9 @@
 	return 0
 
 /mob/living/proc/check_projectile_wounding(obj/projectile/P, def_zone)
-	return simple_woundcritroll(P.woundclass, P.damage, null, def_zone, crit_message = TRUE, no_crit = P.no_crit)
+	var/mob/living/shooter = P.firer
+	var/part_mult = (istype(shooter) && shooter.is_monster_hunting(src)) ? MONSTER_HUNTER_RANGED_PART_MULT : 1
+	return simple_woundcritroll(P.woundclass, P.damage * P.antibeast_factor, null, def_zone, crit_message = TRUE, ranged = TRUE, penfactor = P.armor_penetration, part_mult = part_mult)
 
 /mob/living/proc/check_projectile_embed(obj/projectile/P, def_zone)
 	// Disable embeds on simples, allowing it to override on complex.
@@ -327,12 +336,15 @@
 		var/zone = throwingdatum?.target_zone || ran_zone(BODY_ZONE_CHEST, 65)
 		SEND_SIGNAL(I, COMSIG_MOVABLE_IMPACT_ZONE, src, zone)
 		if(SEND_SIGNAL(src, COMSIG_LIVING_IMPACT_ZONE, I, zone) & COMPONENT_CANCEL_THROW)
-			return FALSE
+			return TRUE
 		if(!blocked)
 			var/armor = run_armor_check(zone, damage_flag, "", "", armor_penetration = I.armor_penetration, damage = I.throwforce, used_weapon = I)
 			next_attack_msg.Cut()
 			var/nodmg = FALSE
-			if(!apply_damage(I.throwforce, I.damtype, zone, armor))
+			var/throw_damage = I.throwforce
+			if(isanimal(src))
+				throw_damage *= I.antibeast_factor
+			if(!apply_damage(throw_damage, I.damtype, zone, armor))
 				nodmg = TRUE
 				next_attack_msg += VISMSG_ARMOR_BLOCKED
 			if(!nodmg)
@@ -346,7 +358,7 @@
 						affecting.bodypart_attacked_by(I.thrown_bclass, I.throwforce, throwee, affecting.body_zone, crit_message = TRUE, weapon = I)
 					I.do_special_attack_effect(I.thrownby, affecting, null, src, zone, thrown = TRUE)
 				else
-					simple_woundcritroll(I.thrown_bclass, I.throwforce, null, zone, crit_message = TRUE)
+					simple_woundcritroll(I.thrown_bclass, I.throwforce, null, zone, crit_message = TRUE, ranged = TRUE, penfactor = I.armor_penetration)
 					if(((throwingdatum ? throwingdatum.speed : I.throw_speed) >= EMBED_THROWSPEED_THRESHOLD) || I.embedding.embedded_ignore_throwspeed_threshold)
 						if(can_embed(I) && prob(I.embedding.embed_chance) && HAS_TRAIT(src, TRAIT_SIMPLE_WOUNDS) && !HAS_TRAIT(src, TRAIT_PIERCEIMMUNE))
 							simple_add_embedded_object(I, silent = FALSE, crit_message = TRUE)
@@ -404,14 +416,13 @@
 //proc to upgrade a simple pull into a more aggressive grab.
 /mob/living/proc/grippedby(mob/living/carbon/user, instant = FALSE)
 	var/clickcd = CLICK_CD_MELEE
-	if(mind && src != user)
+	if(src != user && !isanimal(src))
 		clickcd = CLICK_CD_WRESTLING
 	user.changeNext_move(clickcd)
 	var/skill_diff = 0
 	var/combat_modifier = 1
-	if(user.mind)
-		skill_diff += (user.get_skill_level(/datum/skill/combat/wrestling)) //NPCs don't use this
-	if(mind)
+	skill_diff += (user.get_skill_level(/datum/skill/combat/wrestling))
+	if(!isanimal(src))
 		skill_diff -= (get_skill_level(/datum/skill/combat/wrestling))
 
 	if(user == src)
@@ -455,7 +466,7 @@
 			to_chat(user, span_warning("I struggle with [src]!"))
 		playsound(src.loc, 'sound/foley/struggle.ogg', 100, FALSE, -1)
 		user.Immobilize(2 SECONDS)
-		user.changeNext_move((mind ? CLICK_CD_WRESTLING : CLICK_CD_MELEE))
+		user.changeNext_move(isanimal(src) ? CLICK_CD_MELEE : CLICK_CD_WRESTLING)
 		src.Immobilize(1 SECONDS)
 		src.changeNext_move(CLICK_CD_GRAB_RESIST)
 		if(user.badluck(5))
@@ -573,11 +584,6 @@
 		if(M.incapacitated())
 			return FALSE
 
-		if(ishuman(src))
-			var/mob/living/carbon/human/H = src
-			if(H.has_active_golgatha())
-				H.process_golgatha_rebuke(M)
-
 		if(checkguard(M))
 			return FALSE
 
@@ -596,6 +602,10 @@
 
 /mob/living/proc/checkguard(mob/living/simple_animal/attacker)
 	var/mob/living/carbon/human/target = src
+	if((ishuman(target) && target.has_status_effect(/datum/status_effect/buff/bulwark_of_oil)))
+		var/datum/status_effect/buff/bulwark_of_oil/o = target.has_status_effect(/datum/status_effect/buff/bulwark_of_oil)
+		o.simple_defend(attacker) // I hate this why do we handle simplemob ripostes like this why dont we use signals like every other defense
+		return TRUE
 	if(!(ishuman(target) && target.has_status_effect(/datum/status_effect/buff/clash)))
 		return FALSE
 	var/obj/item/IM = target.get_active_held_item()
@@ -656,8 +666,6 @@
 
 //called when the mob receives a bright flash
 /mob/living/proc/flash_act(intensity = 1, override_blindness_check = 0, affect_silicon = 0, visual = 0, type = /atom/movable/screen/fullscreen/flash)
-	if(HAS_TRAIT(src, TRAIT_NOFLASH))
-		return FALSE
 	if(get_eye_protection() < intensity && (override_blindness_check || !(HAS_TRAIT(src, TRAIT_BLIND))))
 		overlay_fullscreen("flash", type)
 		addtimer(CALLBACK(src, PROC_REF(clear_fullscreen), "flash", 25), 25)

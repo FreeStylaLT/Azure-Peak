@@ -17,6 +17,7 @@
 	name = "Extract Lux"
 	implements = list(
 		TOOL_SCALPEL = 80,
+		TOOL_SHARP = 40,
 	)
 	target_mobtypes = list(/mob/living/carbon/human)
 	time = 8 SECONDS
@@ -42,6 +43,9 @@
 	if(istiefling(target))
 		to_chat(user, span_warning("Their Lux is infernal. It will not do."))
 		return FALSE
+	if(HAS_TRAIT(target, TRAIT_TAINTEDLUX))
+		to_chat(user, span_warning("Their lux is tainted; it will not do."))
+		return FALSE
 	if(HAS_TRAIT(target, TRAIT_UNFORGIVABLE))
 		to_chat(user, span_warning("There's violet-ochre flames flickering inside of the cracks in their ribs, there is no Lux to extract, a <b>Vheslynite abomination.</b>"))
 
@@ -65,10 +69,10 @@
 			"[user] extracts lux from [target]'s innards.")
 
 		var/apply_greater
-		if(isaasimar(target) && !(HAS_TRAIT(target, TRAIT_ANCIENT_HAG) || HAS_TRAIT(target, TRAIT_FEYTOUCHED)))
+		if(isaasimar(target) && !(HAS_TRAIT(target, TRAIT_ANCIENT_HAG) || HAS_TRAIT(target, TRAIT_FEYBOUND)))
 			new /obj/item/reagent_containers/lux(target.loc)
 			apply_greater = TRUE
-		else if(HAS_TRAIT(target, TRAIT_ANCIENT_HAG) || HAS_TRAIT(target, TRAIT_FEYTOUCHED))
+		else if(HAS_TRAIT(target, TRAIT_ANCIENT_HAG) || HAS_TRAIT(target, TRAIT_FEYBOUND))
 			new /obj/item/reagent_containers/lux_moss(target.loc)
 		else
 			new /obj/item/reagent_containers/lux_impure(target.loc)
@@ -77,4 +81,6 @@
 		//record_featured_stat(FEATURED_STATS_CRIMINALS, user)	- This.. isn't normally criminal.
 		record_round_statistic(STATS_LUX_HARVESTED)
 		target.apply_status_effect((apply_greater ? /datum/status_effect/debuff/devitalised/greater : /datum/status_effect/debuff/devitalised))
+		if(!target.mind)
+			target.death()
 	return TRUE

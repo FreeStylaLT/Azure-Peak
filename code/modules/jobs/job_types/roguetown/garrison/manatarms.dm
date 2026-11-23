@@ -202,12 +202,12 @@
 			if("Crossbow")
 				beltr = /obj/item/quiver/bolt/standard
 				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/crossbow
-			if("Bow") // They can head down to the armory to sideshift into one of the other bows.
+			if("Bow")
 				beltr = /obj/item/quiver/arrows
-				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/recurve
+				backl = /obj/item/gun/ballistic/revolver/grenadelauncher/bow/watchman
 			if("Sling")
 				beltr = /obj/item/quiver/sling/iron
-				l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/sling // Both are belt slots and it's not worth setting where the cudgel goes for everyone else, sad.
+				l_hand = /obj/item/gun/ballistic/revolver/grenadelauncher/sling
 
 		switch(armor_choice)
 			if("Leather Armor") //OG more or less RT guardsman archer
@@ -261,7 +261,7 @@
 	tutorial = "You are a professional soldier of the realm, specializing in the steady beat of hoof falls. Lighter and more expendable then the knights, you charge with lance in hand."
 	outfit = /datum/outfit/job/roguetown/manorguard/cavalry
 	subclass_stashed_items = list("Ducal Caparison" = /obj/item/caparison/azure)
-	extra_context = "This subclass recieves Azurean Caparison in its stash."
+	extra_context = "This subclass receives Azurean Caparison in its stash."
 
 	category_tags = list(CTAG_MENATARMS)
 	traits_applied = list(TRAIT_MEDIUMARMOR)
@@ -357,7 +357,7 @@
 	maximum_possible_slots = 1 //Had one dungeoneer before, this is how many we get to keep still.
 
 	category_tags = list(CTAG_MENATARMS)
-	traits_applied = list(TRAIT_CIVILIZEDBARBARIAN)//This is surely going to be funny
+	traits_applied = list(TRAIT_CIVILIZEDBARBARIAN, TRAIT_BLOOD_RESISTANCE, TRAIT_NOPAINSTUN)//This is surely going to be funny
 	subclass_stats = list(
 		STATKEY_STR = 3,
 		STATKEY_CON = 2,
@@ -425,8 +425,8 @@
 	traits_applied = list(TRAIT_STANDARD_BEARER, TRAIT_MEDIUMARMOR)
 	subclass_stats = list(
 		STATKEY_STR = 2, // Wielding the banner gives +3 fortune and +2 Perception, as seen in special.dm
-		STATKEY_CON = 2,
-		STATKEY_WIL = 3 // Flag must never fall.
+		STATKEY_CON = 3,
+		STATKEY_WIL = 2 // Flag must never fall.
 	)
 	subclass_skills = list(
 		/datum/skill/combat/polearms = SKILL_LEVEL_EXPERT, // SWING THAT THING.

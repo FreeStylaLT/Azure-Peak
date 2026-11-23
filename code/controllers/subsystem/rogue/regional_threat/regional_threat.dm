@@ -20,9 +20,8 @@ SUBSYSTEM_DEF(regionthreat)
 			),
 			_tp_budget_multiplier = 0.75,
 			_delivery_reward_multiplier = 1.0,
-			_kill_target_floor = 4,
-			_evergreen_target = 3,
-			_allowed_quest_types = list(QUEST_KILL_EASY, QUEST_CLEAR_OUT, QUEST_COURIER, QUEST_RETRIEVAL, QUEST_RECOVERY),
+			_kill_target_floor = 8,
+			_evergreen_target = 6,
 		),
 		new /datum/threat_region(
 			_region_name = THREAT_REGION_AZURE_GROVE,
@@ -41,9 +40,8 @@ SUBSYSTEM_DEF(regionthreat)
 			),
 			_tp_budget_multiplier = 1.0,
 			_delivery_reward_multiplier = 1.5,
-			_kill_target_floor = 5,
-			_evergreen_target = 3
-			// allowed_quest_types: default (all)
+			_kill_target_floor = 10,
+			_evergreen_target = 6
 		),
 		new /datum/threat_region(
 			_region_name = THREAT_REGION_TERRORBOG,
@@ -61,11 +59,9 @@ SUBSYSTEM_DEF(regionthreat)
 				QUEST_FACTION_FOREST_GOBLIN = 5,
 			),
 			_tp_budget_multiplier = 1.5,
-			_delivery_reward_multiplier = 2.0,
-			_payout_multiplier = 1.3,
-			_allowed_quest_types = list(QUEST_CLEAR_OUT, QUEST_RAID, QUEST_BOUNTY, QUEST_COURIER, QUEST_RETRIEVAL, QUEST_RECOVERY, QUEST_TOWNER_SMITH_CARAVAN, QUEST_TOWNER_MINER_OREVEIN),
-			_kill_target_floor = 4,
-			_evergreen_target = 3
+			_delivery_reward_multiplier = 1.5,
+			_payout_multiplier = 1.1, // Close by, so it is pretty convenient
+			_kill_target_floor = 8
 		),
 		// Coast & Decap stay somewhat dangerous no matter what
 		new /datum/threat_region(
@@ -85,8 +81,8 @@ SUBSYSTEM_DEF(regionthreat)
 			),
 			_tp_budget_multiplier = 1.2,
 			_delivery_reward_multiplier = 1.8,
-			_allowed_quest_types = list(QUEST_CLEAR_OUT, QUEST_RAID, QUEST_BOUNTY, QUEST_RECOVERY, QUEST_TOWNER_SMITH_CARAVAN, QUEST_TOWNER_MINER_OREVEIN),
-			_kill_target_floor = 3,
+			_payout_multiplier = 1.3, // Farther away, higher implicit threat of antag
+			_kill_target_floor = 8,
 			_blockade_travel_fee = BLOCKADE_TRAVEL_FEE_COAST
 		),
 		new /datum/threat_region(
@@ -108,8 +104,8 @@ SUBSYSTEM_DEF(regionthreat)
 			),
 			_tp_budget_multiplier = 1.5,
 			_delivery_reward_multiplier = 2.0,
-			_allowed_quest_types = list(QUEST_CLEAR_OUT, QUEST_RAID, QUEST_BOUNTY, QUEST_RECOVERY, QUEST_TOWNER_SMITH_CARAVAN, QUEST_TOWNER_MINER_OREVEIN),
-			_kill_target_floor = 3,
+			_payout_multiplier = 1.35,
+			_kill_target_floor = 8,
 			_blockade_travel_fee = BLOCKADE_TRAVEL_FEE_MOUNTAIN
 		),
 		// Underdark cannot be tamed — min_ambush is high, keeping the region permanently dangerous.
@@ -131,14 +127,13 @@ SUBSYSTEM_DEF(regionthreat)
 			_tp_budget_multiplier = 1.5,
 			_delivery_reward_multiplier = 2.0,
 			_payout_multiplier = 1.2,
-			_allowed_quest_types = list(QUEST_CLEAR_OUT, QUEST_RAID, QUEST_BOUNTY, QUEST_RECOVERY, QUEST_TOWNER_SMITH_CARAVAN, QUEST_TOWNER_MINER_OREVEIN),
-			_kill_target_floor = 3,
+			_kill_target_floor = 6,
 			_blockade_travel_fee = BLOCKADE_TRAVEL_FEE_MOUNTAIN
 		)
 	)
 
 /datum/controller/subsystem/regionthreat/fire(resumed)
-	var/player_count = GLOB.player_list.len
+	var/player_count = (SSeconomy && SSeconomy.simulated_player_scalar > 0) ? SSeconomy.simulated_player_scalar : GLOB.player_list.len
 	var/ishighpop = player_count >= LOWPOP_THRESHOLD
 	for(var/T in threat_regions)
 		var/datum/threat_region/TR = T
@@ -160,12 +155,13 @@ SUBSYSTEM_DEF(regionthreat)
 		var/datum/threat_region/TR = T
 		if(!TR.allows_quest_type(quest_type))
 			continue
-		var/weight = TR.get_threat_weight()
+		// Threat level is 0 to 1, but pickweight only works with whole numbers, so scale it to 0 to 100.
+		var/weight = round(TR.get_threat_weight() * 100)
 		if(weight <= 0)
 			continue
 		weights[TR] = weight
 	if(!length(weights))
-		// Fall back: any region that allows the type, ignoring fill ratio.
+		// No allowed region has any threat right now, so pick between them evenly.
 		for(var/T in threat_regions)
 			var/datum/threat_region/TR = T
 			if(TR.allows_quest_type(quest_type))
@@ -191,3 +187,33 @@ SUBSYSTEM_DEF(regionthreat)
 		TRS.ic_description = TR.get_ic_description()
 		threat_region_displays += TRS
 	return threat_region_displays
+
+/datum/controller/subsystem/regionthreat/proc/build_scout_region_rows()
+	var/list/blockade_by_threat_name = list()
+	for(var/datum/blockade/B as anything in GLOB.active_blockades)
+		if(B.threat_region_name)
+			blockade_by_threat_name[B.threat_region_name] = B
+	var/list/rows = list()
+	for(var/datum/threat_region/TR as anything in threat_regions)
+		var/list/row = list()
+		row["region_name"] = TR.region_name
+		row["danger_level"] = TR.get_danger_level()
+		row["danger_color"] = TR.get_danger_color()
+		row["ic_descriptions"] = TR.get_ic_description()
+		var/datum/blockade/B = blockade_by_threat_name[TR.region_name]
+		if(B)
+			var/datum/quest_faction/F = B.get_faction()
+			var/datum/economic_region/ER = B.get_region()
+			row["blockaded"] = TRUE
+			row["blockade_writ_out"] = B.has_active_scroll() ? TRUE : FALSE
+			row["blockade_faction_label"] = F ? "[F.group_word] of [F.name_plural]" : (B.faction_id || "")
+			row["blockade_region_label"] = ER ? ER.name : (B.region_id || "")
+			row["blockade_days_active"] = max(0, GLOB.dayspassed - B.day_started)
+		else
+			row["blockaded"] = FALSE
+			row["blockade_writ_out"] = FALSE
+			row["blockade_faction_label"] = ""
+			row["blockade_region_label"] = ""
+			row["blockade_days_active"] = 0
+		rows += list(row)
+	return rows
